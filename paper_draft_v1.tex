@@ -99,9 +99,9 @@ where $\mathbf{A}(\mathcal{M}_{d^*})$ denotes activations extracted from $\mathc
 \subsection{Safety Head Architecture}
 \label{sec:side_network}
 
-The safety head follows the Ladder Side-Tuning (LST) architecture \cite{sung2022lst}. It consists of a small transformer side network with $K=12$ layers operating alongside the frozen backbone, connected via gated lateral (ladder) connections.
+We build on the Ladder Side-Tuning (LST) architecture \cite{sung2022lst}, which attaches a small transformer side network to a frozen backbone via lateral connections. The original LST was designed for parameter-efficient task adaptation, where the side network always contributes to the output. We repurpose and extend LST for safety classification with three key modifications: (1) we add a \textbf{lambda classifier head} that produces a scalar safety score from side network hidden states, (2) we introduce \textbf{selective fusion}---at inference time, the side network output is only used when the classifier predicts a harmful prompt ($\lambda > 0.5$), otherwise the base model runs unmodified, and (3) we use \textbf{selective training}---harmful prompts receive both language modeling loss and lambda classification loss, while safe prompts receive only lambda loss, so the side network focuses on safety rather than task performance.
 
-\paragraph{Side Transformer.} Each side layer has hidden dimension $h_s = h / r$ where $h$ is the backbone hidden dimension and $r=4$ is the reduction factor. For Qwen2-7B ($h=3584$), this yields $h_s = 896$ with 7 attention heads; for LLaMA-3-8B ($h=4096$), $h_s = 1024$ with 8 heads. The total side network contains approximately 237M parameters for Qwen2 and a comparable count for LLaMA-3.
+\paragraph{Side Transformer.} The side network consists of $K=12$ transformer layers with hidden dimension $h_s = h / r$ where $h$ is the backbone hidden dimension and $r=4$ is the reduction factor. For Qwen2-7B ($h=3584$), this yields $h_s = 896$ with 7 attention heads; for LLaMA-3-8B ($h=4096$), $h_s = 1024$ with 8 heads. The total side network contains approximately 237M parameters for Qwen2 and a comparable count for LLaMA-3.
 
 \paragraph{Ladder Connections.} At each side layer $k$, the backbone hidden state $\mathbf{h}^{(l)}_\text{back}$ from corresponding backbone layer $l$ is downsampled and fused with the side hidden state via a gated connection:
 \begin{equation}
@@ -113,7 +113,7 @@ where $\mu_k = \sigma(\alpha_k / \tau)$ is a learnable gate and $W_\text{down} \
 \begin{equation}
     \lambda = \sigma\!\left(\text{MLP}\!\left(\frac{1}{T}\sum_{t=1}^{T} \mathbf{h}^{(K)}_{t}\right)\right)
 \end{equation}
-where $\sigma$ is the sigmoid function. During training, each per-domain side network is trained with a selective SFT objective: harmful prompts receive both language modeling loss and lambda classification loss, while safe domain prompts receive only lambda loss.
+where $\sigma$ is the sigmoid function. At inference time, $\lambda > 0.5$ flags the prompt as harmful; for safe prompts ($\lambda \leq 0.5$), the side network is bypassed entirely and the base model output is used directly, preserving task performance.
 
 \subsection{Activation Extraction}
 \label{sec:activations}
