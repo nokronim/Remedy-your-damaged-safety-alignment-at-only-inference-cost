@@ -1,0 +1,34 @@
+\section{Introduction}
+\label{sec:introduction}
+%TODO
+% 1. Check Text
+% 2. Check references
+% 3. Adjust contributions
+% 4. Include figure
+
+
+Large language models (LLMs) are commonly released with safety alignment that reduces harmful outputs, typically via instruction tuning and preference optimization. However, a growing body of evidence shows that this alignment can be brittle: downstream fine-tuning, including seemingly benign adaptation, may degrade refusal behavior and increase vulnerability to jailbreaks and harmful fine-tuning attacks \cite{qi2024finetuning,qi2025tokensdeep,fraser2025finetuninglowers,huang2024lisa}. This fragility poses a practical challenge: the open ecosystem increasingly relies on fine-tuning, adapters, and frequent checkpointing, yet safety guarantees do not reliably transfer across these model variants.
+
+A natural response is to add guardrails or classifiers that detect harmful prompts. Prior work explores lightweight safety classifiers and adversarially robust prompt shields \cite{kim2024robust}, as well as activation-based detectors that monitor intermediate representations to flag attacks \cite{jiang2025hiddendetect}. Separately, post-fine-tuning alignment methods aim to restore safety by additional training or alignment steps \cite{huang2024lisa}. While effective in some regimes, these approaches often require repeated retraining, access to substantial safety data, or careful tuning per target model, limiting scalability.
+%when many fine-tuned models must be monitored or deployed.
+
+We take a different perspective: prompt safety is model-dependent. The same prompt can be handled safely by one fine-tuned model yet elicit unsafe compliance from another. This suggests learning a model-conditioned safety mechanism, i.e., estimating a safety score given both the prompt and the particular fine-tuned model. Our central goal is to scale safety assessment to unseen fine-tuned checkpoints without retraining a new safety classifier each time.
+
+To this end, we propose activation-conditioned safety head generation. For each fine-tuned LLM, we extract intermediate activations while processing inputs and train a small side network (the ``safety head'') that maps these activations to a scalar safety score. We then train a hypernetwork \cite{chauhan2024brief} that takes the fine-tuned model's activations as input and outputs the weights of the safety head. At deployment, given a new fine-tuned model, we extract activations and use the hypernetwork to instantiate a model-specific safety head without additional safety training.
+
+A key design choice is to generate the safety head in a layer-wise, factorized manner. Directly mapping all activations to all safety-head weights in one step yields an ill-conditioned, high-dimensional regression problem. Instead, we exploit the compositional structure of the safety head and predict each layer's parameters conditioned on corresponding LLM activations, reducing output dimensionality, improving identifiability, and stabilizing training. 
+% Optionally, we incorporate behavioral probe fingerprints as auxiliary context to improve generalization across fine-tuning recipes and to disambiguate cases where activations alone are insufficient.
+
+Overall, our method offers a scalable route to post-fine-tuning safety assessment: rather than re-aligning every new checkpoint, we amortize the cost by learning a generator that instantiates a lightweight, model-specific safety head from activations. This bridges lines of work on prompt safety detection \cite{kim2024robust,jiang2025hiddendetect}, alignment fragility under fine-tuning \cite{qi2024finetuning,qi2025tokensdeep,fraser2025finetuninglowers}, and hypernetwork-based weight generation \cite{chauhan2024brief}.
+
+\paragraph{Contributions.}
+\begin{itemize}
+    % \item We introduce a model-conditioned safety formulation for fine-tuned LLMs, emphasizing that prompt safety depends on the particular fine-tuned checkpoint.
+    \item We propose activation-conditioned hypernetwork safety head generation: a hypernetwork maps intermediate LLM activations to the weights of a lightweight side safety network, enabling zero-shot instantiation of safety heads for unseen fine-tuned models.
+    \item We develop a layer-wise, factorized hypernetwork that predicts each safety-head layer from corresponding LLM activations, yielding improved stability and generalization over one-shot weight prediction.
+    % \item (Optional) We augment activations with \textbf{behavioral probe fingerprints} and provide ablations showing when auxiliary probes improve cross-recipe generalization.
+    \item We evaluate on diverse fine-tuning settings and unseen checkpoints, demonstrating recovery of safety behavior with minimal impact on downstream task performance.
+\end{itemize}
+
+
+% https://aclanthology.org/2023.findings-emnlp.808.pdf
