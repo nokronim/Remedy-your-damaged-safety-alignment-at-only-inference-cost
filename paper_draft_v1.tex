@@ -166,7 +166,23 @@ The lambda classifier head is generated separately via LoRA-style delta predicti
 \end{equation}
 where $A \in \mathbb{R}^{r \times h_s}$ and $B \in \mathbb{R}^{1 \times r}$ with rank $r = 4$. Normalization layer parameters are frozen to the baseline values.
 
-\subsection{Training}
+\subsection{Side Network Training}
+\label{sec:side_training}
+
+Before hypernetwork training, we first obtain ground-truth side networks for each fine-tuning domain. For domain $d$, we train a side network alongside the frozen fine-tuned backbone $\mathcal{M}_d$ using a mixture of domain-specific safe data and harmful data from BeaverTails \cite{ji2024beavertails} (category-balanced, $\sim$7k samples).
+
+\paragraph{Selective Loss.} We apply a conditional training objective based on prompt safety:
+\begin{equation}
+    \mathcal{L}_\text{side} = \begin{cases}
+        \mathcal{L}_\text{SFT} + \gamma \cdot \mathcal{L}_\text{cls} & \text{if } x \text{ is harmful} \\
+        \gamma \cdot \mathcal{L}_\text{cls} & \text{if } x \text{ is safe}
+    \end{cases}
+\end{equation}
+where $\mathcal{L}_\text{SFT}$ is the standard causal language modeling loss and $\mathcal{L}_\text{cls}$ is binary cross-entropy on the lambda prediction. Safe prompts receive only the classification loss because the backbone already handles them correctly---the side network only needs to learn \textit{when} to intervene, not how to generate safe responses. Harmful prompts receive both losses, teaching the side network to simultaneously detect harm and produce refusal responses.
+
+\paragraph{Setup.} The backbone is fully frozen; only the side network ($\sim$3\% of total parameters), lambda classifier, and projection layers are trained. We use learning rate $10^{-3}$ for the side network and $10^{-4}$ for the lambda classifier, with cosine scheduling over 5--6 epochs. At inference time, the lambda score determines routing: $\lambda > 0.5$ triggers side network fusion, while $\lambda \leq 0.5$ bypasses it entirely. All $K$ domain-specific side networks trained in this phase serve as ground-truth targets for the hypernetwork.
+
+\subsection{Hypernetwork Training}
 \label{sec:training}
 
 The hypernetwork is trained on $K$ fine-tuning domains with ground-truth side networks. We hold out $M$ domains for evaluation. Because all ground-truth side networks are trained from the same initialization, their weight spaces are aligned---there is no permutation ambiguity---making direct weight-space supervision well-defined.
