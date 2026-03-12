@@ -247,61 +247,61 @@ The hypernetwork trains on the remaining $\sim$20 domains per split. Crucially, 
 
 \subsection{Main Results}
 
-Table~\ref{tab:split_b} shows results on Split B holdout domains. The \method{} safety head reduces harmful flagging from 6--43\% (LoRA-only) to near 0\% across all domains, while preserving task accuracy within 1\% of the LoRA-only model. This demonstrates that the generated safety classifier correctly routes harmful prompts away from the fine-tuned pathway without degrading domain performance.
+Tables~\ref{tab:split_b} and~\ref{tab:split_a} show results on Split B and Split A holdout domains, respectively. The \method{} safety head reduces harmful flagging from 6--43\% (LoRA-only) to near 0\% across all domains, while preserving task accuracy within 1\% of the LoRA-only model.
 
-\begin{table*}[t]
+\begin{table}[t]
 \centering
-\small
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}llcccccc@{}}
 \toprule
-& & \multicolumn{3}{c}{\textbf{Task Accuracy (\%)}} & \multicolumn{3}{c}{\textbf{BT Flagged (\%) $\downarrow$}} \\
+& & \multicolumn{3}{c}{\textbf{Task Acc (\%)}} & \multicolumn{3}{c}{\textbf{BT Flag (\%) $\downarrow$}} \\
 \cmidrule(lr){3-5} \cmidrule(lr){6-8}
-\textbf{Model} & \textbf{Domain} & Base & LoRA & \method{} & Base & LoRA & \method{} \\
+& \textbf{Domain} & Base & LoRA & Ours & Base & LoRA & Ours \\
 \midrule
-\multirow{4}{*}{LLaMA-3}
-& MATH              & 32.4 & 34.0          & 34.0 & 7.1 & 7.0          & 0.1 \\
-& NQ-Open           & 35.6 & 77.0$^\dagger$ & 76.0 & 7.1 & 20.0$^\dagger$ & 0.4 \\
-& PIQA              & 60.4 & 98.0$^\dagger$ & 97.0 & 7.1 & 40.0$^\dagger$ & 0.0 \\
-& OpenHermes        & 24.8 & 54.0$^\dagger$ & 53.0 & 7.1 & 39.0$^\dagger$ & 0.0 \\
+\multirow{4}{*}{\rotatebox{90}{\small LLaMA-3}}
+& MATH       & 32.4 & 34.0 & 34.0 & 7.1 & 7.0 & 0.1 \\
+& NQ-Open    & 35.6 & 77.0 & 76.0 & 7.1 & 20.0 & 0.4 \\
+& PIQA       & 60.4 & 98.0 & 97.0 & 7.1 & 40.0 & 0.0 \\
+& OpenHermes & 24.8 & 54.0 & 53.0 & 7.1 & 39.0 & 0.0 \\
 \midrule
-\multirow{4}{*}{Qwen2}
-& MATH              & 42.2 & 74.4 & 74.4 & 3.4 & 6.0  & 0.0 \\
-& NQ-Open           & 30.3 & 54.8 & 54.8 & 3.4 & 11.9 & 0.3 \\
-& PIQA              & 56.7 & 99.1 & 99.0 & 3.4 & 43.1 & 0.0 \\
-& OpenHermes        & 35.9 & 57.2 & 57.0 & 3.4 & 38.0 & 0.0 \\
+\multirow{4}{*}{\rotatebox{90}{\small Qwen2}}
+& MATH       & 42.2 & 74.4 & 74.4 & 3.4 & 6.0  & 0.0 \\
+& NQ-Open    & 30.3 & 54.8 & 54.8 & 3.4 & 11.9 & 0.3 \\
+& PIQA       & 56.7 & 99.1 & 99.0 & 3.4 & 43.1 & 0.0 \\
+& OpenHermes & 35.9 & 57.2 & 57.0 & 3.4 & 38.0 & 0.0 \\
 \bottomrule
-\end{tabular}
-\caption{Split B results on unseen holdout domains. \method{} recovers safety (BT Flagged $\to$ 0\%) while maintaining LoRA-level task accuracy. $^\dagger$Partial evaluation (200 samples); full results pending.}
+\end{tabular}%
+}
+\caption{\textbf{Split B} (unseen holdout domains). \method{} recovers safety (BT Flagged $\to$ 0\%) while maintaining LoRA-level task accuracy.}
 \label{tab:split_b}
-\end{table*}
+\end{table}
 
-Table~\ref{tab:split_a} shows results on Split A holdout domains.
-
-\begin{table*}[t]
+\begin{table}[t]
 \centering
-\small
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}llcccccc@{}}
 \toprule
-& & \multicolumn{3}{c}{\textbf{Task Accuracy (\%)}} & \multicolumn{3}{c}{\textbf{BT Flagged (\%) $\downarrow$}} \\
+& & \multicolumn{3}{c}{\textbf{Task Acc (\%)}} & \multicolumn{3}{c}{\textbf{BT Flag (\%) $\downarrow$}} \\
 \cmidrule(lr){3-5} \cmidrule(lr){6-8}
-\textbf{Model} & \textbf{Domain} & Base & LoRA & \method{} & Base & LoRA & \method{} \\
+& \textbf{Domain} & Base & LoRA & Ours & Base & LoRA & Ours \\
 \midrule
-\multirow{4}{*}{LLaMA-3}
-& AG News           & --- & --- & --- & --- & --- & --- \\
-& CommonsenseQA      & --- & --- & --- & --- & --- & --- \\
-& FLAN              & --- & --- & --- & --- & --- & --- \\
-& SQuAD             & --- & --- & --- & --- & --- & --- \\
+\multirow{4}{*}{\rotatebox{90}{\small LLaMA-3}}
+& AG News   & --- & --- & --- & --- & --- & --- \\
+& CSenseQA  & --- & --- & --- & --- & --- & --- \\
+& FLAN      & --- & --- & --- & --- & --- & --- \\
+& SQuAD     & --- & --- & --- & --- & --- & --- \\
 \midrule
-\multirow{4}{*}{Qwen2}
-& AG News           & --- & --- & --- & --- & --- & --- \\
-& CommonsenseQA      & --- & --- & --- & --- & --- & --- \\
-& FLAN              & --- & --- & --- & --- & --- & --- \\
-& SQuAD             & --- & --- & --- & --- & --- & --- \\
+\multirow{4}{*}{\rotatebox{90}{\small Qwen2}}
+& AG News   & --- & --- & --- & --- & --- & --- \\
+& CSenseQA  & --- & --- & --- & --- & --- & --- \\
+& FLAN      & --- & --- & --- & --- & --- & --- \\
+& SQuAD     & --- & --- & --- & --- & --- & --- \\
 \bottomrule
-\end{tabular}
-\caption{Split A results on unseen holdout domains. \remark{TO FILL}}
+\end{tabular}%
+}
+\caption{\textbf{Split A} (unseen holdout domains). \remark{TO FILL}}
 \label{tab:split_a}
-\end{table*}
+\end{table}
 
 \subsection{Cross-Benchmark Safety Transfer}
 
