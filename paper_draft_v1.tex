@@ -169,18 +169,19 @@ where $A \in \mathbb{R}^{r \times h_s}$ and $B \in \mathbb{R}^{1 \times r}$ with
 \subsection{Training}
 \label{sec:training}
 
-The hypernetwork is trained on $K$ fine-tuning domains with ground-truth side networks. We hold out $M$ domains for evaluation.
+The hypernetwork is trained on $K$ fine-tuning domains with ground-truth side networks. We hold out $M$ domains for evaluation. Because all ground-truth side networks are trained from the same initialization, their weight spaces are aligned---there is no permutation ambiguity---making direct weight-space supervision well-defined.
 
-\paragraph{Losses.} The training objective combines weight reconstruction and behavioral losses:
+\paragraph{Losses.} The training objective combines weight-space and function-space supervision:
 \begin{equation}
     \mathcal{L} = \mathcal{L}_\text{recon} + \alpha \cdot \mathcal{L}_\text{lambda} + \beta \cdot \mathcal{L}_\text{func}
 \end{equation}
+Each loss targets a different aspect of the generation problem:
 \begin{itemize}
-    \item $\mathcal{L}_\text{recon}$: MSE between generated and ground-truth side network weights.
-    \item $\mathcal{L}_\text{lambda}$: Binary cross-entropy on lambda predictions using calibration prompts.
-    \item $\mathcal{L}_\text{func}$: Behavioral loss ensuring the generated side network correctly classifies harmful probe prompts (high $\lambda$) while maintaining low $\lambda$ on safe prompts.
+    \item $\mathcal{L}_\text{recon}$: MSE between generated and ground-truth side network weights. This provides a dense learning signal across all $\sim$237M output dimensions, anchoring the generated weights to a known-good solution.
+    \item $\mathcal{L}_\text{lambda}$: Binary cross-entropy on $\lambda$ predictions using the \textit{same} $N_\text{cal}$ calibration prompts used for activation extraction. This directly supervises the lambda classifier head on the data distribution available at inference time.
+    \item $\mathcal{L}_\text{func}$: Behavioral loss on a \textit{separate} held-out set of harmful and safe probe prompts (not used for activation extraction). This ensures the generated side network generalizes beyond calibration data to unseen prompts.
 \end{itemize}
-We set $\alpha = 10$ and $\beta = 5$ throughout. Training runs for 300 epochs with learning rate $5 \times 10^{-5}$ and hidden dimension 512.
+The three losses are complementary: $\mathcal{L}_\text{recon}$ regularizes the high-dimensional weight space, while $\mathcal{L}_\text{lambda}$ and $\mathcal{L}_\text{func}$ ensure behavioral correctness on seen and unseen prompts respectively. We ablate each component in Section~\ref{sec:experiments}. We set $\alpha = 10$ and $\beta = 5$ to approximately equalize gradient magnitudes across the three losses. Training runs for 300 epochs with learning rate $5 \times 10^{-5}$ and hidden dimension 512.
 
 \subsection{Inference}
 \label{sec:inference}
@@ -285,6 +286,8 @@ Tables~\ref{tab:split_b} and~\ref{tab:split_a} present our main results. Across 
 
 \paragraph{Training Data Size.} We progressively reduce the number of training domains from 20 to 12 to measure the minimum training diversity needed for generalization (Table~\ref{tab:ablations}).
 
+\paragraph{Loss Components.} We ablate each loss term by training with it removed. Dropping $\mathcal{L}_\text{recon}$ tests whether behavioral supervision alone can guide the high-dimensional weight generation; dropping $\mathcal{L}_\text{func}$ tests whether calibration-prompt supervision suffices without held-out probe generalization; dropping $\mathcal{L}_\lambda$ tests whether weight reconstruction plus functional loss can implicitly learn the classifier (Table~\ref{tab:ablations}).
+
 \begin{table}[t!]
 \centering
 \small
@@ -310,7 +313,12 @@ Tables~\ref{tab:split_b} and~\ref{tab:split_a} present our main results. Across 
 \quad Correction rank = 4     & ---  & ---  & ---  & --- \\
 \quad Correction rank = 16    & ---  & ---  & ---  & --- \\
 \quad Correction rank = 32    & ---  & ---  & ---  & --- \\
-\quad $-$ functional loss     & ---  & ---  & ---  & --- \\
+\addlinespace
+\textit{Loss ablation} \\
+\quad Full ($\mathcal{L}_\text{recon} + \mathcal{L}_\lambda + \mathcal{L}_\text{func}$) & ---  & ---  & ---  & --- \\
+\quad $-\,\mathcal{L}_\text{recon}$ (behavioral only) & ---  & ---  & ---  & --- \\
+\quad $-\,\mathcal{L}_\text{func}$  & ---  & ---  & ---  & --- \\
+\quad $-\,\mathcal{L}_\lambda$      & ---  & ---  & ---  & --- \\
 \bottomrule
 \end{tabular}
 \caption{Ablation studies on LLaMA-3 and Qwen2. Dom $\lambda$: safe prompts correctly classified as safe. Harm $\lambda$: harmful prompts correctly classified as harmful. \remark{TO FILL}}
