@@ -1,126 +1,112 @@
-% Pipeline overview figure — compile standalone or \input into paper
-% Requires: \usepackage{tikz}
-%           \usetikzlibrary{arrows.meta, positioning, shapes.geometric, fit, calc, backgrounds}
-
+% Pipeline overview — clean schematic, no exact numbers
 \begin{figure*}[t]
 \centering
 \resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
     >=Stealth,
-    box/.style={draw, rounded corners=3pt, minimum height=0.8cm, text centered, font=\small},
-    phase/.style={draw, rounded corners=6pt, dashed, inner sep=8pt, fill=#1!5},
-    arr/.style={->, thick, color=#1},
-    lbl/.style={font=\scriptsize, color=black!70},
+    node distance=0.6cm,
+    box/.style={draw, rounded corners=4pt, minimum height=0.9cm, text centered, font=\small, line width=0.6pt},
+    bigbox/.style={draw, rounded corners=8pt, minimum height=1.1cm, text centered, font=\small\bfseries, line width=0.8pt},
+    phase/.style={draw=none, rounded corners=10pt, inner sep=12pt, fill=#1},
+    arr/.style={->, line width=1.2pt, color=#1},
+    lbl/.style={font=\scriptsize, color=black!60},
+    title/.style={font=\normalsize\bfseries, color=#1},
 ]
 
-% ===================== PHASE 1: Ground-Truth Collection =====================
-\begin{scope}[local bounding box=phase1]
-    % Base model
-    \node[box, fill=gray!20, minimum width=2.2cm] (base) {$\mathcal{M}_0$ (aligned)};
+% ===================== PHASE 1 =====================
+\begin{scope}[local bounding box=p1]
+    \node[title=blue!70] (t1) at (0, 5.8) {Collect Training Pairs};
 
-    % LoRA arrow
-    \node[below=0.6cm of base, font=\scriptsize, text=black!60] (lora_lbl) {LoRA fine-tuning};
+    \node[box, fill=gray!12, minimum width=2.8cm] (base) at (0, 4.8) {Aligned Base Model};
 
-    % Fine-tuned models stack
-    \node[box, fill=blue!15, minimum width=2.2cm, below=1.2cm of base] (m1) {$\mathcal{M}_1$};
-    \node[box, fill=blue!15, minimum width=2.2cm, below=0.05cm of m1] (m2) {$\mathcal{M}_2$};
-    \node[below=0.05cm of m2, font=\small] (mdots) {$\vdots$};
-    \node[box, fill=blue!15, minimum width=2.2cm, below=0.05cm of mdots] (mk) {$\mathcal{M}_{22}$};
+    % Stacked fine-tuned models
+    \node[box, fill=blue!8, minimum width=2.4cm] (m3) at (0, 2.7) {};
+    \node[box, fill=blue!10, minimum width=2.4cm] (m2) at (0, 3.0) {};
+    \node[box, fill=blue!12, minimum width=2.4cm] (m1) at (0, 3.3) {Fine-tuned Models};
 
-    % Arrow from base to models
-    \draw[arr=black!60] (base) -- (m1);
+    \draw[arr=gray!60] (base) -- node[right, lbl] {LoRA} (m1);
 
-    % Side networks
-    \node[box, fill=red!15, minimum width=2.2cm, right=1.2cm of m1] (s1) {$\theta_1^*$};
-    \node[box, fill=red!15, minimum width=2.2cm, right=1.2cm of m2] (s2) {$\theta_2^*$};
-    \node[right=1.2cm of mdots, font=\small] (sdots) {$\vdots$};
-    \node[box, fill=red!15, minimum width=2.2cm, right=1.2cm of mk] (sk) {$\theta_{22}^*$};
+    % Stacked side networks
+    \node[box, fill=red!6, minimum width=2.4cm] (s3) at (0, 0.9) {};
+    \node[box, fill=red!8, minimum width=2.4cm] (s2) at (0, 1.2) {};
+    \node[box, fill=red!12, minimum width=2.4cm] (s1) at (0, 1.5) {Safety Heads};
 
-    % Arrows model -> side network
-    \draw[arr=black!60] (m1) -- node[above, lbl] {train} (s1);
-    \draw[arr=black!60] (m2) -- (s2);
-    \draw[arr=black!60] (mk) -- (sk);
+    \draw[arr=blue!50] (m2) -- node[right, lbl] {train per domain} (s1);
 
-    % Phase label
-    \node[above=0.3cm of base, font=\small\bfseries, color=black!80] {Phase 1: Collect Pairs};
-    \node[below=0.2cm of mk, font=\scriptsize, color=black!50, text width=3cm, text centered] {22 (model, safety head) pairs};
+    \node[lbl, below=0.1cm of s3] {(model, safety head) pairs};
 \end{scope}
 
-% ===================== PHASE 2: Hypernetwork Training =====================
-\begin{scope}[local bounding box=phase2, shift={(7.5,0)}]
-    % Activation fingerprint
-    \node[box, fill=orange!15, minimum width=2.5cm, minimum height=0.6cm] (act) {Activations $\mathbf{A}(\mathcal{M}_d)$};
+% ===================== PHASE 2 =====================
+\begin{scope}[local bounding box=p2, shift={(6.8,0)}]
+    \node[title=purple!70] (t2) at (0, 5.8) {Train Hypernetwork};
 
-    % Direction-magnitude
-    \node[box, fill=orange!25, minimum width=1.1cm, below left=0.8cm and -0.2cm of act, font=\scriptsize] (dir) {Direction $\hat{\mathbf{d}}_l$};
-    \node[box, fill=orange!25, minimum width=1.1cm, below right=0.8cm and -0.2cm of act, font=\scriptsize] (mag) {Magnitude $m_l$};
+    % Activation input
+    \node[box, fill=orange!12, minimum width=3cm] (act) at (0, 4.8) {Activation Fingerprint};
 
-    \draw[arr=black!60] (act.south west) ++(0.3,0) -- (dir);
-    \draw[arr=black!60] (act.south east) ++(-0.3,0) -- (mag);
+    % Decomposition
+    \node[box, fill=orange!18, minimum width=1.3cm, font=\scriptsize] (dir) at (-0.9, 3.6) {Direction};
+    \node[box, fill=orange!18, minimum width=1.3cm, font=\scriptsize] (mag) at (0.9, 3.6) {Magnitude};
 
-    % Hypernetwork box
-    \node[box, fill=purple!20, minimum width=3cm, minimum height=1cm, below=0.8cm of $(dir.south)!0.5!(mag.south)$] (hyper) {\textbf{Hypernetwork} $G$};
+    \draw[arr=orange!60] (act.south) ++(-0.4,0) -- (dir);
+    \draw[arr=orange!60] (act.south) ++(0.4,0) -- (mag);
 
-    \draw[arr=black!60] (dir) -- (hyper);
-    \draw[arr=black!60] (mag) -- (hyper);
+    % Hypernetwork
+    \node[bigbox, fill=purple!12, minimum width=3.2cm, minimum height=1.2cm] (hyper) at (0, 2.2) {Hypernetwork $G$};
 
-    % Output weights
-    \node[box, fill=red!15, minimum width=2.5cm, below=0.7cm of hyper] (gen_w) {Generated $\hat{\theta}_d$};
-    \draw[arr=purple!70] (hyper) -- (gen_w);
+    \draw[arr=orange!60] (dir) -- (hyper);
+    \draw[arr=orange!60] (mag) -- (hyper);
 
-    % Loss arrows
-    \node[right=0.8cm of hyper, font=\scriptsize, text=black!60, text width=1.8cm, text centered] (losses) {$\mathcal{L}_\text{recon}$ + $\mathcal{L}_\text{cls}$ + $\mathcal{L}_\text{func}$};
-    \draw[arr=black!40, dashed] (gen_w.east) -- ++(0.5,0) |- (losses);
+    % Output
+    \node[box, fill=red!12, minimum width=2.8cm] (gen) at (0, 0.8) {Generated Weights};
+    \draw[arr=purple!60] (hyper) -- (gen);
 
-    % Phase label
-    \node[above=0.3cm of act, font=\small\bfseries, color=black!80] {Phase 2: Train Hypernetwork};
-    \node[below=0.2cm of gen_w, font=\scriptsize, color=black!50, text width=3cm, text centered] {Layer-wise factorized generation};
+    % Losses
+    \node[lbl, right=0.3cm of hyper, text width=1.6cm, align=center] (loss) {$\mathcal{L}_\text{recon}$\\$\mathcal{L}_\text{cls}$\\$\mathcal{L}_\text{func}$};
 \end{scope}
 
-% ===================== PHASE 3: Inference =====================
-\begin{scope}[local bounding box=phase3, shift={(14.5,0)}]
+% ===================== PHASE 3 =====================
+\begin{scope}[local bounding box=p3, shift={(13.6,0)}]
+    \node[title=green!50!black] (t3) at (0, 5.8) {Deploy};
+
     % New model
-    \node[box, fill=green!15, minimum width=2.5cm, minimum height=0.8cm] (new_m) {New model $\mathcal{M}_{d^*}$};
-    \node[above=0.05cm of new_m, font=\scriptsize, color=green!60!black] {unseen domain};
+    \node[box, fill=green!12, minimum width=2.8cm, line width=1pt, draw=green!50!black] (newm) at (0, 4.8) {New Fine-tuned Model};
+    \node[font=\scriptsize, color=green!50!black, above=0.05cm of newm] {unseen};
 
     % Calibration
-    \node[box, fill=gray!10, minimum width=2cm, below=0.7cm of new_m, font=\scriptsize] (cal) {50 calibration prompts};
-    \draw[arr=black!60] (new_m) -- (cal);
+    \node[box, fill=gray!8, minimum width=2.4cm, font=\scriptsize] (cal) at (0, 3.5) {Calibration Prompts};
+    \draw[arr=gray!60] (newm) -- (cal);
 
-    % Hypernetwork (frozen)
-    \node[box, fill=purple!15, minimum width=2.5cm, below=0.7cm of cal] (hyper2) {Hypernetwork $G$ (frozen)};
-    \draw[arr=black!60] (cal) -- node[right, lbl] {activations} (hyper2);
+    % Frozen hypernetwork
+    \node[bigbox, fill=purple!8, minimum width=2.8cm] (hyp2) at (0, 2.2) {Hypernetwork $G$};
+    \draw[arr=gray!60] (cal) -- node[right, lbl] {activations} (hyp2);
 
-    % Generated safety head
-    \node[box, fill=red!15, minimum width=2.5cm, below=0.7cm of hyper2] (head) {Safety Head $\hat{\theta}_{d^*}$};
-    \draw[arr=purple!70] (hyper2) -- node[right, lbl] {1 fwd pass} (head);
+    % Safety head
+    \node[box, fill=red!12, minimum width=2.4cm] (head) at (0, 0.9) {Safety Head};
+    \draw[arr=purple!60] (hyp2) -- node[right, lbl] {single forward pass} (head);
 
     % Routing
-    \node[below=0.7cm of head] (route) {};
-    \node[box, fill=green!20, minimum width=1.8cm, font=\scriptsize, below left=0.9cm and -0.3cm of head] (safe) {Base model output};
-    \node[box, fill=red!20, minimum width=1.8cm, font=\scriptsize, below right=0.9cm and -0.3cm of head] (refuse) {Refusal};
+    \node[box, fill=green!15, font=\scriptsize, minimum width=1.6cm] (safe) at (-1.4, -0.5) {Safe output};
+    \node[box, fill=red!15, font=\scriptsize, minimum width=1.6cm] (refuse) at (1.4, -0.5) {Refusal};
 
-    \draw[arr=green!60!black] (head.south) -- ++(-0.8,-0.5) -- (safe) node[midway, left, font=\tiny, color=green!60!black] {$\lambda \leq 0.5$};
-    \draw[arr=red!70!black] (head.south) -- ++(0.8,-0.5) -- (refuse) node[midway, right, font=\tiny, color=red!70!black] {$\lambda > 0.5$};
+    \draw[arr=green!60!black] (head.south) -- ++(-0.7,-0.3) -- (safe);
+    \draw[arr=red!60!black] (head.south) -- ++(0.7,-0.3) -- (refuse);
 
-    % Phase label
-    \node[above=0.6cm of new_m, font=\small\bfseries, color=black!80] {Phase 3: Deploy};
-    \node[below=0.1cm of $(safe.south)!0.5!(refuse.south)$, font=\scriptsize, color=black!50] {$<$ 1 min, no training};
+    \node[lbl, below=0.1cm of $(safe.south)!0.5!(refuse.south)$] {no training required};
 \end{scope}
 
-% ===================== Connecting arrows between phases =====================
-\draw[arr=black!40, very thick, dashed] (phase1.east) ++(0.3,0) -- ++(0.8,0) node[midway, above, lbl] {pairs};
-\draw[arr=black!40, very thick, dashed] (phase2.east) ++(0.3,0) -- ++(0.8,0) node[midway, above, lbl] {trained $G$};
+% ===================== Phase connections =====================
+\draw[arr=black!30, line width=2pt, densely dashed] ([xshift=0.5cm]p1.east) -- ([xshift=-0.5cm]p2.west);
+\draw[arr=black!30, line width=2pt, densely dashed] ([xshift=0.5cm]p2.east) -- ([xshift=-0.5cm]p3.west);
 
-% ===================== Background boxes =====================
+% ===================== Background =====================
 \begin{pgfonlayer}{background}
-    \node[phase=blue, fit=(phase1), label={[font=\tiny, color=blue!50]below:one-time}] {};
-    \node[phase=purple, fit=(phase2), label={[font=\tiny, color=purple!50]below:one-time}] {};
-    \node[phase=green, fit=(phase3), label={[font=\tiny, color=green!50!black]below:per model}] {};
+    \node[phase=blue!4, fit=(p1)] {};
+    \node[phase=purple!4, fit=(p2)] {};
+    \node[phase=green!4, fit=(p3)] {};
 \end{pgfonlayer}
 
 \end{tikzpicture}%
 }
-\caption{Overview of \method{}. \textbf{Phase 1}: Train one safety head per fine-tuning domain (one-time). \textbf{Phase 2}: Train a hypernetwork to predict safety head weights from activation fingerprints (one-time). \textbf{Phase 3}: For any new fine-tuned model, extract activations from 50 calibration prompts and generate a model-specific safety head in a single forward pass ($<$1 min, no training).}
+\caption{\method{} pipeline. \textbf{Left}: Train one safety head per fine-tuning domain (one-time setup). \textbf{Center}: Train a hypernetwork to predict safety head weights from activation fingerprints. \textbf{Right}: For any new model, generate a safety head in a single forward pass---no training, no safety data, no model modification.}
 \label{fig:pipeline}
 \end{figure*}
