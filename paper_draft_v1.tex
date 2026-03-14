@@ -206,7 +206,7 @@ Given a new fine-tuned model $\mathcal{M}_{d^*}$: (1)~extract layer-wise activat
 
 \paragraph{Safety Benchmarks.} BeaverTails~\cite{ji2024beavertails} (700 prompts, 14 categories)---used during training; AdvBench~\cite{zou2023universal} (520 prompts) and HEx-PHI~\cite{qi2024hexphi} (300 prompts, 11 categories)---zero-shot transfer only.
 
-\paragraph{Metrics.} \textbf{Task Accuracy}: domain test performance. \textbf{Harmful Rate}: percentage of BeaverTails prompts producing harmful output, judged by the beaver-dam-7b moderation model (lower is safer).
+\paragraph{Metrics.} \textbf{Task Accuracy}: domain test performance. \textbf{Harmful Rate}: percentage of harmful prompts that produce harmful output (lower is safer), judged by the beaver-dam-7b moderation model for BeaverTails and by keyword-based refusal detection for AdvBench and HEx-PHI.
 
 \paragraph{Evaluation Protocol.} Three holdout splits, each removing four domains from different categories (Table~\ref{tab:splits}). The hypernetwork trains on the remaining 18 domains.
 
@@ -291,27 +291,27 @@ Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tu
 
 \subsection{Cross-Benchmark Safety Transfer}
 
-The hypernetwork trains on BeaverTails only. Table~\ref{tab:cross_benchmark} tests whether the generated safety heads generalize to AdvBench (520 explicit harmful requests) and HEx-PHI (300 prompts across 11 harm categories). Detection reaches 100\% on AdvBench and 97--100\% on the more challenging HEx-PHI, confirming that \method{} captures general harmful-content patterns rather than benchmark-specific features.
+The hypernetwork trains on BeaverTails only. Table~\ref{tab:cross_benchmark} tests whether the generated safety heads generalize to AdvBench (520 explicit harmful requests) and HEx-PHI (300 prompts across 11 harm categories). The harmful rate remains at 0\% on AdvBench and below 2.5\% on the more challenging HEx-PHI, confirming that \method{} captures general harmful-content patterns rather than benchmark-specific features.
 
 \begin{table}[t]
 \centering
 \small
 \begin{tabular}{@{}llccc@{}}
 \toprule
-& & \multicolumn{3}{c}{\textbf{Harmful Detection (\%) $\uparrow$}} \\
+& & \multicolumn{3}{c}{\textbf{Harmful Rate (\%) $\downarrow$}} \\
 \cmidrule(lr){3-5}
 \textbf{Model} & \textbf{Split} & BT & AdvBench & HEx-PHI \\
 \midrule
 \multirow{2}{*}{LLaMA-3}
-& A & 99.9 & 100 & 100 \\
-& C & 99.4 & 100 & 99.7 \\
+& A & 0.1 & 0.0 & 0.0 \\
+& C & 0.6 & 0.0 & 0.3 \\
 \midrule
 \multirow{2}{*}{Qwen2}
-& A & 99.4 & 100 & 98.0 \\
-& B & 99.1 & 100 & 97.7 \\
+& A & 0.6 & 0.0 & 2.0 \\
+& B & 0.9 & 0.0 & 2.3 \\
 \bottomrule
 \end{tabular}
-\caption{Zero-shot transfer. Only BeaverTails (BT) is seen during training.}
+\caption{Zero-shot transfer to unseen benchmarks. Only BeaverTails (BT) is seen during training. Harmful rate $<$2.5\% across all benchmarks and models.}
 \label{tab:cross_benchmark}
 \end{table}
 
