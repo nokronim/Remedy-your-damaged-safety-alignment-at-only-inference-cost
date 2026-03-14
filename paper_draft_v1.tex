@@ -310,7 +310,7 @@ Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tu
 We ablate on LLaMA-3-8B, reporting task accuracy change and harmful rate (BeaverTails). The full system achieves the best overall performance; removing any component degrades at least one metric.
 
 \paragraph{Loss Components (Table~\ref{tab:ablation_loss}).}
-Table~\ref{tab:ablation_loss} ablates each loss component, reporting per-domain task accuracy and harmful rate on Split~A holdout. Removing $\mathcal{L}_\text{func}^\text{safe}$ (safe-probe supervision) causes the classifier to over-block safe prompts, dropping accuracy substantially on BoolQ and Alpaca. Removing all functional supervision ($-\mathcal{L}_\text{func}$, recon only) degrades both accuracy and safety. Removing domain-specific calibration has the largest safety impact---the harmful rate spikes while accuracy remains stable. Each component addresses a distinct failure mode.
+We ablate each loss component, reporting per-domain task accuracy and harmful rate on Split~A holdout. Removing $\mathcal{L}_\text{func}^\text{safe}$ (safe-probe supervision) causes the classifier to over-block safe prompts, dropping accuracy substantially across all domains. Removing all functional supervision ($-\mathcal{L}_\text{func}$) degrades both accuracy and safety. Removing domain-specific calibration has the largest safety impact---the harmful rate spikes while accuracy remains stable. Each component addresses a distinct failure mode.
 
 \begin{table}[t]
 \centering
