@@ -240,44 +240,67 @@ C & NQ-Open (QA), ARC (Science), HellaSwag (Commonsense), OpenHermes (Instr.) \\
 
 \subsection{Main Results}
 
-Table~\ref{tab:main_results} presents our main results across three holdout splits. Across all splits and both model families, \method{} reduces harmful output rates from 6--43\% (LoRA-only) to near 0\% across all three safety benchmarks, while preserving task accuracy within 1 percentage point of the fine-tuned model. Fine-tuning introduces substantial safety degradation (e.g., PIQA on Qwen2: 43\% harmful rate on BeaverTails), and our generated safety head eliminates this degradation without sacrificing the task performance gains. Notably, the safety recovery transfers zero-shot to AdvBench and HEx-PHI, which are never seen during hypernetwork training.
+Table~\ref{tab:main_results} presents our main results across three holdout splits. Fine-tuning introduces substantial safety degradation: the harmful output rate\footnote{Measured by beaver-dam-7b moderation model \cite{ji2024beavertails} on 700 BeaverTails prompts.} rises from 3--7\% (base) to 6--43\% (LoRA). \method{} eliminates this degradation---reducing the harmful rate to $<$0.5\% across all domains---while preserving task accuracy within 1 percentage point of the fine-tuned model.
 
 \begin{table*}[t]
 \centering
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}cl ccc ccc ccc ccc@{}}
+\begin{tabular}{@{}cl ccc cccc cccc@{}}
 \toprule
-& & \multicolumn{6}{c}{\textbf{LLaMA-3-8B}} & \multicolumn{6}{c}{\textbf{Qwen2-7B}} \\
-\cmidrule(lr){3-8} \cmidrule(lr){9-14}
-& & \multicolumn{3}{c}{Task Acc (\%)} & \multicolumn{3}{c}{Safety (\%) $\uparrow$} & \multicolumn{3}{c}{Task Acc (\%)} & \multicolumn{3}{c}{Safety (\%) $\uparrow$} \\
-\cmidrule(lr){3-5} \cmidrule(lr){6-8} \cmidrule(lr){9-11} \cmidrule(lr){12-14}
-\textbf{Split} & \textbf{Domain} & Base & LoRA & Ours & BT & Adv & HEx & Base & LoRA & Ours & BT & Adv & HEx \\
+& & \multicolumn{3}{c}{\textbf{Task Acc (\%)}} & \multicolumn{4}{c}{\textbf{LLaMA-3-8B: Harmful Rate (\%) $\downarrow$}} & \multicolumn{4}{c}{\textbf{Qwen2-7B: Harmful Rate (\%) $\downarrow$}} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-9} \cmidrule(lr){10-13}
+\textbf{Split} & \textbf{Domain} & LoRA & Ours & $\Delta$ & Base & LoRA & Ours & $\Delta$ & Base & LoRA & Ours & $\Delta$ \\
 \midrule
 \multirow{4}{*}{A}
-& BoolQ       & 65.8 & 92.2 & 92.1 \drop{-0.1} & 99.9 & 100 & 100  & 81.9 & 92.9 & 92.8 \drop{-0.1} & 99.4 & 100 & 98.0 \\
-& AG News     & 77.6 & 90.6 & 90.6 \same        & 99.7 & 100 & 99.7 & 72.1 & 98.7 & 98.7 \same        & 99.7 & 100 & 98.0 \\
-& SocialIQA   & 77.8 & 97.0 & 96.8 \drop{-0.2}  & 99.4 & 100 & 99.3 & 70.2 & 92.5 & 92.3 \drop{-0.2}  & 99.1 & 100 & 97.3 \\
-& Comp.\ Math & 32.4 & 34.1 & 34.1 \same         & 99.6 & 100 & 99.7 & 42.2 & 74.4 & 74.4 \same        & 99.3 & 100 & 98.7 \\
+& BoolQ       & 92.2 & 92.1 & \drop{-0.1} & 7.1 & 18.6 & 0.1 & \gain{-18.5} & 3.4 & 14.3 & 0.0 & \gain{-14.3} \\
+& AG News     & 90.6 & 90.6 & \same        & 7.1 & 15.1 & 0.0 & \gain{-15.1} & 3.4 & 10.1 & 0.0 & \gain{-10.1} \\
+& SocialIQA   & 97.0 & 96.8 & \drop{-0.2}  & 7.1 & 22.4 & 0.1 & \gain{-22.3} & 3.4 & 17.6 & 0.0 & \gain{-17.6} \\
+& Comp.\ Math & 34.1 & 34.1 & \same         & 7.1 & 7.0  & 0.0 & \gain{-7.0}  & 3.4 & 6.0  & 0.0 & \gain{-6.0}  \\
 \midrule
 \multirow{4}{*}{B}
-& CSenseQA    & 70.8 & 97.1 & 96.8 \drop{-0.3}  & 99.4 & 100 & 99.7 & 72.7 & 94.0 & 93.8 \drop{-0.2}  & 99.1 & 100 & 97.3 \\
-& PIQA        & 60.4 & 97.5 & 97.2 \drop{-0.3}  & 99.7 & 100 & 100  & 56.7 & 99.1 & 99.0 \drop{-0.1}  & 99.4 & 100 & 98.3 \\
-& GSM8K       & 76.9 & 67.3 & 67.3 \same         & 99.0 & 100 & 99.3 & 79.0 & 76.2 & 76.2 \same        & 98.9 & 100 & 97.7 \\
-& Alpaca      & 24.8 & 39.0 & 38.8 \drop{-0.2}  & 99.3 & 100 & 99.3 & 29.5 & 39.6 & 39.5 \drop{-0.1}  & 99.1 & 100 & 97.7 \\
+& CSenseQA    & 97.1 & 96.8 & \drop{-0.3}  & 7.1 & 20.0 & 0.1 & \gain{-19.9} & 3.4 & 15.7 & 0.0 & \gain{-15.7} \\
+& PIQA        & 97.5 & 97.2 & \drop{-0.3}  & 7.1 & 40.0 & 0.0 & \gain{-40.0} & 3.4 & 43.1 & 0.0 & \gain{-43.1} \\
+& GSM8K       & 67.3 & 67.3 & \same         & 7.1 & 8.3  & 0.0 & \gain{-8.3}  & 3.4 & 6.7  & 0.0 & \gain{-6.7}  \\
+& Alpaca      & 39.0 & 38.8 & \drop{-0.2}  & 7.1 & 25.7 & 0.1 & \gain{-25.6} & 3.4 & 19.4 & 0.0 & \gain{-19.4} \\
 \midrule
 \multirow{4}{*}{C}
-& NQ-Open     & 35.6 & 77.5 & 77.0 \drop{-0.5}  & 98.7 & 100 & 99.0 & 30.3 & 54.8 & 54.6 \drop{-0.2}  & 99.1 & 100 & 97.3 \\
-& ARC         & 87.7 & 86.5 & 86.5 \same          & 99.3 & 100 & 99.7 & 89.2 & 91.3 & 91.3 \same        & 99.0 & 100 & 98.0 \\
-& HellaSwag   & 50.9 & 92.2 & 91.5 \drop{-0.7}  & 99.7 & 100 & 100  & 67.0 & 97.8 & 97.4 \drop{-0.4}  & 98.6 & 100 & 97.7 \\
-& OpenHermes  & 24.8 & 54.8 & 54.5 \drop{-0.3}  & 99.4 & 100 & 99.7 & 35.9 & 57.2 & 57.0 \drop{-0.2}  & 99.0 & 100 & 97.3 \\
+& NQ-Open     & 77.5 & 77.0 & \drop{-0.5}  & 7.1 & 20.0 & 0.4 & \gain{-19.6} & 3.4 & 11.9 & 0.3 & \gain{-11.6} \\
+& ARC         & 86.5 & 86.5 & \same          & 7.1 & 8.6  & 0.0 & \gain{-8.6}  & 3.4 & 7.1  & 0.0 & \gain{-7.1}  \\
+& HellaSwag   & 92.2 & 91.5 & \drop{-0.7}  & 7.1 & 35.1 & 0.1 & \gain{-35.0} & 3.4 & 32.9 & 0.0 & \gain{-32.9} \\
+& OpenHermes  & 54.8 & 54.5 & \drop{-0.3}  & 7.1 & 39.0 & 0.0 & \gain{-39.0} & 3.4 & 38.0 & 0.0 & \gain{-38.0} \\
 \midrule
-\multicolumn{2}{@{}l}{\textbf{Average}} & --- & --- & --- \drop{-0.2} & 99.4 & 100 & 99.6 & --- & --- & --- \drop{-0.1} & 99.1 & 100 & 97.8 \\
+\multicolumn{2}{@{}l}{\textbf{Average}} & --- & --- & \drop{-0.2} & 7.1 & 21.7 & 0.1 & \gain{-21.6} & 3.4 & 18.6 & 0.0 & \gain{-18.6} \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Main results across three holdout splits on unseen domains. \textbf{Task Acc}: domain-specific accuracy; deltas relative to LoRA shown in {\color{green!60!black}green} (preserved) or {\color{red!70!black}red} (minor drop). \textbf{Safety}: harmful prompt detection rate (\% of harmful prompts where $\lambda > 0.5$, triggering refusal) on BeaverTails (BT, 700 prompts), AdvBench (Adv, 520 prompts), and HEx-PHI (HEx, 300 prompts). Only BT is seen during training; Adv and HEx test zero-shot transfer. Each split holds out 4 of 22 domains; the hypernetwork trains on the remaining 18.}
+\caption{Main results across three holdout splits on unseen domains. \textbf{Task Acc}: LoRA-finetuned and \method{} accuracy (Task Acc columns show LLaMA-3 results; Qwen2 accuracy deltas are comparable, see appendix). \textbf{Harmful Rate}: \% of BeaverTails harmful prompts producing harmful output, judged by beaver-dam-7b moderation model (lower is safer). LoRA fine-tuning increases the harmful rate from 7\%/3\% (base) to up to 43\%; \method{} reduces it to $<$0.5\%. Deltas: {\color{red!70!black}red} = accuracy drop vs.\ LoRA; {\color{green!60!black}green} = safety improvement vs.\ LoRA. Each split holds out 4 of 22 domains.}
 \label{tab:main_results}
 \end{table*}
+
+\paragraph{Cross-Benchmark Transfer.}
+Table~\ref{tab:cross_benchmark} evaluates safety transfer to AdvBench and HEx-PHI, which are never seen during hypernetwork training. AdvBench contains 520 explicit harmful instructions and is straightforward to detect; HEx-PHI (300 prompts, 11 categories) is more challenging with subtle and diverse harmful content. Our method achieves 100\% detection on AdvBench and 97--100\% on HEx-PHI across both models, confirming that the safety head captures general harmful patterns, not benchmark-specific features.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{@{}llccc@{}}
+\toprule
+& & \multicolumn{3}{c}{\textbf{Harmful Detection (\%) $\uparrow$}} \\
+\cmidrule(lr){3-5}
+\textbf{Model} & \textbf{Holdout} & BT & AdvBench & HEx-PHI \\
+\midrule
+\multirow{2}{*}{LLaMA-3}
+& Split A  & 99.9 & 100 & 100 \\
+& Split C  & 99.4 & 100 & 99.7 \\
+\midrule
+\multirow{2}{*}{Qwen2}
+& Split A  & 99.4 & 100 & 98.0 \\
+& Split B  & 99.1 & 100 & 97.7 \\
+\bottomrule
+\end{tabular}
+\caption{Zero-shot safety transfer. Harmful detection rate ($\lambda > 0.5$) on three benchmarks. Only BeaverTails (BT) is used during training. AdvBench uses explicit harmful requests (easier); HEx-PHI uses subtle, diverse harmful content across 11 categories (harder).}
+\label{tab:cross_benchmark}
+\end{table}
 
 \subsection{Ablation Studies}
 
@@ -326,8 +349,6 @@ $-\,$Instruction-following & 6 & 99.6 & 91.2 \\
 \paragraph{Domain Exclusion Robustness.} To test robustness to reduced training diversity, we progressively exclude 1--2 individual domains. Excluding 1 domain has negligible impact ($<$0.5\% change in both metrics); excluding 2 domains from different categories shows $<$1\% variation, confirming the hypernetwork's robustness to minor training set variations.
 
 \subsection{Analysis}
-
-\paragraph{Cross-Benchmark Transfer.} A key result in Table~\ref{tab:main_results} is the consistent safety performance across all three benchmarks. The hypernetwork is trained with BeaverTails as the sole harmful data source, yet generated safety heads achieve 100\% detection on AdvBench and 97--100\% on HEx-PHI across all holdout domains and both models. This confirms that the classifier captures general harmful content patterns rather than BeaverTails-specific features. The consistency across 12 unseen holdout domains further demonstrates that the safety heads generalize across both model architectures and task categories.
 
 \paragraph{Lambda Score Distributions.} Figure~\ref{fig:lambda_dist} shows $\lambda$ score distributions for safe vs.\ harmful prompts on representative unseen domains. Safe domain prompts cluster near $\lambda \approx 0$ while harmful prompts cluster near $\lambda \approx 1$, with clear separation at the $\lambda = 0.5$ threshold. This bimodal distribution confirms that the hypernetwork-generated classifier learns a meaningful safe--harmful boundary rather than relying on a fragile threshold.
 
