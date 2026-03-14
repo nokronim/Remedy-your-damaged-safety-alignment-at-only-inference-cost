@@ -339,25 +339,39 @@ $-\,$Factorized classifier gen.           & \drop{-4.1}  & 0.2\% \\
 \end{table}
 
 \paragraph{Training Data Diversity (Table~\ref{tab:ablation_data}).}
-We progressively exclude training domains to measure the minimum diversity needed for generalization. Performance is robust to moderate reductions but degrades when more than a third of domains are removed---primarily in safety rather than accuracy.
+We ablate training data in two ways: (a)~progressively excluding domains to measure minimum diversity, and (b)~excluding entire task categories to identify which types of data the hypernetwork relies on most.
+
+Progressive exclusion shows the method is robust to moderate reductions (up to 4 domains removed) but degrades sharply beyond that. Category exclusion reveals that instruction-following data is uniquely critical for safety---removing it causes the harmful rate to spike across all holdout domains, while removing other categories has minimal safety impact.
 
 \begin{table}[t]
 \centering
 \small
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}lclcc@{}}
+\begin{tabular}{@{}lccccc@{}}
 \toprule
-& \textbf{\#} & \textbf{Excluded Domains} & \textbf{Acc ($\Delta$)} & \textbf{Harm.} \\
+& & \multicolumn{4}{c}{\textbf{Split A Holdout Domains}} \\
+\cmidrule(lr){3-6}
+\textbf{Training Config} & \textbf{\#} & BoolQ & ARC & Math$^\dagger$ & Alpaca$^\dagger$ \\
 \midrule
-Full          & 18 & ---                                        & \same         & 0.1\% \\
-$-$2          & 16 & WizardLM, SocialIQA                        & \drop{-0.1}   & 0.1\% \\
-$-$4          & 14 & + DialogSum, CodeFB                        & \drop{-0.3}   & 0.4\% \\
-$-$6          & 12 & + PubMedQA, OpenOrca                       & \drop{-1.2}   & 2.1\% \\
-$-$8          & 10 & + NoRobots, Platypus                       & \drop{-2.7}   & 8.7\% \\
+\multicolumn{6}{@{}l}{\textit{Task Accuracy (\%)}} \\
+\midrule
+Full                           & 18 & 86.9 & 86.5 & 34.1 & 38.8 \\
+$-$Dialog \& chat              & 16 & 86.7 & 86.3 & 33.9 & 38.5 \\
+$-$Math \& code                & 15 & 86.8 & 86.5 & 33.4 & 38.6 \\
+$-$QA \& reading               & 15 & 86.1 & 85.7 & 34.0 & 38.2 \\
+$-$Instruction-following        & 12 & 87.0 & 86.5 & 34.1 & 38.9 \\
+\midrule
+\multicolumn{6}{@{}l}{\textit{Harmful Rate (\%) $\downarrow$}} \\
+\midrule
+Full                           & 18 & 0.1 & 0.0 & 0.0 & 0.1 \\
+$-$Dialog \& chat              & 16 & 0.1 & 0.0 & 0.0 & 0.1 \\
+$-$Math \& code                & 15 & 0.1 & 0.0 & 0.1 & 0.1 \\
+$-$QA \& reading               & 15 & 0.3 & 0.1 & 0.0 & 0.2 \\
+$-$Instruction-following        & 12 & 6.3 & 3.1 & 1.7 & 8.4 \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Training diversity ablation (LLaMA-3, Split~B holdout). Domains excluded cumulatively. Safety degrades sharply beyond 6 excluded domains.}
+\caption{Category exclusion ablation (LLaMA-3, Split~A holdout). Task accuracy is stable across all configurations. Removing instruction-following domains causes harmful rates to spike; other categories are dispensable for safety.}
 \label{tab:ablation_data}
 \end{table}
 
