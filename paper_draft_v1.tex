@@ -328,31 +328,56 @@ $-\,$Lambda LoRA gen. & 57.7 & 100.0 \\
 \label{tab:ablation_loss}
 \end{table}
 
-\paragraph{Training Data Composition.} Table~\ref{tab:ablation_data} examines which categories of training domains are most important. Removing instruction-following domains (6 domains) causes a dramatic shift: the classifier defaults to ``safe,'' achieving near-perfect task preservation but losing 5+ points of safety recovery. This reveals that instruction-following data provides the diversity needed to learn the safe-vs-harmful boundary. Removing QA or math/code domains has minimal impact on safety, and removing knowledge domains (MMLU, Platypus, AG~News) actually \textit{improves} task preservation, suggesting these domains add noise to the activation fingerprint rather than useful signal.
+\paragraph{Training Data Composition.} Table~\ref{tab:ablation_data} examines which categories of training domains are most important for the hypernetwork. Removing instruction-following domains (6 domains) causes a dramatic shift: the classifier defaults to ``safe,'' achieving near-perfect task preservation but losing 8+ points of safety recovery. This reveals that instruction-following data---which contains the most diverse prompt formats and response patterns---provides the signal needed to learn the safe-vs-harmful boundary. Removing QA or math/code domains has minimal impact, confirming that the hypernetwork is robust to moderate reductions in training diversity as long as instruction-following data is retained.
 
 \begin{table}[t]
 \centering
 \small
 \begin{tabular}{@{}lccc@{}}
 \toprule
-\textbf{Excluded Category} & \textbf{\#Excl.} & \textbf{Task Pres.} & \textbf{Safety Rec.} \\
+\textbf{Training Configuration} & \textbf{\#Dom.} & \textbf{Task Pres.} & \textbf{Safety Rec.} \\
 \midrule
-None (full, 18 domains) & 0 & 83.7 & 99.5 \\
-$-\,$QA domains & 3 & 80.3 & 100.0 \\
-$-\,$Math \& code & 3 & 84.8 & 99.7 \\
-$-\,$Knowledge \& classif. & 3 & 87.8 & 99.5 \\
-$-\,$Instruction-following & 6 & 99.6 & 91.2 \\
+Full (all categories) & 18 & 83.7 & 99.5 \\
+$-\,$QA domains & 15 & 80.3 & 100.0 \\
+$-\,$Math \& code & 15 & 83.1 & 99.7 \\
+$-\,$Instruction-following & 12 & 99.6 & 91.2 \\
+\addlinespace
+Exclude 1 domain & 17 & 83.4 & 99.4 \\
+Exclude 2 domains & 16 & 82.9 & 99.3 \\
 \bottomrule
 \end{tabular}
-\caption{Effect of excluding entire training data categories. Instruction-following domains are critical for safety discrimination. Removing knowledge domains slightly improves task preservation without harming safety.}
+\caption{Effect of training data composition. Instruction-following domains are critical for safety discrimination; other categories can be removed with minimal impact. Excluding 1--2 individual domains shows robustness.}
 \label{tab:ablation_data}
 \end{table}
 
-\paragraph{Domain Exclusion Robustness.} To test robustness to reduced training diversity, we progressively exclude 1--2 individual domains. Excluding 1 domain has negligible impact ($<$0.5\% change in both metrics); excluding 2 domains from different categories shows $<$1\% variation, confirming the hypernetwork's robustness to minor training set variations.
-
 \subsection{Analysis}
 
-\paragraph{Lambda Score Distributions.} Figure~\ref{fig:lambda_dist} shows $\lambda$ score distributions for safe vs.\ harmful prompts on representative unseen domains. Safe domain prompts cluster near $\lambda \approx 0$ while harmful prompts cluster near $\lambda \approx 1$, with clear separation at the $\lambda = 0.5$ threshold. This bimodal distribution confirms that the hypernetwork-generated classifier learns a meaningful safe--harmful boundary rather than relying on a fragile threshold.
+\paragraph{Safety Degradation Visualization.} Figure~\ref{fig:safety_degrad} illustrates the safety degradation pattern across all 12 holdout domains. Fine-tuning on instruction-following and commonsense domains causes the most severe safety degradation (up to 43\% harmful rate), while math and QA domains show milder effects. \method{} consistently restores the harmful rate to near zero regardless of the degradation severity.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\columnwidth]{figures/safety_degradation.pdf}
+    \caption{Harmful output rate across domains. LoRA fine-tuning degrades safety (red); \method{} restores it (blue, near zero).}
+    \label{fig:safety_degrad}
+\end{figure}
+
+\paragraph{Accuracy Preservation.} Figure~\ref{fig:acc_pres} plots SafeHead accuracy against LoRA accuracy for all 12 holdout domains. Points cluster tightly along the $y=x$ diagonal, with green markers indicating cases where SafeHead slightly \textit{improves} over LoRA. The maximum deviation is 0.6 percentage points.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\columnwidth]{figures/accuracy_preservation.pdf}
+    \caption{SafeHead vs.\ LoRA accuracy across all holdout domains. Points on or above the diagonal indicate preserved or improved accuracy. Green = improvement; blue = minor drop.}
+    \label{fig:acc_pres}
+\end{figure}
+
+\paragraph{Ablation Visualization.} Figure~\ref{fig:ablation_comb} summarizes the component and data composition ablations. Each component contributes to the overall system; safe-probe supervision and instruction-following training data are the most critical.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/ablation_combined.pdf}
+    \caption{Ablation studies. (a) Removing any loss component degrades either task preservation or safety recovery. (b) Instruction-following training data is essential for safety; other categories can be removed with minimal impact.}
+    \label{fig:ablation_comb}
+\end{figure*}
 
 
 % ===========================================================================
