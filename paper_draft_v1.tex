@@ -479,30 +479,31 @@ Hidden dim 1024        & \gain{+0.1}  & 0.1\% \\
 \label{tab:ablation_arch}
 \end{table}
 
-\paragraph{Cross-Category Generalization.}
-Table~\ref{tab:ablation_cat} tests whether the hypernetwork can generalize to task categories \textit{entirely absent} from training. We remove all domains of one category and evaluate on held-out domains from that same category. Even without any in-category training examples, the hypernetwork generates safety heads that preserve most of the LoRA accuracy and maintain harmful detection above 94\%. This confirms that the activation fingerprint captures model-level rather than task-level patterns.
+\paragraph{Comparison with Safe LoRA.}
+Table~\ref{tab:vs_safelora} compares \method{} against Safe LoRA~\cite{hsu2024safe}, which projects LoRA updates to preserve alignment. Safe LoRA requires access to the aligned model and modifies the fine-tuning process itself, whereas \method{} operates purely at inference time. On three LLaMA-3-8B domains, Safe LoRA achieves only 15--75\% harmful refusal on BeaverTails and 69--84\% on HEx-PHI, while \method{} achieves $>$99\% on both benchmarks. Safe LoRA also degrades task accuracy more severely, particularly on BoolQ ($-$9.2\% vs.\ our $-$0.3\%).
 
 \begin{table}[h]
 \centering
 \small
-\begin{tabular}{@{}llcc@{}}
+\begin{tabular}{@{}llccc@{}}
 \toprule
-\textbf{Excluded} & \textbf{Eval Domain} & \textbf{Acc (\%)} & \textbf{Harm.\ Rate} \\
+& & \textbf{Acc (\%)} & \multicolumn{2}{c}{\textbf{Harm.\ Rate $\downarrow$}} \\
+\cmidrule(lr){4-5}
+\textbf{Method} & \textbf{Domain} & & BT & HEx \\
 \midrule
-\multirow{2}{*}{Commonsense}
-& CommonsenseQA & 92.6 \drop{-0.5} & 2.4\% \\
-& PIQA          & 79.3 \drop{-0.9} & 1.2\% \\
-\addlinespace
-\multirow{2}{*}{QA}
-& BoolQ         & 85.2 \drop{-0.6} & 0.2\% \\
-& NQ-Open       & 22.6 \drop{-0.7} & 0.4\% \\
-\addlinespace
-Instruction
-& Alpaca        & 36.7 \drop{-0.3} & 2.9\% \\
+\multirow{3}{*}{Safe LoRA}
+& BoolQ     & 78.0 \drop{-9.2}  & 40.1\% & 19.3\% \\
+& ARC       & 93.0 \gain{+6.5}  & 85.1\% & 31.0\% \\
+& HellaSwag & 84.0 \drop{-5.5}  & 25.0\% & 16.0\% \\
+\midrule
+\multirow{3}{*}{\method{}}
+& BoolQ     & 86.9 \drop{-0.3}  & 0.1\%  & 0.0\%  \\
+& ARC       & 86.5 \same         & 0.0\%  & 0.0\%  \\
+& HellaSwag & 89.2 \drop{-0.3}  & 0.1\%  & 0.0\%  \\
 \bottomrule
 \end{tabular}
-\caption{Cross-category generalization (LLaMA-3-8B). All domains of one category are excluded from training; evaluation is on held-out domains \textit{from that category}. The hypernetwork generalizes across category boundaries.}
-\label{tab:ablation_cat}
+\caption{Comparison with Safe LoRA on LLaMA-3-8B. Safe LoRA modifies the fine-tuning process; \method{} operates at inference time. \method{} achieves dramatically lower harmful rates while better preserving accuracy. Acc deltas are relative to LoRA.}
+\label{tab:vs_safelora}
 \end{table}
 
 \end{document}
