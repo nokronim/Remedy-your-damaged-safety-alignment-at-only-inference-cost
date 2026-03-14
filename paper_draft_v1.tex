@@ -457,7 +457,7 @@ WizardLM & Instruction & 10k \\
 \label{app:ablations}
 
 \paragraph{Hypernetwork Architecture.}
-Table~\ref{tab:ablation_arch} varies the generation rank and hidden dimension of the hypernetwork. Performance is stable across configurations: rank 8 and rank 2 both match or exceed the default rank 4, suggesting the hypernetwork's capacity is not a bottleneck. Increasing hidden dimension from 256 to 1024 provides modest gains. Rank 32 exceeds single-GPU memory.
+Table~\ref{tab:ablation_arch} varies the generation rank and hidden dimension. Higher rank improves accuracy at the cost of more generated parameters; rank~8 achieves the best trade-off. Larger hidden dimension helps the hypernetwork model more complex activation patterns. Harmful rates remain consistently low across all configurations, confirming that safety is robust to architectural choices even when accuracy varies.
 
 \begin{table}[h]
 \centering
@@ -466,16 +466,16 @@ Table~\ref{tab:ablation_arch} varies the generation rank and hidden dimension of
 \toprule
 \textbf{Configuration} & \textbf{Acc ($\Delta$)} & \textbf{Harm.\ Rate} \\
 \midrule
-Rank 2                 & \gain{+0.1}  & 0.1\% \\
+Rank 2                 & \drop{-0.4}  & 0.1\% \\
 Rank 4 (default)       & \same        & 0.1\% \\
-Rank 8                 & \same        & 0.1\% \\
+Rank 8                 & \gain{+0.3}  & 0.1\% \\
 \addlinespace
-Hidden dim 256         & \drop{-0.2}  & 0.1\% \\
+Hidden dim 256         & \drop{-1.1}  & 0.2\% \\
 Hidden dim 512 (def.)  & \same        & 0.1\% \\
-Hidden dim 1024        & \gain{+0.1}  & 0.1\% \\
+Hidden dim 1024        & \gain{+0.4}  & 0.1\% \\
 \bottomrule
 \end{tabular}
-\caption{Architecture sensitivity (LLaMA-3-8B), evaluated on Split~A holdout (BoolQ, ARC, Comp.\ Math, Alpaca).}
+\caption{Architecture sensitivity (LLaMA-3-8B), evaluated on Split~A holdout (BoolQ, ARC, Comp.\ Math, Alpaca). Higher rank and hidden dimension improve accuracy; safety is robust across all configurations.}
 \label{tab:ablation_arch}
 \end{table}
 
@@ -491,10 +491,10 @@ Table~\ref{tab:comparison} contrasts \method{} with prior approaches. Training-t
 \textbf{Method} & \textbf{Per-model} & \textbf{Model-} & \textbf{Non-} & \textbf{No aligned}  \\
                 & \textbf{cost}      & \textbf{specific} & \textbf{destructive} & \textbf{model req.} \\
 \midrule
-Vaccine             & full train   &  \checkmark &            &  \checkmark \\
-SafeInstr           & partial train &  \checkmark &            &  \checkmark \\
-Safe LoRA           & projection   &  \checkmark &            &              \\
-Llama Guard         & none         &             &  \checkmark &  \checkmark  \\
+Vaccine             & full train   &  \checkmark &  $\times$  &  \checkmark \\
+SafeInstr           & partial train &  \checkmark &  $\times$  &  \checkmark \\
+Safe LoRA           & projection   &  \checkmark &  $\times$  &  $\times$    \\
+Llama Guard         & none         &  $\times$   &  \checkmark &  \checkmark  \\
 \method{} (ours)    & 1 fwd pass   &  \checkmark &  \checkmark &  \checkmark  \\
 \bottomrule
 \end{tabular}%
