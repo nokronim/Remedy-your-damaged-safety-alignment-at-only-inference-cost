@@ -81,7 +81,7 @@ HiddenDetect~\cite{jiang2025hiddendetect} monitors hidden states but requires pe
 These methods are either model-agnostic (ignoring fine-tuning effects) or per-model (not transferable).
 
 \paragraph{Hypernetworks and Side Networks.}
-Hypernetworks~\cite{ha2017hypernetworks, chauhan2024brief} generate target-network weights conditioned on context, with applications in continual learning~\cite{vonoswald2020continual} and multi-task adaptation~\cite{navon2023equivariant}.
+Hypernetworks~\cite{ha2017hypernetworks, chauhan2024brief} generate target-network weights conditioned on context, with applications in continual learning~\cite{vonoswald2020continual} and multi-task adaptation~\cite{navon2023equivariant}. Recent work has scaled this paradigm to LLMs: \citet{liang2025dragdrop} generate LoRA parameters directly from task descriptions, achieving zero-shot adaptation without gradient-based fine-tuning. Our work pursues a complementary direction---rather than generating task-adaptation weights from text prompts, we generate \textit{safety} weights from model activations, targeting the orthogonal problem of safety restoration.
 Ladder Side-Tuning (LST)~\cite{sung2022lst} attaches a small side network to a frozen backbone for parameter-efficient transfer. We are, to our knowledge, the first to combine hypernetworks with side-network architectures for safety restoration.
 
 
