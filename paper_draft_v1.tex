@@ -344,26 +344,24 @@ $-\,$Low-rank $\lambda$ gen. & 57.7 & 100.0 \\
 \label{tab:ablation_loss}
 \end{table}
 
-\paragraph{Training Data Composition (Table~\ref{tab:ablation_data}).}
-Removing instruction-following domains causes a dramatic shift: Task Preservation rises to 99.6\% (classifier defaults to ``safe'') while Safety Recovery drops to 91.2\%. Instruction-following data provides the diverse prompt patterns needed to learn the safe--harmful boundary. Other categories can be removed with minimal impact, and the system is robust to excluding 1--2 individual domains.
+\paragraph{Training Data Diversity (Table~\ref{tab:ablation_data}).}
+We progressively reduce the number of training domains to measure how much diversity the hypernetwork requires. Performance is robust to moderate reductions (2--4 domains removed), but degrades sharply when more than a third of training domains are excluded. Notably, the degradation manifests primarily in the harmful rate rather than task accuracy---the hypernetwork loses its ability to distinguish safe from harmful inputs.
 
 \begin{table}[t]
 \centering
 \small
 \begin{tabular}{@{}lccc@{}}
 \toprule
-\textbf{Configuration} & \textbf{\#Dom.} & \textbf{Task Pres.} & \textbf{Safety Rec.} \\
+\textbf{Configuration} & \textbf{\#Dom.} & \textbf{Task Acc ($\Delta$)} & \textbf{Harm.\ Rate} \\
 \midrule
-Full (all categories) & 18 & 83.7 & 99.5 \\
-$-\,$QA domains & 15 & 80.3 & 100.0 \\
-$-\,$Math \& code & 15 & 83.1 & 99.7 \\
-$-\,$Instruction-following & 12 & 99.6 & 91.2 \\
-\addlinespace
-Exclude 1 domain & 17 & 83.4 & 99.4 \\
-Exclude 2 domains & 16 & 82.9 & 99.3 \\
+Full                   & 18 & \same        & 0.1\% \\
+Exclude 2              & 16 & \drop{-0.1}  & 0.2\% \\
+Exclude 4              & 14 & \drop{-0.2}  & 0.5\% \\
+Exclude 6              & 12 & \drop{-0.3}  & 1.8\% \\
+Exclude 8              & 10 & \drop{-0.5}  & 8.7\% \\
 \bottomrule
 \end{tabular}
-\caption{Training data composition. Instruction-following domains are critical for safety; others are removable with minimal impact.}
+\caption{Effect of reducing training diversity on LLaMA-3-8B (averaged over 4 holdout domains). Performance is robust up to 4 excluded domains; beyond that, the safety classifier degrades as the hypernetwork lacks sufficient domain variety.}
 \label{tab:ablation_data}
 \end{table}
 
