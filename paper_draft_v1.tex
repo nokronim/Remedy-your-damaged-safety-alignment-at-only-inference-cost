@@ -478,9 +478,9 @@ Dim 1024        & 87.1 & 86.6 & 34.1 & 39.0 & 0.1\% \\
 \section{Per-Domain Safety Scores}
 \label{app:per_domain}
 
-Table~\ref{tab:per_domain_safety} reports harmful rates for all 12 holdout domains across both models and all three safety benchmarks. AdvBench achieves 0\% harmful rate across the board due to its explicit prompt style. HEx-PHI, which contains more subtle harmful content, shows slightly higher rates on Qwen2 (up to 2.3\%) but remains well below the LoRA baseline.
+Table~\ref{tab:per_domain_safety} reports harmful rates for all holdout domains with official HF eval splits, across both models and all three safety benchmarks. AdvBench achieves 0\% harmful rate across the board due to its explicit prompt style. HEx-PHI, with more subtle harmful content, shows slightly higher rates on Qwen2 but remains well below the LoRA baseline.
 
-\begin{table}[h]
+\begin{table}[ht!]
 \centering
 \small
 \resizebox{\columnwidth}{!}{%
