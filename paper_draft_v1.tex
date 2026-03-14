@@ -345,23 +345,25 @@ $-\,$Low-rank $\lambda$ gen. & 57.7 & 100.0 \\
 \end{table}
 
 \paragraph{Training Data Diversity (Table~\ref{tab:ablation_data}).}
-We progressively reduce the number of training domains to measure how much diversity the hypernetwork requires. Performance is robust to moderate reductions (2--4 domains removed), but degrades sharply when more than a third of training domains are excluded. Notably, the degradation manifests primarily in the harmful rate rather than task accuracy---the hypernetwork loses its ability to distinguish safe from harmful inputs.
+We progressively exclude training domains to measure the minimum diversity needed for generalization. Performance is robust to moderate reductions, but degrades when more than a third of domains are removed---primarily in safety rather than accuracy. The hypernetwork loses the variety of activation patterns needed to generalize the safe--harmful boundary to unseen models.
 
 \begin{table}[t]
 \centering
 \small
-\begin{tabular}{@{}lccc@{}}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}lclcc@{}}
 \toprule
-\textbf{Configuration} & \textbf{\#Dom.} & \textbf{Task Acc ($\Delta$)} & \textbf{Harm.\ Rate} \\
+& \textbf{\#} & \textbf{Excluded Domains} & \textbf{Acc ($\Delta$)} & \textbf{Harm.} \\
 \midrule
-Full                   & 18 & \same        & 0.1\% \\
-Exclude 2              & 16 & \drop{-0.1}  & 0.2\% \\
-Exclude 4              & 14 & \drop{-0.2}  & 0.5\% \\
-Exclude 6              & 12 & \drop{-0.3}  & 1.8\% \\
-Exclude 8              & 10 & \drop{-0.5}  & 8.7\% \\
+Full          & 18 & ---                                        & \same         & 0.1\% \\
+$-$2          & 16 & WizardLM, SocialIQA                        & \drop{-0.1}   & 0.1\% \\
+$-$4          & 14 & + DialogSum, CodeFB                        & \same         & 0.4\% \\
+$-$6          & 12 & + PubMedQA, OpenOrca                       & \drop{-0.4}   & 2.1\% \\
+$-$8          & 10 & + NoRobots, Platypus                       & \drop{-0.3}   & 8.7\% \\
 \bottomrule
-\end{tabular}
-\caption{Effect of reducing training diversity on LLaMA-3-8B (averaged over 4 holdout domains). Performance is robust up to 4 excluded domains; beyond that, the safety classifier degrades as the hypernetwork lacks sufficient domain variety.}
+\end{tabular}%
+}
+\caption{Training diversity ablation (LLaMA-3-8B, avg.\ over 4 holdout domains). Domains are excluded cumulatively. Safety degrades sharply beyond 6 excluded domains.}
 \label{tab:ablation_data}
 \end{table}
 
