@@ -253,7 +253,7 @@ Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tu
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}cl cccc ccc@{}}
 \toprule
-& & \multicolumn{4}{c}{\textbf{Task Acc (\%)}} & \multicolumn{3}{c}{\textbf{Harm.\ Rate (\%) $\downarrow$}} \\
+& & \multicolumn{4}{c}{\textbf{Task Acc (\%) $\uparrow$}} & \multicolumn{3}{c}{\textbf{Harm.\ Rate (\%) $\downarrow$}} \\
 \cmidrule(lr){3-6} \cmidrule(lr){7-9}
 & \textbf{Domain} & Base & LoRA & Ours & $\Delta$ & Base & LoRA & Ours \\
 \midrule
@@ -320,7 +320,7 @@ Removing $\mathcal{L}_\text{func}^\text{safe}$ (safe-probe supervision) is the m
 \small
 \begin{tabular}{@{}lcc@{}}
 \toprule
-\textbf{Variant} & \textbf{Acc ($\Delta$)}  & \textbf{Harm.\ Rate $\downarrow$} \\
+\textbf{Variant} & \textbf{Acc ($\Delta$) $\uparrow$}  & \textbf{Harm.\ Rate $\downarrow$} \\
 \midrule
 Full system                              & \same        & 0.1\% \\
 $-\,\mathcal{L}_\text{func}^\text{safe}$ & \drop{-10.3} & 0.3\% \\
@@ -348,7 +348,7 @@ Progressive exclusion shows the method is robust to moderate reductions (up to 4
 \cmidrule(lr){3-6}
 \textbf{Training Config} & \textbf{\#} & BoolQ & ARC & Math$^\dagger$ & Alpaca$^\dagger$ \\
 \midrule
-\multicolumn{6}{@{}l}{\textit{Task Accuracy (\%)}} \\
+\multicolumn{6}{@{}l}{\textit{Task Accuracy (\%) $\uparrow$}} \\
 \midrule
 Full                           & 18 & 86.9 & 86.5 & 34.1 & 38.8 \\
 $-$Dialog \& chat              & 16 & 86.7 & 86.3 & 33.9 & 38.5 \\
@@ -487,7 +487,7 @@ Table~\ref{tab:ablation_arch} varies the generation rank and hidden dimension. H
 \small
 \begin{tabular}{@{}lcc@{}}
 \toprule
-\textbf{Configuration} & \textbf{Acc ($\Delta$)} & \textbf{Harm.\ Rate} \\
+\textbf{Configuration} & \textbf{Acc ($\Delta$) $\uparrow$} & \textbf{Harm.\ Rate $\downarrow$} \\
 \midrule
 Rank 2                 & \drop{-0.4}  & 0.1\% \\
 Rank 4 (default)       & \same        & 0.1\% \\
