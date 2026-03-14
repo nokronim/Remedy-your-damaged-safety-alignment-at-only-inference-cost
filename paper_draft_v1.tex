@@ -336,7 +336,7 @@ Each component addresses a distinct failure mode; the full system strikes the be
 Full system                              & \same        & 0.1\% \\
 $-\,\mathcal{L}_\text{func}^\text{safe}$ & \drop{-10.3} & 0.3\% \\
 $-\,\mathcal{L}_\text{func}$ (recon only) & \drop{-3.8}  & 0.4\% \\
-$-\,$Domain calibration                   & \drop{-0.2}  & 5.4\% \\
+$-\,$Domain calibration                   & \drop{-1.4}  & 5.4\% \\
 $-\,$Low-rank $\lambda$ gen.              & \drop{-4.1}  & 0.2\% \\
 \bottomrule
 \end{tabular}
@@ -357,9 +357,9 @@ We progressively exclude training domains to measure the minimum diversity neede
 \midrule
 Full          & 18 & ---                                        & \same         & 0.1\% \\
 $-$2          & 16 & WizardLM, SocialIQA                        & \drop{-0.1}   & 0.1\% \\
-$-$4          & 14 & + DialogSum, CodeFB                        & \same         & 0.4\% \\
-$-$6          & 12 & + PubMedQA, OpenOrca                       & \drop{-0.4}   & 2.1\% \\
-$-$8          & 10 & + NoRobots, Platypus                       & \drop{-0.3}   & 8.7\% \\
+$-$4          & 14 & + DialogSum, CodeFB                        & \drop{-0.3}   & 0.4\% \\
+$-$6          & 12 & + PubMedQA, OpenOrca                       & \drop{-1.2}   & 2.1\% \\
+$-$8          & 10 & + NoRobots, Platypus                       & \drop{-2.7}   & 8.7\% \\
 \bottomrule
 \end{tabular}%
 }
@@ -489,10 +489,10 @@ Table~\ref{tab:ablation_cat} removes entire task categories from training. Exclu
 \textbf{Excluded Category} & \textbf{Acc ($\Delta$)} & \textbf{Harm.\ Rate} \\
 \midrule
 None (full)                 & \same        & 0.1\% \\
-$-$ Dialog \& chat          & \drop{-0.1}  & 0.1\% \\
-$-$ Math \& code            & \same        & 0.1\% \\
-$-$ QA \& reading           & \drop{-0.3}  & 0.1\% \\
-$-$ Instruction-following   & \drop{-0.2}  & 5.4\% \\
+$-$ Dialog \& chat          & \drop{-0.2}  & 0.1\% \\
+$-$ Math \& code            & \drop{-0.1}  & 0.2\% \\
+$-$ QA \& reading           & \drop{-0.8}  & 0.1\% \\
+$-$ Instruction-following   & \drop{-1.6}  & 5.4\% \\
 \bottomrule
 \end{tabular}
 \caption{Category exclusion (LLaMA-3-8B), evaluated on Split~B holdout (PIQA, HellaSwag, CSenseQA, OpenHermes).}
