@@ -480,24 +480,26 @@ Hidden dim 1024        & \gain{+0.1}  & 0.1\% \\
 \end{table}
 
 \paragraph{Comparison with Existing Defenses.}
-Table~\ref{tab:comparison} contrasts \method{} with prior approaches along key practical dimensions. Post-hoc methods like Safe LoRA~\cite{hsu2024safe} and Vaccine~\cite{yi2024vaccine} require access to the aligned model weights and intervene during fine-tuning, making them inapplicable to already-deployed checkpoints. External classifiers like Llama Guard~\cite{inan2023llama} are model-agnostic but cannot adapt to how each fine-tuned variant has shifted the safety boundary. \method{} uniquely requires no safety data, no retraining, and no modification of the fine-tuned model, while producing model-specific safety classifiers.
+Table~\ref{tab:comparison} contrasts \method{} with prior approaches. Training-time methods (Vaccine~\cite{yi2024vaccine}, SafeInstr~\cite{bianchi2024safetytuned}) must intervene during fine-tuning. Safe LoRA~\cite{hsu2024safe} is post-hoc but modifies the model weights and requires access to the original aligned checkpoint. External classifiers (Llama Guard~\cite{inan2023llama}) work on any model but apply the same safety boundary regardless of how fine-tuning shifted it. \method{} uniquely combines model-specific adaptation with non-destructive, post-deployment applicability.
 
 \begin{table}[h]
 \centering
 \small
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}lccccc@{}}
+\begin{tabular}{@{}lcccc@{}}
 \toprule
-\textbf{Method} & \textbf{No retrain} & \textbf{No safety data} & \textbf{Model-specific} & \textbf{Post-deploy} \\
+\textbf{Method} & \textbf{Per-model} & \textbf{Model-} & \textbf{Non-} & \textbf{No aligned}  \\
+                & \textbf{cost}      & \textbf{specific} & \textbf{destructive} & \textbf{model req.} \\
 \midrule
-Safe LoRA         & \checkmark & \checkmark & \checkmark &            \\
-Vaccine           &            &            & \checkmark &            \\
-Llama Guard       & \checkmark & \checkmark &            & \checkmark \\
-\method{} (ours)  & \checkmark & \checkmark & \checkmark & \checkmark \\
+Vaccine             & full train   &  \checkmark &            &  \checkmark \\
+SafeInstr           & partial train &  \checkmark &            &  \checkmark \\
+Safe LoRA           & projection   &  \checkmark &            &              \\
+Llama Guard         & none         &             &  \checkmark &  \checkmark  \\
+\method{} (ours)    & 1 fwd pass   &  \checkmark &  \checkmark &  \checkmark  \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Qualitative comparison with existing defenses. \method{} is the only approach that is model-specific, requires no retraining or safety data, and can be applied post-deployment.}
+\caption{Comparison with existing defenses. \textit{Per-model cost}: computation needed for each new checkpoint. \textit{Model-specific}: adapts to how fine-tuning shifted the safety boundary. \textit{Non-destructive}: does not modify the model weights. \textit{No aligned model req.}: does not need access to the original aligned checkpoint at deployment.}
 \label{tab:comparison}
 \end{table}
 
