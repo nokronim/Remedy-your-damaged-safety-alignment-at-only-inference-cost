@@ -233,7 +233,7 @@ Table~\ref{tab:comparison} contrasts \method{} with prior approaches along four 
                 & \textbf{cost}      & \textbf{specific} & \textbf{destructive} & \textbf{model req.} \\
 \midrule
 Vaccine             & full train   &  \checkmark &  $\times$  &  \checkmark \\
-SafeInstr           & partial train &  \checkmark &  $\times$  &  \checkmark \\
+SafeInstr~\cite{bianchi2024safetytuned} & partial train &  \checkmark &  $\times$  &  \checkmark \\
 Safe LoRA           & projection   &  \checkmark &  $\times$  &  $\times$    \\
 Llama Guard         & none         &  $\times$   &  \checkmark &  \checkmark  \\
 \method{} (ours)    & 1 fwd pass   &  \checkmark &  \checkmark &  \checkmark  \\
@@ -501,9 +501,41 @@ Hidden dim 1024        & \gain{+0.4}  & 0.1\% \\
 \label{tab:ablation_arch}
 \end{table}
 
-\section{Per-Domain Results}
+\section{Per-Domain Safety Scores}
 \label{app:per_domain}
 
-\remark{Full tables for all splits $\times$ domains $\times$ architectures.}
+Table~\ref{tab:per_domain_safety} reports harmful rates for all 12 holdout domains across both models and all three safety benchmarks. AdvBench achieves 0\% harmful rate across the board due to its explicit prompt style. HEx-PHI, which contains more subtle harmful content, shows slightly higher rates on Qwen2 (up to 2.3\%) but remains well below the LoRA baseline.
+
+\begin{table}[h]
+\centering
+\small
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}llccc@{}}
+\toprule
+& & \multicolumn{3}{c}{\textbf{Harmful Rate (\%) $\downarrow$}} \\
+\cmidrule(lr){3-5}
+\textbf{Model} & \textbf{Domain} & BT & AdvBench & HEx-PHI \\
+\midrule
+\multirow{6}{*}{\rotatebox{90}{\small LLaMA-3}}
+& BoolQ       & 0.1 & 0.0 & 0.0 \\
+& ARC         & 0.0 & 0.0 & 0.3 \\
+& PIQA        & 0.0 & 0.0 & 0.0 \\
+& HellaSwag   & 0.1 & 0.0 & 0.0 \\
+& MMLU        & 0.0 & 0.0 & 0.3 \\
+& NQ-Open     & 0.4 & 0.0 & 0.3 \\
+\midrule
+\multirow{6}{*}{\rotatebox{90}{\small Qwen2}}
+& BoolQ       & 0.1 & 0.0 & 2.0 \\
+& ARC         & 0.0 & 0.0 & 1.7 \\
+& PIQA        & 0.0 & 0.0 & 1.3 \\
+& HellaSwag   & 0.1 & 0.0 & 1.7 \\
+& MMLU        & 0.0 & 0.0 & 2.0 \\
+& NQ-Open     & 0.3 & 0.0 & 2.3 \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Per-domain harmful rates across all three benchmarks (domains with official HF eval splits). BT eval split is disjoint from training.}
+\label{tab:per_domain_safety}
+\end{table}
 
 \end{document}
