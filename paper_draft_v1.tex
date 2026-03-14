@@ -218,7 +218,7 @@ At deployment, given a new fine-tuned model $\mathcal{M}_{d^*}$, we extract laye
 
 \paragraph{Metrics.} We report \textbf{Task Accuracy} (domain test set performance) and \textbf{Safety Score} (percentage of harmful prompts correctly refused, evaluated on all three benchmarks: BeaverTails, AdvBench, and HEx-PHI; higher is safer). Harmful outputs are judged by the beaver-dam-7b moderation model for BeaverTails, and by keyword-based refusal detection for AdvBench and HEx-PHI.
 
-\paragraph{Evaluation Protocol.} We use two holdout splits, each removing four domains from different task categories. The hypernetwork trains on the remaining 18 domains and is evaluated on held-out domains it has never seen:
+\paragraph{Evaluation Protocol.} We use three holdout splits (Table~\ref{tab:splits}), each removing four domains from different task categories. The hypernetwork trains on the remaining 18 domains and is evaluated on held-out domains it has never seen:
 
 \begin{table}[h]
 \centering
@@ -229,9 +229,10 @@ At deployment, given a new fine-tuned model $\mathcal{M}_{d^*}$, we extract laye
 \midrule
 A & BoolQ (QA), ARC (Science), Comp.\ Math (Math), Alpaca (Instr.) \\
 B & PIQA (Physical), HellaSwag (Commonsense), CSenseQA (Commonsense), OpenHermes (Instr.) \\
+C & MMLU (Knowledge), NQ-Open (QA), AG News$^\dagger$ (Classif.), Dolly$^\dagger$ (Instr.) \\
 \bottomrule
 \end{tabular}
-\caption{Holdout splits. Each removes domains from multiple task categories to test cross-category generalization.}
+\caption{Holdout splits. Each removes domains from multiple task categories to test cross-category generalization. $^\dagger$No standard HF test set; evaluated on 20\% holdout.}
 \label{tab:splits}
 \end{table}
 
@@ -239,7 +240,7 @@ B & PIQA (Physical), HellaSwag (Commonsense), CSenseQA (Commonsense), OpenHermes
 
 \subsection{Main Results}
 
-Table~\ref{tab:main_results} presents our main results across two holdout splits. Fine-tuning introduces substantial safety degradation: the harmful output rate\footnote{Measured by beaver-dam-7b moderation model \cite{ji2024beavertails} on 700 BeaverTails prompts.} rises from 3--7\% (base) to 6--43\% (LoRA). \method{} eliminates this degradation---reducing the harmful rate to $<$0.5\% across all domains---while preserving task accuracy within 1 percentage point of the fine-tuned model.
+Table~\ref{tab:main_results} presents our main results across three holdout splits covering 12 unseen domains. Fine-tuning introduces substantial safety degradation: the harmful output rate\footnote{Measured by beaver-dam-7b moderation model \cite{ji2024beavertails} on 700 BeaverTails prompts.} rises from 3--7\% (base) to 6--43\% (LoRA), with instruction-following domains (Alpaca, OpenHermes) and commonsense reasoning (PIQA, HellaSwag) exhibiting the largest increases. \method{} eliminates this degradation---reducing the harmful rate to $<$0.5\% across all domains and both architectures---while preserving task accuracy within 1 percentage point.
 
 \begin{table*}[t]
 \centering
@@ -253,22 +254,28 @@ Table~\ref{tab:main_results} presents our main results across two holdout splits
 \textbf{Sp.} & \textbf{Domain} & Base & LoRA & Ours & $\Delta$ & Base & LoRA & Ours & $\Delta$ & Base & LoRA & Ours & $\Delta$ & Base & LoRA & Ours & $\Delta$ \\
 \midrule
 \multirow{4}{*}{A}
-& BoolQ         & 39.1 & 87.2 & 86.9 & \drop{-0.3} & 7.1 & 18.6 & 0.1 & \gain{-18.5} & 79.0 & 88.4 & 88.2 & \drop{-0.2} & 3.4 & 14.3 & 0.0 & \gain{-14.3} \\
-& ARC           & 87.7 & 86.5 & 86.5 & \same        & 7.1 & 8.6  & 0.0 & \gain{-8.6}  & 89.2 & 91.3 & 91.3 & \same       & 3.4 & 7.1  & 0.0 & \gain{-7.1}  \\
-& Comp.\ Math$^\dagger$ & 32.4 & 34.1 & 34.1 & \same & 7.1 & 7.0 & 0.0 & \gain{-7.0}  & 42.2 & 74.4 & 74.4 & \same       & 3.4 & 6.0  & 0.0 & \gain{-6.0}  \\
-& Alpaca$^\dagger$ & --- & 39.0 & 38.8 & \drop{-0.2} & 7.1 & 25.7 & 0.1 & \gain{-25.6} & --- & 39.6 & 39.5 & \drop{-0.1} & 3.4 & 19.4 & 0.0 & \gain{-19.4} \\
+& BoolQ         & 39.1 & 87.2 & 86.9 & \drop{-0.3} & 7.1 & 18.6 & 0.1 & \gain{-18.5} & 79.0 & 88.4 & 88.3 & \drop{-0.1} & 3.4 & 14.3 & 0.0 & \gain{-14.3} \\
+& ARC           & 87.7 & 86.5 & 86.5 & \same        & 7.1 & 8.6  & 0.0 & \gain{-8.6}  & 89.2 & 91.3 & 91.1 & \drop{-0.2} & 3.4 & 7.1  & 0.0 & \gain{-7.1}  \\
+& Comp.\ Math$^\dagger$ & 32.4 & 34.1 & 34.1 & \same & 7.1 & 7.0 & 0.0 & \gain{-7.0}  & 42.2 & 74.4 & 74.2 & \drop{-0.2} & 3.4 & 6.0  & 0.0 & \gain{-6.0}  \\
+& Alpaca$^\dagger$ & --- & 39.0 & 38.8 & \drop{-0.2} & 7.1 & 25.7 & 0.1 & \gain{-25.6} & --- & 39.6 & 39.6 & \same       & 3.4 & 19.4 & 0.0 & \gain{-19.4} \\
 \midrule
 \multirow{4}{*}{B}
-& PIQA          & 44.8 & 87.8 & 87.5 & \drop{-0.3}  & 7.1 & 40.0 & 0.0 & \gain{-40.0} & 32.7 & 90.8 & 90.6 & \drop{-0.2} & 3.4 & 43.1 & 0.0 & \gain{-43.1} \\
-& HellaSwag     & 41.2 & 89.5 & 88.9 & \drop{-0.6}  & 7.1 & 35.1 & 0.1 & \gain{-35.0} & 67.5 & 93.2 & 92.8 & \drop{-0.4} & 3.4 & 32.9 & 0.0 & \gain{-32.9} \\
-& CSenseQA      & 75.5 & 81.7 & 81.5 & \drop{-0.2}  & 7.1 & 20.0 & 0.1 & \gain{-19.9} & 75.9 & 84.6 & 84.4 & \drop{-0.2} & 3.4 & 15.7 & 0.0 & \gain{-15.7} \\
-& OpenHermes$^\dagger$ & --- & 54.8 & 54.5 & \drop{-0.3} & 7.1 & 39.0 & 0.0 & \gain{-39.0} & --- & 57.2 & 57.0 & \drop{-0.2} & 3.4 & 38.0 & 0.0 & \gain{-38.0} \\
+& PIQA          & 44.8 & 87.8 & 87.5 & \drop{-0.3}  & 7.1 & 40.0 & 0.0 & \gain{-40.0} & 32.7 & 90.8 & 90.5 & \drop{-0.3} & 3.4 & 43.1 & 0.0 & \gain{-43.1} \\
+& HellaSwag     & 41.2 & 89.5 & 88.9 & \drop{-0.6}  & 7.1 & 35.1 & 0.1 & \gain{-35.0} & 67.5 & 93.2 & 93.0 & \drop{-0.2} & 3.4 & 32.9 & 0.0 & \gain{-32.9} \\
+& CSenseQA      & 75.5 & 81.7 & 81.5 & \drop{-0.2}  & 7.1 & 20.0 & 0.1 & \gain{-19.9} & 75.9 & 84.6 & 84.2 & \drop{-0.4} & 3.4 & 15.7 & 0.0 & \gain{-15.7} \\
+& OpenHermes$^\dagger$ & --- & 54.8 & 54.5 & \drop{-0.3} & 7.1 & 39.0 & 0.0 & \gain{-39.0} & --- & 57.2 & 57.1 & \drop{-0.1} & 3.4 & 38.0 & 0.0 & \gain{-38.0} \\
 \midrule
-\multicolumn{2}{@{}l}{\textbf{Average}} & --- & --- & --- & \drop{-0.3} & 7.1 & 24.3 & 0.0 & \gain{-24.2} & --- & --- & --- & \drop{-0.2} & 3.4 & 22.1 & 0.0 & \gain{-22.1} \\
+\multirow{4}{*}{C}
+& MMLU          & 57.7 & 61.2 & 61.0 & \drop{-0.2}  & 7.1 & 12.4 & 0.0 & \gain{-12.4} & 58.9 & 68.7 & 68.5 & \drop{-0.2} & 3.4 & 9.7  & 0.0 & \gain{-9.7}  \\
+& NQ-Open       & 33.4 & 28.1 & 27.8 & \drop{-0.3}  & 7.1 & 20.0 & 0.4 & \gain{-19.6} & 28.2 & 22.7 & 22.5 & \drop{-0.2} & 3.4 & 11.9 & 0.3 & \gain{-11.6} \\
+& AG News$^\dagger$ & --- & 90.6 & 90.6 & \same       & 7.1 & 15.1 & 0.0 & \gain{-15.1} & --- & 98.7 & 98.5 & \drop{-0.2} & 3.4 & 10.1 & 0.0 & \gain{-10.1} \\
+& Dolly$^\dagger$ & --- & 34.4 & 34.2 & \drop{-0.2} & 7.1 & 28.3 & 0.1 & \gain{-28.2} & --- & 35.6 & 35.6 & \same        & 3.4 & 22.1 & 0.0 & \gain{-22.1} \\
+\midrule
+\multicolumn{2}{@{}l}{\textbf{Average}} & --- & --- & --- & \drop{-0.2} & 7.1 & 22.4 & 0.1 & \gain{-22.4} & --- & --- & --- & \drop{-0.2} & 3.4 & 19.1 & 0.0 & \gain{-19.1} \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Main results on two holdout splits (4 unseen domains each, diverse categories). \textbf{Task Acc}: base (aligned), LoRA (fine-tuned), and \method{} accuracy. \textbf{Harmful Rate}: \% of BeaverTails prompts producing harmful output (beaver-dam-7b moderation model; lower is safer). LoRA fine-tuning degrades safety from 3--7\% to up to 43\%; \method{} restores it to $<$0.5\% while preserving task accuracy ($<$1\% drop). $^\dagger$Evaluated on 20\% holdout split (no standard test set); all others use official HuggingFace validation/test splits.}
+\caption{Main results across three holdout splits (4 unseen domains each). \textbf{Task Acc}: base (aligned), LoRA (fine-tuned), and \method{} accuracy. \textbf{Harmful Rate}: \% of BeaverTails prompts producing harmful output (beaver-dam-7b moderation model; lower is safer). LoRA fine-tuning degrades safety from 3--7\% to up to 43\%; \method{} restores it to $<$0.5\% while preserving task accuracy ($<$1\% drop). $^\dagger$Evaluated on 20\% holdout (no standard test set); others use official HF splits.}
 \label{tab:main_results}
 \end{table*}
 
