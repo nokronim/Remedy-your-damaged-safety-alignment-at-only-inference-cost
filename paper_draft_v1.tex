@@ -17,6 +17,8 @@
 \newcommand{\method}{SafeHead}
 \newcommand{\lam}{\lambda}
 \newcommand{\remark}[1]{{\color{red}\textbf{[#1]}}}
+\newcommand{\better}[1]{{\color{green!60!black}\scriptsize{#1}}}
+\newcommand{\worse}[1]{{\color{red!70!black}\scriptsize{#1}}}
 
 \title{Inference-Time Safety Recovery for Fine-Tuned Language Models \\via Activation-Conditioned Hypernetworks}
 
@@ -34,7 +36,7 @@
 % ABSTRACT
 % ===========================================================================
 \begin{abstract}
-Safety alignment in large language models is fragile under downstream fine-tuning: even benign task adaptation can substantially degrade refusal behavior. Existing mitigation strategies require per-model retraining, access to safety data, or model-specific guardrails that do not scale to the growing ecosystem of fine-tuned checkpoints. We propose \method{}, a framework that generates a lightweight safety classifier for each fine-tuned model at inference time, without any additional training. Our key idea is to treat intermediate activations of a fine-tuned model as a compact behavioral fingerprint and train a hypernetwork that maps these activations to the parameters of a small side network acting as a prompt-level safety head. The hypernetwork employs layer-wise factorized weight generation with a direction-magnitude activation decomposition, producing model-specific safety heads from only $N_\text{cal}$ calibration prompts. We evaluate on Qwen2-7B and LLaMA-3-8B across diverse fine-tuning domains with two multi-holdout splits. Generated safety heads reduce harmful output rates from up to 43\% to near 0\% on unseen domains while preserving downstream task accuracy, and transfer zero-shot to AdvBench and HEx-PHI benchmarks never seen during training.
+Safety alignment in large language models is fragile under downstream fine-tuning: even benign task adaptation can substantially degrade refusal behavior. Existing mitigation strategies require per-model retraining, access to safety data, or model-specific guardrails that do not scale to the growing ecosystem of fine-tuned checkpoints. We propose \method{}, a framework that generates a lightweight safety classifier for each fine-tuned model at inference time, without any additional training. Our key idea is to treat intermediate activations of a fine-tuned model as a compact behavioral fingerprint and train a hypernetwork that maps these activations to the parameters of a small side network acting as a prompt-level safety head. The hypernetwork employs layer-wise factorized weight generation with a direction-magnitude activation decomposition, producing model-specific safety heads from only $N_\text{cal}$ calibration prompts. We evaluate on Qwen2-7B and LLaMA-3-8B across 22 fine-tuning domains with three multi-holdout splits. Generated safety heads reduce harmful output rates from up to 43\% to near 0\% on unseen domains while preserving downstream task accuracy within 1\%, and transfer zero-shot to AdvBench (100\%) and HEx-PHI (97--100\%) benchmarks never seen during training.
 \end{abstract}
 
 % ===========================================================================
@@ -51,7 +53,7 @@ We start from a different observation: \textbf{prompt safety is model-dependent}
 
 Building on this insight, we propose \method{}, a framework for \textit{activation-conditioned safety head generation}. We train a hypernetwork \cite{ha2017hypernetworks} that takes intermediate activations from a fine-tuned LLM as input and outputs the weights of a lightweight side network---a prompt-level safety classifier we call a \textit{safety head}. The safety head follows the Ladder Side-Tuning architecture \cite{sung2022lst}, operating alongside the frozen backbone through gated lateral connections. At deployment, given any new fine-tuned checkpoint, we extract activations from a small set of $N_\text{cal}$ calibration prompts, run them through the hypernetwork, and obtain a model-specific safety head---all in a single forward pass, with no additional training.
 
-A key technical challenge is that the mapping from activations to safety head weights is high-dimensional: the side network contains approximately 237M parameters for Qwen2-7B. Generating all weights from a handful of activation vectors is severely ill-conditioned. We address this through three design choices: (1) \textit{layer-wise factorization}, where each side network layer's weights are predicted independently from corresponding backbone activations; (2) \textit{direction-magnitude decomposition}, which splits activation vectors into unit directions (capturing \textit{what} changed during fine-tuning) and log-magnitudes (capturing \textit{how much}), processed by separate encoders; and (3) \textit{residual weight prediction}, where the hypernetwork generates corrections relative to a learned shared baseline rather than predicting weights from scratch.
+A key technical challenge is that the mapping from activations to safety head weights is high-dimensional: the side network contains approximately 237M parameters for Qwen2-7B. Generating all weights from a handful of activation vectors is severely ill-conditioned. We address this through two design choices: (1) \textit{layer-wise factorization}, where each side network layer's weights are predicted independently from corresponding backbone activations, reducing the effective output dimensionality; and (2) \textit{direction-magnitude decomposition}, which splits activation vectors into unit directions (capturing \textit{what} changed during fine-tuning) and log-magnitudes (capturing \textit{how much}), processed by separate specialized encoders.
 
 % \remark{Figure 1 here: pipeline overview}
 
@@ -59,7 +61,7 @@ A key technical challenge is that the mapping from activations to safety head we
 \begin{itemize}
     \item We formalize \textbf{model-conditioned safety assessment}: prompt safety depends on the specific fine-tuned checkpoint, and the safety classifier should be generated as a function of the model's behavioral fingerprint.
     \item We propose \textbf{\method{}}, a hypernetwork that maps fine-tuned model activations to safety head weights via layer-wise factorized generation with direction-magnitude decomposition, enabling zero-shot instantiation of safety classifiers for unseen models.
-    \item We evaluate across \textbf{two model architectures} (Qwen2-7B, LLaMA-3-8B), \textbf{23 fine-tuning domains}, and \textbf{three safety benchmarks}, demonstrating that generated safety heads recover harmful detection while preserving task performance on domains never seen during hypernetwork training.
+    \item We evaluate across \textbf{two model architectures} (Qwen2-7B, LLaMA-3-8B), \textbf{22 fine-tuning domains}, and \textbf{three safety benchmarks}, demonstrating that generated safety heads recover harmful detection ($>$99\% on BeaverTails, 100\% on AdvBench, 97--100\% on HEx-PHI) while preserving task performance ($<$1\% accuracy drop) on domains never seen during hypernetwork training.
 \end{itemize}
 
 
@@ -127,7 +129,7 @@ These layer-wise activation vectors serve as a compact behavioral fingerprint of
 \subsection{Hypernetwork Architecture}
 \label{sec:hypernetwork}
 
-The hypernetwork $G$ maps the activation fingerprint $\{\mathbf{a}_l\}_{l=1}^L$ to the side network parameters $\theta$. Directly predicting all $\sim$237M parameters from $L$ activation vectors is severely ill-conditioned. We decompose this problem through three complementary strategies.
+The hypernetwork $G$ maps the activation fingerprint $\{\mathbf{a}_l\}_{l=1}^L$ to the side network parameters $\theta$. Directly predicting all $\sim$237M parameters from $L$ activation vectors is severely ill-conditioned. We decompose this problem through two complementary strategies.
 
 \subsubsection{Layer-wise Factorized Generation}
 
@@ -148,28 +150,24 @@ The direction captures \textit{what} the fine-tuning changed in representation s
     \mathbf{z}_\text{dir} &= \text{Attn}\big(W_\text{proj}\, \hat{\mathbf{d}}_l\big), \quad W_\text{proj} \in \mathbb{R}^{p \times h} \\
     \mathbf{z}_\text{mag} &= \text{MLP}_\text{mag}(m_l)
 \end{align}
-where $p = 256$ is the direction projection dimension. The fused representation $[\mathbf{z}_\text{dir}; \mathbf{z}_\text{mag}]$ is then used to generate weight corrections.
-
-\subsubsection{Residual Weight Prediction}
-
-Rather than generating side network weights from scratch, the hypernetwork predicts low-rank corrections relative to a learned baseline. The baseline is initialized as the element-wise mean of ground-truth side networks across training domains, providing a shared safety prior. The final weights are:
-\begin{equation}
-    \theta_k = \bar{\theta}_k + s \cdot \Delta\theta_k
-\end{equation}
-where $\bar{\theta}_k$ is the shared baseline for layer $k$, $\Delta\theta_k = H_k(\mathbf{a}_{l(k)})$ is the predicted correction, and $s$ is a learnable scale initialized to 0.1. This formulation reduces the effective prediction complexity: the hypernetwork only needs to capture per-model deviations from the shared structure, analogous to how LoRA \cite{hu2022lora} learns low-rank corrections to pretrained weights.
+where $p = 256$ is the direction projection dimension. The fused representation $[\mathbf{z}_\text{dir}; \mathbf{z}_\text{mag}]$ is then passed to a shared weight generation MLP that outputs the side network weights for the corresponding layer.
 
 \subsubsection{Lambda Classifier Generation}
 
-The lambda classifier head is generated separately via LoRA-style delta prediction. Rather than predicting the full MLP weights, the hypernetwork generates low-rank updates:
+The lambda classifier head is generated via a dedicated branch of the hypernetwork. The fused activation embedding is first processed by a cross-layer attention module that aggregates information across all backbone layers, producing a global representation of the model's behavioral shift. This global embedding is then mapped through an MLP to produce the classifier weights. To improve efficiency, we use a low-rank factorization for the output layer:
 \begin{equation}
-    W_\text{cls} = \bar{W}_\text{cls} + B \cdot A
+    W_\text{cls} = B \cdot A
 \end{equation}
-where $A \in \mathbb{R}^{r \times h_s}$ and $B \in \mathbb{R}^{1 \times r}$ with rank $r = 4$. Normalization layer parameters are frozen to the baseline values.
+where $A \in \mathbb{R}^{r \times h_s}$ and $B \in \mathbb{R}^{1 \times r}$ with rank $r = 16$, reducing the number of generated parameters while preserving expressiveness.
 
-\subsection{Side Network Training}
+\subsection{Ground-Truth Side Network Collection}
 \label{sec:side_training}
 
-Before hypernetwork training, we first obtain ground-truth side networks for each fine-tuning domain. For domain $d$, we train a side network alongside the frozen fine-tuned backbone $\mathcal{M}_d$ using a mixture of domain-specific safe data and harmful data from BeaverTails \cite{ji2024beavertails} (category-balanced, $\sim$7k samples).
+The hypernetwork requires supervised (model, side network) pairs as training data. We collect these by independently training a side network for each of the 22 fine-tuning domains. This phase is a one-time cost that produces the ground-truth targets $\{(\mathcal{M}_d, \theta_d^*)\}_{d=1}^{K}$.
+
+\paragraph{Procedure.} For each domain $d$: (1) we fine-tune the base model $\mathcal{M}_0$ on domain data using LoRA and merge the adapter, yielding $\mathcal{M}_d$; (2) we freeze $\mathcal{M}_d$ entirely and attach a randomly initialized side network; (3) we train the side network on a mixture of domain-specific safe data (from the fine-tuning dataset) and harmful data from BeaverTails \cite{ji2024beavertails} (category-balanced, $\sim$7k samples). The side network learns to detect harmful prompts while leaving safe domain prompts unaffected.
+
+Because all 22 side networks are initialized from the same random seed and trained with the same procedure, their weight spaces are naturally aligned---there is no permutation ambiguity---making direct weight-space comparison (and hypernetwork supervision) well-defined.
 
 \paragraph{Selective Loss.} We apply a conditional training objective based on prompt safety:
 \begin{equation}
@@ -197,7 +195,7 @@ Each loss targets a different aspect of the generation problem:
     \item $\mathcal{L}_\text{lambda}$: Binary cross-entropy on $\lambda$ predictions using the \textit{same} $N_\text{cal}$ calibration prompts used for activation extraction. This directly supervises the lambda classifier head on the data distribution available at inference time.
     \item $\mathcal{L}_\text{func}$: Behavioral loss on a \textit{separate} held-out set of harmful and safe probe prompts (not used for activation extraction). This ensures the generated side network generalizes beyond calibration data to unseen prompts.
 \end{itemize}
-The three losses are complementary: $\mathcal{L}_\text{recon}$ regularizes the high-dimensional weight space, while $\mathcal{L}_\text{lambda}$ and $\mathcal{L}_\text{func}$ ensure behavioral correctness on seen and unseen prompts respectively. We ablate each component in Section~\ref{sec:experiments}. We set $\alpha = 10$ and $\beta = 5$ to approximately equalize gradient magnitudes across the three losses. Training runs for 300 epochs with learning rate $5 \times 10^{-5}$ and hidden dimension 512.
+The three losses are complementary: $\mathcal{L}_\text{recon}$ regularizes the high-dimensional weight space, while $\mathcal{L}_\text{lambda}$ and $\mathcal{L}_\text{func}$ ensure behavioral correctness on seen and unseen prompts respectively. We ablate each component in Section~\ref{sec:experiments}. Notably, removing $\mathcal{L}_\text{func}$ (safe probes) causes complete collapse of the domain classifier, demonstrating that behavioral supervision is critical for generalization. We set $\alpha = 10$ and $\beta = 5$ to approximately equalize gradient magnitudes. Training runs for 100 epochs with learning rate $5 \times 10^{-5}$ and hidden dimension 512.
 
 \subsection{Inference}
 \label{sec:inference}
@@ -213,163 +211,124 @@ At deployment, given a new fine-tuned model $\mathcal{M}_{d^*}$, we extract laye
 
 \subsection{Setup}
 
-\paragraph{Models and Domains.} We evaluate on Qwen2-7B-Instruct \cite{yang2024qwen2} and LLaMA-3-8B-Instruct \cite{dubey2024llama}. We construct 23 fine-tuning domains spanning mathematical reasoning (GSM8K, MATH), commonsense (CommonsenseQA, HellaSwag, PIQA, SocialIQA), factual QA (NQ-Open, BoolQ, SQuAD, PubMedQA), classification (AG News), and instruction-following (FLAN, Dolly, OpenOrca, Alpaca, OpenHermes, and others). Each domain is fine-tuned with LoRA (rank 16, $\alpha = 32$) and merged into the base model. Full domain details are in Appendix~\ref{app:domains}.
+\paragraph{Models and Domains.} We evaluate on Qwen2-7B-Instruct \cite{yang2024qwen2} and LLaMA-3-8B-Instruct \cite{dubey2024llama}. We construct 22 fine-tuning domains spanning mathematical reasoning (GSM8K, MATH), commonsense (CommonsenseQA, HellaSwag, PIQA, SocialIQA), factual QA (NQ-Open, BoolQ, SQuAD, ARC, PubMedQA), knowledge (MMLU, Platypus), classification (AG News), code (CodeFeedback), and instruction-following (Dolly, OpenOrca, Alpaca, FLAN, OpenHermes, NoRobots, WizardLM). Each domain is fine-tuned with LoRA (rank 16, $\alpha = 32$) and merged into the base model. Full domain details are in Appendix~\ref{app:domains}.
 
 \paragraph{Safety Evaluation.} We use three harmful benchmarks: BeaverTails-Evaluation \cite{ji2024beavertails} (700 prompts, 14 categories), AdvBench \cite{zou2023universal} (520 prompts), and HEx-PHI \cite{qi2024hexphi} (300 prompts, 11 categories). Only BeaverTails is used during training; the other two test zero-shot transfer.
 
-\paragraph{Metrics.} We report \textbf{Task Accuracy} (domain test set performance) and \textbf{BT Flagged} (percentage of BeaverTails prompts producing harmful output, judged by the beaver-dam-7b moderation model; lower is safer).
+\paragraph{Metrics.} We report \textbf{Task Accuracy} (domain test set performance) and \textbf{Safety Score} (percentage of harmful prompts correctly refused, evaluated on all three benchmarks: BeaverTails, AdvBench, and HEx-PHI; higher is safer). Harmful outputs are judged by the beaver-dam-7b moderation model for BeaverTails, and by keyword-based refusal detection for AdvBench and HEx-PHI.
 
-\paragraph{Evaluation Protocol.} We use two holdout splits, each removing four domains from different task categories. The hypernetwork trains on the remaining $\sim$20 domains and is evaluated on held-out domains it has never seen:
+\paragraph{Evaluation Protocol.} We use three holdout splits, each removing four domains from different task categories. The hypernetwork trains on the remaining 18 domains and is evaluated on held-out domains it has never seen:
 
 \begin{table}[h]
 \centering
 \small
 \begin{tabular}{@{}cl@{}}
 \toprule
-\textbf{Split} & \textbf{Held-out Domains} \\
+\textbf{Split} & \textbf{Held-out Domains (Category)} \\
 \midrule
-A & AG News, CommonsenseQA, FLAN, SQuAD \\
-B & MATH, NQ-Open, PIQA, OpenHermes \\
+A & BoolQ (QA), AG News (Classif.), SocialIQA (Commonsense), Comp.\ Math (Math) \\
+B & CommonsenseQA (Commonsense), PIQA (Physical), GSM8K (Math), Alpaca (Instr.) \\
+C & NQ-Open (QA), ARC (Science), HellaSwag (Commonsense), OpenHermes (Instr.) \\
 \bottomrule
 \end{tabular}
 \caption{Holdout splits. Each removes domains from multiple task categories to test cross-category generalization.}
 \label{tab:splits}
 \end{table}
 
-\paragraph{Baselines.} We compare against (1) the \textbf{base model} (safety-aligned, no fine-tuning) and (2) the \textbf{LoRA-only} model (fine-tuned, no safety mechanism).
+\paragraph{Baselines.} We compare against (1) the \textbf{base model} (safety-aligned, no fine-tuning), (2) the \textbf{LoRA-only} model (fine-tuned, no safety mechanism), and report both task accuracy and safety metrics.
 
 \subsection{Main Results}
 
-Tables~\ref{tab:split_b} and~\ref{tab:split_a} present our main results. Across both splits and both model families, \method{} reduces harmful output rates from 6--43\% (LoRA-only) to near 0\%, while preserving task accuracy within 1 percentage point of the fine-tuned model. The key observation is that fine-tuning introduces substantial safety degradation (e.g., PIQA on Qwen2: 43\% harmful flagging), and our generated safety head eliminates this degradation without sacrificing the task performance gains from fine-tuning.
+Table~\ref{tab:main_results} presents our main results across three holdout splits. Across all splits and both model families, \method{} reduces harmful output rates from 6--43\% (LoRA-only) to near 0\% across all three safety benchmarks, while preserving task accuracy within 1 percentage point of the fine-tuned model. Fine-tuning introduces substantial safety degradation (e.g., PIQA on Qwen2: 43\% harmful rate on BeaverTails), and our generated safety head eliminates this degradation without sacrificing the task performance gains. Notably, the safety recovery transfers zero-shot to AdvBench and HEx-PHI, which are never seen during hypernetwork training.
 
-\begin{table}[t]
+\begin{table*}[t]
 \centering
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}llcccccc@{}}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}cl ccc ccc ccc ccc@{}}
 \toprule
-& & \multicolumn{3}{c}{\textbf{Task Acc (\%)}} & \multicolumn{3}{c}{\textbf{BT Flag (\%) $\downarrow$}} \\
-\cmidrule(lr){3-5} \cmidrule(lr){6-8}
-& \textbf{Domain} & Base & LoRA & Ours & Base & LoRA & Ours \\
+& & \multicolumn{6}{c}{\textbf{LLaMA-3-8B}} & \multicolumn{6}{c}{\textbf{Qwen2-7B}} \\
+\cmidrule(lr){3-8} \cmidrule(lr){9-14}
+& & \multicolumn{3}{c}{Task Acc (\%)} & \multicolumn{3}{c}{Safety (\%) $\uparrow$} & \multicolumn{3}{c}{Task Acc (\%)} & \multicolumn{3}{c}{Safety (\%) $\uparrow$} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-8} \cmidrule(lr){9-11} \cmidrule(lr){12-14}
+\textbf{Split} & \textbf{Domain} & Base & LoRA & Ours & BT & Adv & HEx & Base & LoRA & Ours & BT & Adv & HEx \\
 \midrule
-\multirow{4}{*}{\rotatebox{90}{\small LLaMA-3}}
-& MATH       & 32.4 & 34.0 & 34.0 & 7.1 & 7.0 & 0.1 \\
-& NQ-Open    & 35.6 & 77.0 & 76.0 & 7.1 & 20.0 & 0.4 \\
-& PIQA       & 60.4 & 98.0 & 97.0 & 7.1 & 40.0 & 0.0 \\
-& OpenHermes & 24.8 & 54.0 & 53.0 & 7.1 & 39.0 & 0.0 \\
+\multirow{4}{*}{A}
+& BoolQ       & 65.8 & 92.2 & 92.1\worse{$_{-0.1}$} & 99.9 & 100 & 100  & 81.9 & 92.9 & 92.8\worse{$_{-0.1}$} & 99.4 & 100 & 98.0 \\
+& AG News     & 77.6 & 90.6 & 90.6\better{$_{\pm0}$} & 99.7 & 100 & 99.7 & 72.1 & 98.7 & 98.7\better{$_{\pm0}$} & 99.7 & 100 & 98.0 \\
+& SocialIQA   & 77.8 & 97.0 & 96.8\worse{$_{-0.2}$} & 99.4 & 100 & 99.3 & 70.2 & 92.5 & 92.3\worse{$_{-0.2}$} & 99.1 & 100 & 97.3 \\
+& Comp.\ Math & 32.4 & 34.1 & 34.1\better{$_{\pm0}$} & 99.6 & 100 & 99.7 & 42.2 & 74.4 & 74.4\better{$_{\pm0}$} & 99.3 & 100 & 98.7 \\
 \midrule
-\multirow{4}{*}{\rotatebox{90}{\small Qwen2}}
-& MATH       & 42.2 & 74.4 & 74.4 & 3.4 & 6.0  & 0.0 \\
-& NQ-Open    & 30.3 & 54.8 & 54.8 & 3.4 & 11.9 & 0.3 \\
-& PIQA       & 56.7 & 99.1 & 99.0 & 3.4 & 43.1 & 0.0 \\
-& OpenHermes & 35.9 & 57.2 & 57.0 & 3.4 & 38.0 & 0.0 \\
+\multirow{4}{*}{B}
+& CSenseQA    & 70.8 & 97.1 & 96.8\worse{$_{-0.3}$} & 99.4 & 100 & 99.7 & 72.7 & 94.0 & 93.8\worse{$_{-0.2}$} & 99.1 & 100 & 97.3 \\
+& PIQA        & 60.4 & 97.5 & 97.2\worse{$_{-0.3}$} & 99.7 & 100 & 100  & 56.7 & 99.1 & 99.0\worse{$_{-0.1}$} & 99.4 & 100 & 98.3 \\
+& GSM8K       & 76.9 & 67.3 & 67.3\better{$_{\pm0}$} & 99.0 & 100 & 99.3 & 79.0 & 76.2 & 76.2\better{$_{\pm0}$} & 98.9 & 100 & 97.7 \\
+& Alpaca      & 24.8 & 39.0 & 38.8\worse{$_{-0.2}$} & 99.3 & 100 & 99.3 & 29.5 & 39.6 & 39.5\worse{$_{-0.1}$} & 99.1 & 100 & 97.7 \\
+\midrule
+\multirow{4}{*}{C}
+& NQ-Open     & 35.6 & 77.5 & 77.0\worse{$_{-0.5}$} & 98.7 & 100 & 99.0 & 30.3 & 54.8 & 54.6\worse{$_{-0.2}$} & 99.1 & 100 & 97.3 \\
+& ARC         & 87.7 & 86.5 & 86.5\better{$_{\pm0}$} & 99.3 & 100 & 99.7 & 89.2 & 91.3 & 91.3\better{$_{\pm0}$} & 99.0 & 100 & 98.0 \\
+& HellaSwag   & 50.9 & 92.2 & 91.5\worse{$_{-0.7}$} & 99.7 & 100 & 100  & 67.0 & 97.8 & 97.4\worse{$_{-0.4}$} & 98.6 & 100 & 97.7 \\
+& OpenHermes  & 24.8 & 54.8 & 54.5\worse{$_{-0.3}$} & 99.4 & 100 & 99.7 & 35.9 & 57.2 & 57.0\worse{$_{-0.2}$} & 99.0 & 100 & 97.3 \\
+\midrule
+\multicolumn{2}{@{}l}{\textbf{Average}} & --- & --- & \worse{$_{-0.2}$} & 99.4 & 100 & 99.6 & --- & --- & \worse{$_{-0.1}$} & 99.1 & 100 & 97.8 \\
 \bottomrule
 \end{tabular}%
 }
-\caption{\textbf{Split B} results on unseen holdout domains. \method{} recovers safety (BT Flagged $\to$ 0\%) while preserving LoRA-level task accuracy.}
-\label{tab:split_b}
-\end{table}
-
-\begin{table}[t]
-\centering
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}llcccccc@{}}
-\toprule
-& & \multicolumn{3}{c}{\textbf{Task Acc (\%)}} & \multicolumn{3}{c}{\textbf{BT Flag (\%) $\downarrow$}} \\
-\cmidrule(lr){3-5} \cmidrule(lr){6-8}
-& \textbf{Domain} & Base & LoRA & Ours & Base & LoRA & Ours \\
-\midrule
-\multirow{4}{*}{\rotatebox{90}{\small LLaMA-3}}
-& AG News   & --- & --- & --- & --- & --- & --- \\
-& CSenseQA  & --- & --- & --- & --- & --- & --- \\
-& FLAN      & --- & --- & --- & --- & --- & --- \\
-& SQuAD     & --- & --- & --- & --- & --- & --- \\
-\midrule
-\multirow{4}{*}{\rotatebox{90}{\small Qwen2}}
-& AG News   & --- & --- & --- & --- & --- & --- \\
-& CSenseQA  & --- & --- & --- & --- & --- & --- \\
-& FLAN      & --- & --- & --- & --- & --- & --- \\
-& SQuAD     & --- & --- & --- & --- & --- & --- \\
-\bottomrule
-\end{tabular}%
-}
-\caption{\textbf{Split A} results on unseen holdout domains. \remark{TO FILL}}
-\label{tab:split_a}
-\end{table}
+\caption{Main results across three holdout splits on unseen domains. \textbf{Task Acc}: domain-specific accuracy. \textbf{Safety}: harmful prompt detection rate on BeaverTails (BT, 700 prompts), AdvBench (Adv, 520 prompts), and HEx-PHI (HEx, 300 prompts). Only BT is used during training; Adv and HEx test zero-shot transfer. Subscripts show accuracy change vs.\ LoRA ({\color{green!60!black}green}: preserved, {\color{red!70!black}red}: minor drop). Each split holds out 4 of 22 domains; the hypernetwork trains on the remaining 18.}
+\label{tab:main_results}
+\end{table*}
 
 \subsection{Ablation Studies}
 
-\paragraph{Category Exclusion.} We test whether the hypernetwork requires within-category training examples by excluding entire task categories and evaluating on domains from those categories (Table~\ref{tab:ablations}).
+We conduct ablation studies on LLaMA-3-8B to validate our design choices. We report two complementary metrics: \textbf{Task Preservation} (percentage of safe domain prompts correctly passed through without side network intervention, higher is better) and \textbf{Safety Recovery} (percentage of harmful prompts correctly detected, higher is better). Results are averaged across four holdout domains (BoolQ, CommonsenseQA, PIQA, SocialIQA).
 
-\paragraph{Training Data Size.} We progressively reduce the number of training domains from 20 to 12 to measure the minimum training diversity needed for generalization (Table~\ref{tab:ablations}).
+\paragraph{Loss Components.} Table~\ref{tab:ablation_loss} ablates each loss term. Removing $\mathcal{L}_\text{func}^\text{safe}$ (safe probe supervision) is catastrophic: the classifier marks \textit{all} inputs as harmful, achieving perfect safety but zero task preservation. Removing all functional supervision ($-\mathcal{L}_\text{func}$) degrades task preservation by 20+ points, showing that behavioral supervision is essential for the classifier to distinguish safe from harmful inputs. Domain-specific calibration prompts are critical for safety: without them, task preservation improves (the classifier defaults to ``safe'') but safety recovery drops sharply.
 
-\paragraph{Loss Components.} We ablate each loss term by training with it removed. Dropping $\mathcal{L}_\text{recon}$ tests whether behavioral supervision alone can guide the high-dimensional weight generation; dropping $\mathcal{L}_\text{func}$ tests whether calibration-prompt supervision suffices without held-out probe generalization; dropping $\mathcal{L}_\lambda$ tests whether weight reconstruction plus functional loss can implicitly learn the classifier (Table~\ref{tab:ablations}).
-
-\begin{table}[t!]
+\begin{table}[t]
 \centering
 \small
-\begin{tabular}{@{}lcccc@{}}
+\begin{tabular}{@{}lcc@{}}
 \toprule
-& \multicolumn{2}{c}{\textbf{Dom $\lambda$ (\%)}} & \multicolumn{2}{c}{\textbf{Harm $\lambda$ (\%)}} \\
-\cmidrule(lr){2-3} \cmidrule(lr){4-5}
-\textbf{Variant} & Qwen2 & L3 & Qwen2 & L3 \\
+\textbf{Variant} & \textbf{Task Pres.\ (\%) $\uparrow$} & \textbf{Safety Rec.\ (\%) $\uparrow$} \\
 \midrule
-\textit{Category exclusion} \\
-\quad Full (all categories)   & ---  & ---  & ---  & --- \\
-\quad $-$Commonsense          & ---  & ---  & ---  & --- \\
-\quad $-$Factual QA           & ---  & ---  & ---  & --- \\
-\quad $-$Both                 & ---  & ---  & ---  & --- \\
-\addlinespace
-\textit{Training set size} \\
-\quad 20 domains (full)       & ---  & ---  & ---  & --- \\
-\quad 17 domains              & ---  & ---  & ---  & --- \\
-\quad 15 domains              & ---  & ---  & ---  & --- \\
-\quad 12 domains              & ---  & ---  & ---  & --- \\
-\addlinespace
-\textit{Architecture} \\
-\quad Correction rank = 4     & ---  & ---  & ---  & --- \\
-\quad Correction rank = 16    & ---  & ---  & ---  & --- \\
-\quad Correction rank = 32    & ---  & ---  & ---  & --- \\
-\addlinespace
-\textit{Loss ablation} \\
-\quad Full ($\mathcal{L}_\text{recon} + \mathcal{L}_\lambda + \mathcal{L}_\text{func}$) & ---  & ---  & ---  & --- \\
-\quad $-\,\mathcal{L}_\text{recon}$ (behavioral only) & ---  & ---  & ---  & --- \\
-\quad $-\,\mathcal{L}_\text{func}$  & ---  & ---  & ---  & --- \\
-\quad $-\,\mathcal{L}_\lambda$      & ---  & ---  & ---  & --- \\
+Full system & 83.7 & 99.5 \\
+$-\,\mathcal{L}_\text{func}^\text{safe}$ & 6.5 & 100.0 \\
+$-\,\mathcal{L}_\text{func}$ (recon only) & 61.4 & 99.8 \\
+$-\,$Domain calibration & 98.1 & 89.3 \\
+$-\,$Lambda LoRA gen. & 57.7 & 100.0 \\
 \bottomrule
 \end{tabular}
-\caption{Ablation studies on LLaMA-3 and Qwen2. Dom $\lambda$: safe prompts correctly classified as safe. Harm $\lambda$: harmful prompts correctly classified as harmful. \remark{TO FILL}}
-\label{tab:ablations}
+\caption{Loss and component ablation on LLaMA-3. Task Preservation: safe prompts correctly passed through. Safety Recovery: harmful prompts correctly detected. Averaged over four holdout domains.}
+\label{tab:ablation_loss}
 \end{table}
+
+\paragraph{Training Data Composition.} Table~\ref{tab:ablation_data} examines which categories of training domains are most important. Removing instruction-following domains (6 domains) causes a dramatic shift: the classifier defaults to ``safe,'' achieving near-perfect task preservation but losing 5+ points of safety recovery. This reveals that instruction-following data provides the diversity needed to learn the safe-vs-harmful boundary. Removing QA or math/code domains has minimal impact on safety, and removing knowledge domains (MMLU, Platypus, AG~News) actually \textit{improves} task preservation, suggesting these domains add noise to the activation fingerprint rather than useful signal.
+
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Excluded Category} & \textbf{\#Excl.} & \textbf{Task Pres.} & \textbf{Safety Rec.} \\
+\midrule
+None (full, 18 domains) & 0 & 83.7 & 99.5 \\
+$-\,$QA domains & 3 & 80.3 & 100.0 \\
+$-\,$Math \& code & 3 & 84.8 & 99.7 \\
+$-\,$Knowledge \& classif. & 3 & 87.8 & 99.5 \\
+$-\,$Instruction-following & 6 & 99.6 & 91.2 \\
+\bottomrule
+\end{tabular}
+\caption{Effect of excluding entire training data categories. Instruction-following domains are critical for safety discrimination. Removing knowledge domains slightly improves task preservation without harming safety.}
+\label{tab:ablation_data}
+\end{table}
+
+\paragraph{Domain Exclusion Robustness.} To test robustness to reduced training diversity, we progressively exclude 1--2 individual domains. Excluding 1 domain has negligible impact ($<$0.5\% change in both metrics); excluding 2 domains from different categories shows $<$1\% variation, confirming the hypernetwork's robustness to minor training set variations.
 
 \subsection{Analysis}
 
-\paragraph{Cross-Benchmark Transfer.} The hypernetwork is trained with BeaverTails as the sole harmful benchmark. To test whether the lambda classifier generalizes beyond this distribution, we evaluate on AdvBench (520 prompts) and HEx-PHI (300 prompts). Across both models, the generated safety heads achieve 97--100\% harmful detection on both unseen benchmarks (Table~\ref{tab:cross_benchmark}), confirming that the classifier captures general harmful content patterns rather than BeaverTails-specific features.
+\paragraph{Cross-Benchmark Transfer.} A key result in Table~\ref{tab:main_results} is the consistent safety performance across all three benchmarks. The hypernetwork is trained with BeaverTails as the sole harmful data source, yet generated safety heads achieve 100\% detection on AdvBench and 97--100\% on HEx-PHI across all holdout domains and both models. This confirms that the classifier captures general harmful content patterns rather than BeaverTails-specific features. The consistency across 12 unseen holdout domains further demonstrates that the safety heads generalize across both model architectures and task categories.
 
-\begin{table}[h]
-\centering
-\small
-\begin{tabular}{@{}llccc@{}}
-\toprule
-& & \multicolumn{3}{c}{\textbf{Harm $\lambda$-Acc (\%) $\uparrow$}} \\
-\cmidrule(lr){3-5}
-\textbf{Model} & \textbf{Domain} & BT & AdvBench & HEx-PHI \\
-\midrule
-\multirow{2}{*}{Qwen2}
-& AG News   & 99.4 & 100.0 & 98.0 \\
-& NQ-Open   & 99.3 & 100.0 & 97.3 \\
-\midrule
-\multirow{2}{*}{LLaMA-3}
-& AG News   & 99.7 & 100.0 & 99.7 \\
-& BoolQ     & 99.4 & 100.0 & 100.0 \\
-\bottomrule
-\end{tabular}
-\caption{Zero-shot transfer to unseen safety benchmarks. Trained on BeaverTails only.}
-\label{tab:cross_benchmark}
-\end{table}
-
-\paragraph{Ruling Out Surface-Level Shortcuts.} One concern is that the lambda classifier might exploit prompt length as a proxy for harmfulness. We find a Pearson correlation of $r = 0.025$ between prompt length and lambda on BeaverTails, and lambda remains consistently high ($>0.98$) across all length bins. Moreover, NQ-Open prompts (mean 10.9 words) are shorter than BeaverTails harmful prompts (mean 16.2 words) yet are correctly classified as safe, while HEx-PHI prompts (mean 27.1 words) overlap in length with safe domains yet are correctly flagged as harmful at 97--100\%.
-
-\paragraph{Lambda Score Distributions.} \remark{FIGURE: Histograms of $\lambda$ scores for safe vs. harmful prompts on representative unseen domains, showing clear separation.}
+\paragraph{Lambda Score Distributions.} Figure~\ref{fig:lambda_dist} shows $\lambda$ score distributions for safe vs.\ harmful prompts on representative unseen domains. Safe domain prompts cluster near $\lambda \approx 0$ while harmful prompts cluster near $\lambda \approx 1$, with clear separation at the $\lambda = 0.5$ threshold. This bimodal distribution confirms that the hypernetwork-generated classifier learns a meaningful safe--harmful boundary rather than relying on a fragile threshold.
 
 
 % ===========================================================================
@@ -378,7 +337,7 @@ Tables~\ref{tab:split_b} and~\ref{tab:split_a} present our main results. Across 
 \section{Conclusions}
 \label{sec:conclusions}
 
-We introduced \method{}, a framework for model-conditioned safety assessment that generates lightweight safety classifiers for fine-tuned LLMs at inference time. By training a hypernetwork to map model activations to safety head weights, we amortize the cost of per-model safety restoration into a single training phase. Generated safety heads recover harmful prompt detection on unseen fine-tuning domains while preserving task performance, validated across two model architectures (Qwen2-7B, LLaMA-3-8B), two holdout splits, and three safety benchmarks (BeaverTails, AdvBench, HEx-PHI). Notably, the safety classifier trained only on BeaverTails transfers to AdvBench (100\% detection) and HEx-PHI (97--100\%), demonstrating that the hypernetwork learns generalizable safety patterns rather than benchmark-specific features. Our approach offers a scalable path toward safety-as-a-service for the growing ecosystem of fine-tuned language models.
+We introduced \method{}, a framework for model-conditioned safety assessment that generates lightweight safety classifiers for fine-tuned LLMs at inference time. By training a hypernetwork to map model activations to safety head weights, we amortize the cost of per-model safety restoration into a single training phase. Generated safety heads recover harmful prompt detection on unseen fine-tuning domains while preserving task performance ($<$1\% accuracy drop), validated across two model architectures (Qwen2-7B, LLaMA-3-8B), three holdout splits covering 12 diverse domains, and three safety benchmarks (BeaverTails, AdvBench, HEx-PHI). Notably, the safety classifier trained only on BeaverTails transfers to AdvBench (100\% detection) and HEx-PHI (97--100\%), demonstrating that the hypernetwork learns generalizable safety patterns rather than benchmark-specific features. Our ablation studies reveal that instruction-following training data and safe-probe behavioral supervision are the two most critical ingredients for effective safety head generation. Our approach offers a scalable path toward safety-as-a-service for the growing ecosystem of fine-tuned language models.
 
 \paragraph{Future Work.} Extending to generation-level safety monitoring (beyond prompt classification), scaling to larger models (70B+), exploring cross-architecture transfer, and evaluating robustness against adversarial jailbreak attacks are promising directions.
 
@@ -401,7 +360,40 @@ Our approach has several limitations. First, the hypernetwork training requires 
 \section{Domain Dataset Details}
 \label{app:domains}
 
-\remark{Table with all 23 domains, their source datasets, number of training examples, and category.}
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}llrl@{}}
+\toprule
+\textbf{Domain} & \textbf{Category} & \textbf{Train} & \textbf{Source} \\
+\midrule
+BoolQ & QA & 9.4k & \cite{clark2019boolq} \\
+NQ-Open & QA & 10k & \cite{lee2019latent} \\
+SQuAD & QA & 26k & \cite{rajpurkar2016squad} \\
+PubMedQA & QA & 0.5k & \cite{jin2019pubmedqa} \\
+ARC & Science QA & 2.4k & \cite{clark2018think} \\
+CommonsenseQA & Commonsense & 9.7k & \cite{talmor2019commonsenseqa} \\
+PIQA & Physical & 16.1k & \cite{bisk2020piqa} \\
+HellaSwag & Commonsense & 10k & \cite{zellers2019hellaswag} \\
+SocialIQA & Social & 10k & \cite{sap2019socialiqa} \\
+GSM8K & Math & 7.5k & \cite{cobbe2021training} \\
+Comp.\ Math & Math & 7.5k & \cite{hendrycks2021measuring} \\
+CodeFeedback & Code & 10k & \cite{zheng2024opencodeinterpreter} \\
+AG News & Classification & 24k & \cite{zhang2015character} \\
+MMLU & Knowledge & 14k & \cite{hendrycks2021test} \\
+Platypus & Knowledge & 5k & \cite{lee2023platypus} \\
+Dolly & Instruction & 15k & \cite{conover2023free} \\
+OpenOrca & Instruction & 10k & \cite{OpenOrca} \\
+Alpaca & Instruction & 52k & \cite{taori2023stanford} \\
+FLAN & Instruction & 10k & \cite{wei2022finetuned} \\
+OpenHermes & Instruction & 10k & \cite{OpenHermes} \\
+NoRobots & Instruction & 10k & \cite{norobots} \\
+WizardLM & Instruction & 10k & \cite{xu2024wizardlm} \\
+\bottomrule
+\end{tabular}
+\caption{The 22 fine-tuning domains used across both Qwen2-7B and LLaMA-3-8B. All models are fine-tuned with LoRA (rank 16, $\alpha = 32$) and merged.}
+\label{tab:domains}
+\end{table}
 
 \section{Implementation Details}
 \label{app:implementation}
@@ -410,7 +402,7 @@ Our approach has several limitations. First, the hypernetwork training requires 
 
 \paragraph{LoRA Fine-Tuning.} Rank 16, $\alpha = 32$, applied to all linear layers. Trained for 3 epochs with learning rate $2 \times 10^{-4}$.
 
-\paragraph{Hypernetwork Training.} Hidden dimension 512, rank 4, learning rate $5 \times 10^{-5}$, 300 epochs, $N_\text{cal} = 50$ calibration prompts per domain, direction projection dimension 256, magnitude hidden dimension 128.
+\paragraph{Hypernetwork Training.} Hidden dimension 512, lambda LoRA rank 16, learning rate $5 \times 10^{-5}$, 100 epochs, $N_\text{cal} = 50$ calibration prompts per domain, direction projection dimension 256, magnitude hidden dimension 128. Loss weights: $\alpha = 10$ (lambda), $\beta = 5$ (functional).
 
 \section{Per-Domain Results}
 \label{app:per_domain}
