@@ -37,7 +37,9 @@
 % ABSTRACT
 % ===========================================================================
 \begin{abstract}
-Safety alignment in large language models is fragile: even benign fine-tuning can substantially degrade refusal behavior. Existing mitigations either require per-model retraining or ignore how fine-tuning reshapes a model's safety boundaries. We propose \method{}, a hypernetwork that generates a lightweight, model-specific safety classifier for any fine-tuned checkpoint at inference time, without additional training. \method{} treats intermediate activations as a behavioral fingerprint and maps them, in a single forward pass, to the weights of a side network that classifies each prompt as safe or harmful. Layer-wise factorized generation and direction-magnitude activation decomposition make the high-dimensional weight prediction tractable. Across two model families, diverse fine-tuning domains, and three safety benchmarks, generated safety heads virtually eliminate harmful outputs while preserving task accuracy, and transfer zero-shot to benchmarks never seen during training.
+Fine-tuning degrades the safety alignment of large language models, yet existing defenses require per-model retraining or apply model-agnostic classifiers that ignore each checkpoint's specific vulnerabilities.
+We propose \method{}, a hypernetwork that generates a model-specific safety classifier at inference time from a compact activation fingerprint---no additional training, safety data, or model modification required. Layer-wise factorized weight generation and direction-magnitude activation decomposition make predicting the full safety-head parameters tractable from only 50 calibration prompts.
+Evaluated on Qwen2-7B and LLaMA-3-8B across 22 fine-tuning domains and three safety benchmarks, \method{} reduces harmful output rates to near zero while preserving task accuracy, and generalizes zero-shot to AdvBench and HEx-PHI.
 \end{abstract}
 
 % ===========================================================================
