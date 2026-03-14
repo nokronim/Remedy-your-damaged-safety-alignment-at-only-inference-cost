@@ -181,9 +181,9 @@ The hypernetwork is trained on $K$ domains (with $M$ held out) using three compl
 \end{equation}
 
 \begin{itemize}[itemsep=2pt, topsep=2pt]
-    \item $\mathcal{L}_\text{recon}$: MSE between generated and ground-truth weights, providing dense supervision across all $\sim$237M dimensions.
-    \item $\mathcal{L}_\text{cls}$: BCE on $\lambda$ predictions using the same calibration prompts used for activation extraction ($\alpha{=}10$).
-    \item $\mathcal{L}_\text{func}$: BCE on a \textit{separate} set of held-out safe and harmful probe prompts ($\beta{=}5$), ensuring generalization beyond calibration data. We show in \S\ref{sec:ablations} that removing the safe-probe component of this loss causes complete classifier collapse.
+    \item $\mathcal{L}_\text{recon}$: MSE between generated and ground-truth side network weights, providing dense supervision across all $\sim$237M dimensions.
+    \item $\mathcal{L}_\text{cls}$: BCE on safety score predictions using the same calibration prompts used for activation extraction. Weight $\alpha{=}10$.
+    \item $\mathcal{L}_\text{func}$: BCE on safety score predictions using a separate batch of safe and harmful probe prompts (not used for activation extraction). This behavioral loss verifies that the generated classifier actually works on new inputs, not just the calibration set. Weight $\beta{=}5$. As we show in \S\ref{sec:ablations}, removing the safe-probe component causes severe accuracy degradation.
 \end{itemize}
 
 Training runs for 100 epochs with learning rate $5 \times 10^{-5}$ and hidden dimension 512.
@@ -323,7 +323,8 @@ We ablate on LLaMA-3-8B, reporting \textbf{Task Accuracy} change and \textbf{Har
 \paragraph{Loss Components (Table~\ref{tab:ablation_loss}).}
 Removing $\mathcal{L}_\text{func}^\text{safe}$ (safe-probe supervision) is the most damaging: the classifier becomes overly aggressive, flagging safe prompts as harmful and degrading task accuracy by over 10 points.
 Removing all functional supervision ($-\mathcal{L}_\text{func}$) similarly hurts accuracy as the classifier cannot distinguish safe from harmful inputs.
-Removing domain-specific calibration prompts degrades safety (harmful rate rises to 5.4\%) while barely affecting accuracy.
+Removing domain-specific calibration prompts degrades safety (harmful rate rises to 5.4\%).
+Replacing the factorized classifier generation with a plain MLP drops accuracy by 4.1 points, showing that the low-rank structure helps the hypernetwork produce more precise classifiers.
 Each component addresses a distinct failure mode; the full system strikes the best balance.
 
 \begin{table}[t]
@@ -337,7 +338,7 @@ Full system                              & \same        & 0.1\% \\
 $-\,\mathcal{L}_\text{func}^\text{safe}$ & \drop{-10.3} & 0.3\% \\
 $-\,\mathcal{L}_\text{func}$ (recon only) & \drop{-3.8}  & 0.4\% \\
 $-\,$Domain calibration                   & \drop{-1.4}  & 5.4\% \\
-$-\,$Low-rank $\lambda$ gen.              & \drop{-4.1}  & 0.2\% \\
+$-\,$Factorized classifier gen.           & \drop{-4.1}  & 0.2\% \\
 \bottomrule
 \end{tabular}
 \caption{Component ablation on LLaMA-3, evaluated on Split~A holdout (BoolQ, ARC, Comp.\ Math, Alpaca). Removing any component degrades accuracy, safety, or both.}
