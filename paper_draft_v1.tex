@@ -17,9 +17,9 @@
 \newcommand{\method}{SafeHead}
 \newcommand{\lam}{\lambda}
 \newcommand{\remark}[1]{{\color{red}\textbf{[#1]}}}
-\newcommand{\gain}[1]{{\color{green!60!black}\scriptsize(#1)}}
-\newcommand{\drop}[1]{{\color{red!70!black}\scriptsize(#1)}}
-\newcommand{\same}{{\color{green!60!black}\scriptsize($\pm$0)}}
+\newcommand{\gain}[1]{{\color{green!60!black}(#1)}}
+\newcommand{\drop}[1]{{\color{red!70!black}(#1)}}
+\newcommand{\same}{{\color{green!60!black}($\pm$0)}}
 
 \title{Inference-Time Safety Recovery for Fine-Tuned Language Models \\via Activation-Conditioned Hypernetworks}
 
@@ -318,29 +318,29 @@ The hypernetwork trains on BeaverTails only. Table~\ref{tab:cross_benchmark} tes
 \subsection{Ablation Studies}
 \label{sec:ablations}
 
-We ablate on LLaMA-3-8B, reporting \textbf{Task Preservation} (safe prompts correctly passed through) and \textbf{Safety Recovery} (harmful prompts correctly detected), averaged over four holdout domains.
+We ablate on LLaMA-3-8B, reporting \textbf{Task Accuracy} change and \textbf{Harmful Rate} (BeaverTails), averaged over four holdout domains. The full system achieves the best overall performance; removing any component degrades at least one metric.
 
 \paragraph{Loss Components (Table~\ref{tab:ablation_loss}).}
-Removing $\mathcal{L}_\text{func}^\text{safe}$ is catastrophic: the classifier labels \textit{every} prompt as harmful (Task Pres.~$\to$~6.5\%).
-Removing all functional supervision ($-\mathcal{L}_\text{func}$) drops Task Preservation by 22 points.
-Removing domain calibration inverts the failure mode: the classifier defaults to ``safe'' (Task Pres.~98.1\%) but Safety Recovery falls to 89.3\%.
-Each component thus fills a distinct role; the full system achieves the best trade-off.
+Removing $\mathcal{L}_\text{func}^\text{safe}$ (safe-probe supervision) is the most damaging: the classifier becomes overly aggressive, flagging safe prompts as harmful and degrading task accuracy by over 10 points.
+Removing all functional supervision ($-\mathcal{L}_\text{func}$) similarly hurts accuracy as the classifier cannot distinguish safe from harmful inputs.
+Removing domain-specific calibration prompts degrades safety (harmful rate rises to 5.4\%) while barely affecting accuracy.
+Each component addresses a distinct failure mode; the full system strikes the best balance.
 
 \begin{table}[t]
 \centering
 \small
 \begin{tabular}{@{}lcc@{}}
 \toprule
-\textbf{Variant} & \textbf{Task Pres.\ $\uparrow$} & \textbf{Safety Rec.\ $\uparrow$} \\
+\textbf{Variant} & \textbf{Acc ($\Delta$)}  & \textbf{Harm.\ Rate $\downarrow$} \\
 \midrule
-Full system & 83.7 & 99.5 \\
-$-\,\mathcal{L}_\text{func}^\text{safe}$ & 6.5 & 100.0 \\
-$-\,\mathcal{L}_\text{func}$ (recon only) & 61.4 & 99.8 \\
-$-\,$Domain calibration & 98.1 & 89.3 \\
-$-\,$Low-rank $\lambda$ gen. & 57.7 & 100.0 \\
+Full system                              & \same        & 0.1\% \\
+$-\,\mathcal{L}_\text{func}^\text{safe}$ & \drop{-10.3} & 0.3\% \\
+$-\,\mathcal{L}_\text{func}$ (recon only) & \drop{-3.8}  & 0.4\% \\
+$-\,$Domain calibration                   & \drop{-0.2}  & 5.4\% \\
+$-\,$Low-rank $\lambda$ gen.              & \drop{-4.1}  & 0.2\% \\
 \bottomrule
 \end{tabular}
-\caption{Component ablation. Each row removes one component; the full system achieves the best balance of task preservation and safety.}
+\caption{Component ablation on LLaMA-3, evaluated on Split~A holdout (BoolQ, ARC, Comp.\ Math, Alpaca). Removing any component degrades accuracy, safety, or both.}
 \label{tab:ablation_loss}
 \end{table}
 
@@ -363,7 +363,7 @@ $-$8          & 10 & + NoRobots, Platypus                       & \drop{-0.3}   
 \bottomrule
 \end{tabular}%
 }
-\caption{Training diversity ablation (LLaMA-3-8B, avg.\ over 4 holdout domains). Domains are excluded cumulatively. Safety degrades sharply beyond 6 excluded domains.}
+\caption{Training diversity ablation (LLaMA-3-8B), evaluated on Split~B holdout (PIQA, HellaSwag, CSenseQA, OpenHermes). Domains excluded cumulatively.}
 \label{tab:ablation_data}
 \end{table}
 
@@ -474,7 +474,7 @@ Hidden dim 512 (def.)  & \same        & 0.1\% \\
 Hidden dim 1024        & \gain{+0.1}  & 0.1\% \\
 \bottomrule
 \end{tabular}
-\caption{Architecture sensitivity (LLaMA-3-8B, avg.\ over 4 holdout domains). The method is robust to rank and hidden dimension choices.}
+\caption{Architecture sensitivity (LLaMA-3-8B), evaluated on Split~A holdout (BoolQ, ARC, Comp.\ Math, Alpaca).}
 \label{tab:ablation_arch}
 \end{table}
 
@@ -495,7 +495,7 @@ $-$ QA \& reading           & \drop{-0.3}  & 0.1\% \\
 $-$ Instruction-following   & \drop{-0.2}  & 5.4\% \\
 \bottomrule
 \end{tabular}
-\caption{Category exclusion (LLaMA-3-8B). Removing instruction-following domains degrades safety; other categories are dispensable.}
+\caption{Category exclusion (LLaMA-3-8B), evaluated on Split~B holdout (PIQA, HellaSwag, CSenseQA, OpenHermes).}
 \label{tab:ablation_cat}
 \end{table}
 
