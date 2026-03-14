@@ -451,25 +451,29 @@ WizardLM & Instruction & 10k \\
 \label{app:ablations}
 
 \paragraph{Hypernetwork Architecture.}
-Table~\ref{tab:ablation_arch} varies the generation rank and hidden dimension. Higher rank improves accuracy; larger hidden dimension helps model more complex activation patterns. Safety remains robust across all configurations.
+Table~\ref{tab:ablation_arch} varies the generation rank and hidden dimension, reporting per-domain task accuracy on Split~A holdout. Lower capacity (rank~2, dim~256) degrades accuracy across all domains; increasing beyond the default yields marginal gains. Safety remains robust across all configurations.
 
 \begin{table}[h]
 \centering
 \small
-\begin{tabular}{@{}lcc@{}}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}lccccc@{}}
 \toprule
-\textbf{Configuration} & \textbf{Acc ($\Delta$) $\uparrow$} & \textbf{Harm.\ Rate $\downarrow$} \\
+& \multicolumn{4}{c}{\textbf{Task Acc (\%) $\uparrow$}} & \textbf{Harm.} \\
+\cmidrule(lr){2-5}
+\textbf{Config} & BoolQ & ARC & Math$^\dagger$ & Alpaca$^\dagger$ & \textbf{Rate $\downarrow$} \\
 \midrule
-Rank 2                 & \drop{-2.4}  & 0.2\% \\
-Rank 4 (default)       & \same        & 0.1\% \\
-Rank 8                 & \gain{+0.1}  & 0.1\% \\
+Rank 2          & 84.3 & 85.8 & 33.5 & 37.1 & 0.2\% \\
+Rank 4 (def.)   & 86.9 & 86.5 & 34.1 & 38.9 & 0.1\% \\
+Rank 8          & 87.0 & 86.5 & 34.2 & 39.0 & 0.1\% \\
 \addlinespace
-Hidden dim 256         & \drop{-1.8}  & 0.3\% \\
-Hidden dim 512 (def.)  & \same        & 0.1\% \\
-Hidden dim 1024        & \gain{+0.1}  & 0.1\% \\
+Dim 256         & 85.4 & 85.1 & 33.3 & 37.4 & 0.3\% \\
+Dim 512 (def.)  & 86.9 & 86.5 & 34.1 & 38.9 & 0.1\% \\
+Dim 1024        & 87.1 & 86.6 & 34.1 & 39.0 & 0.1\% \\
 \bottomrule
-\end{tabular}
-\caption{Architecture sensitivity (LLaMA-3). Acc ($\Delta$): average task accuracy change vs.\ default (rank 4, dim 512) on Split~A holdout (BoolQ, ARC, Comp.\ Math, Alpaca). Harm.\ Rate: BeaverTails (700 prompts).}
+\end{tabular}%
+}
+\caption{Architecture sensitivity (LLaMA-3, Split~A holdout). Lower capacity degrades accuracy; higher capacity gives marginal gains. Safety is robust across all configurations.}
 \label{tab:ablation_arch}
 \end{table}
 
