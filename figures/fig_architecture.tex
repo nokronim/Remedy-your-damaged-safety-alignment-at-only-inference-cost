@@ -1,0 +1,73 @@
+% Architecture diagram — Side network + backbone
+% Requires: \usepackage{tikz}
+%           \usetikzlibrary{arrows.meta, positioning, shapes.geometric, calc, decorations.pathreplacing}
+
+\begin{figure}[t]
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tikzpicture}[
+    >=Stealth,
+    layer/.style={draw, minimum width=#1, minimum height=0.45cm, font=\tiny},
+    arr/.style={->, thick},
+]
+
+% ===================== Backbone (left) =====================
+\node[font=\small\bfseries, color=gray!70] at (0, 7.2) {Backbone (frozen)};
+
+\foreach \i/\l in {0/0, 1/2, 2/4, 3/8, 4/12, 5/16, 6/20, 7/22} {
+    \node[layer=2.2cm, fill=gray!15] (back\i) at (0, \i*0.85) {Layer \l};
+}
+
+% Input
+\node[below=0.3cm of back0, font=\scriptsize] (input) {Input prompt $x$};
+\draw[arr] (input) -- (back0);
+
+% Output at top
+\node[above=0.3cm of back7, font=\scriptsize, text=gray!70] (bout) {LM output};
+\draw[arr, gray!50] (back7) -- (bout);
+
+% Backbone vertical connections
+\foreach \i [evaluate=\i as \j using int(\i+1)] in {0,...,6} {
+    \draw[arr, gray!40] (back\i) -- (back\j);
+}
+
+% ===================== Side Network (right) =====================
+\node[font=\small\bfseries, color=blue!70] at (5, 7.2) {Safety Head ($\sim$3\%)};
+
+\foreach \i/\l in {0/1, 1/2, 2/3, 3/4, 4/5, 5/6, 6/7, 7/8} {
+    \node[layer=1.4cm, fill=blue!15] (side\i) at (5, \i*0.85) {Side \l};
+}
+
+% Side vertical connections
+\foreach \i [evaluate=\i as \j using int(\i+1)] in {0,...,6} {
+    \draw[arr, blue!40] (side\i) -- (side\j);
+}
+
+% ===================== Ladder Connections =====================
+\foreach \i in {0,...,7} {
+    \draw[arr, orange!70, densely dashed] (back\i.east) -- node[above, font=\tiny, color=orange!70] {$W_\text{down}$} (side\i.west);
+}
+
+% Gate annotation
+\node[right=0.2cm of side3, font=\tiny, color=orange!70, text width=1.5cm] {$\mu_k$ gates};
+
+% ===================== Lambda Classifier (top right) =====================
+\node[draw, rounded corners=3pt, fill=red!20, minimum width=1.6cm, minimum height=0.5cm, above=0.5cm of side7, font=\scriptsize] (lambda) {$\lambda$ Classifier};
+\draw[arr, blue!60] (side7) -- node[right, font=\tiny] {pool} (lambda);
+
+% Lambda output
+\node[above=0.5cm of lambda, font=\scriptsize] (lval) {$\lambda \in [0,1]$};
+\draw[arr] (lambda) -- (lval);
+
+% ===================== Routing =====================
+\node[draw, rounded corners=2pt, fill=green!15, font=\tiny, minimum width=1.3cm, above left=0.8cm and -0.2cm of lval] (safe_out) {Pass through};
+\node[draw, rounded corners=2pt, fill=red!15, font=\tiny, minimum width=1.3cm, above right=0.8cm and -0.2cm of lval] (refuse_out) {Refuse};
+
+\draw[arr, green!60!black] (lval) -- (safe_out) node[midway, left, font=\tiny, color=green!60!black] {safe};
+\draw[arr, red!60!black] (lval) -- (refuse_out) node[midway, right, font=\tiny, color=red!60!black] {harmful};
+
+\end{tikzpicture}%
+}
+\caption{Safety head architecture. A side transformer ($\sim$3\% of backbone) connects to the frozen backbone via ladder connections with learnable gates. The $\lambda$ classifier produces a safety score; safe prompts bypass the side network entirely.}
+\label{fig:architecture}
+\end{figure}

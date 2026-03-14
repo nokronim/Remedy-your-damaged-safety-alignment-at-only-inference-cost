@@ -14,6 +14,8 @@
 \usepackage{xcolor}
 \usepackage{subcaption}
 \usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, fit, calc, backgrounds, decorations.pathreplacing}
 
 \newcommand{\method}{SafeHead}
 \newcommand{\lam}{\lambda}
@@ -56,7 +58,7 @@ We propose a different approach: rather than retraining or applying a one-size-f
 
 Concretely, we introduce \method{}, a \textit{hypernetwork}~\cite{ha2017hypernetworks} that takes intermediate activations from any fine-tuned model as input and outputs the weights of a small \textit{safety head}---a side network~\cite{sung2022lst} that classifies each prompt as safe or harmful. At deployment, a single forward pass through the hypernetwork produces a model-specific safety head from only 50 calibration prompts, with no gradient computation and no model modification.
 
-% \remark{Figure 1: pipeline overview}
+\input{figures/fig_pipeline}
 
 \paragraph{Contributions.}
 \begin{enumerate}
@@ -104,7 +106,9 @@ where $\mathbf{A}(\cdot)$ denotes activations from a small calibration set and $
 \subsection{Safety Head Architecture}
 \label{sec:arch}
 
-We build on the Ladder Side-Tuning (LST) architecture~\cite{sung2022lst} and extend it for safety classification.
+We build on the Ladder Side-Tuning (LST) architecture~\cite{sung2022lst} and extend it for safety classification (Figure~\ref{fig:architecture}).
+
+\input{figures/fig_architecture}
 
 \paragraph{Side Transformer.} $K{=}12$ layers with hidden dimension $h_s = h/r$ ($r{=}4$). For Qwen2-7B: $h_s{=}896$, 7 heads; for LLaMA-3-8B: $h_s{=}1024$, 8 heads ($\sim$3\% of backbone parameters).
 
