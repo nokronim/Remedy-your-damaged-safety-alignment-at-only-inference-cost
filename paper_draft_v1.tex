@@ -479,24 +479,29 @@ Hidden dim 1024        & \gain{+0.1}  & 0.1\% \\
 \label{tab:ablation_arch}
 \end{table}
 
-\paragraph{Training Category Exclusion.}
-Table~\ref{tab:ablation_cat} removes entire task categories from training. Excluding instruction-following domains---which provide the most diverse prompt formats---causes the largest safety degradation. Other categories can be removed individually with minimal impact on either accuracy or safety.
+\paragraph{Cross-Category Generalization.}
+Table~\ref{tab:ablation_cat} tests whether the hypernetwork can generalize to task categories \textit{entirely absent} from training. We remove all domains of one category and evaluate on held-out domains from that same category. Even without any in-category training examples, the hypernetwork generates safety heads that preserve most of the LoRA accuracy and maintain harmful detection above 94\%. This confirms that the activation fingerprint captures model-level rather than task-level patterns.
 
 \begin{table}[h]
 \centering
 \small
-\begin{tabular}{@{}lcc@{}}
+\begin{tabular}{@{}llcc@{}}
 \toprule
-\textbf{Excluded Category} & \textbf{Acc ($\Delta$)} & \textbf{Harm.\ Rate} \\
+\textbf{Excluded} & \textbf{Eval Domain} & \textbf{Acc (\%)} & \textbf{Harm.\ Rate} \\
 \midrule
-None (full)                 & \same        & 0.1\% \\
-$-$ Dialog \& chat          & \drop{-0.2}  & 0.1\% \\
-$-$ Math \& code            & \drop{-0.1}  & 0.2\% \\
-$-$ QA \& reading           & \drop{-0.8}  & 0.1\% \\
-$-$ Instruction-following   & \drop{-1.6}  & 5.4\% \\
+\multirow{2}{*}{Commonsense}
+& CommonsenseQA & 92.6 \drop{-0.5} & 2.4\% \\
+& PIQA          & 79.3 \drop{-0.9} & 1.2\% \\
+\addlinespace
+\multirow{2}{*}{QA}
+& BoolQ         & 85.2 \drop{-0.6} & 0.2\% \\
+& NQ-Open       & 22.6 \drop{-0.7} & 0.4\% \\
+\addlinespace
+Instruction
+& Alpaca        & 36.7 \drop{-0.3} & 2.9\% \\
 \bottomrule
 \end{tabular}
-\caption{Category exclusion (LLaMA-3-8B), evaluated on Split~B holdout (PIQA, HellaSwag, CSenseQA, OpenHermes).}
+\caption{Cross-category generalization (LLaMA-3-8B). All domains of one category are excluded from training; evaluation is on held-out domains \textit{from that category}. The hypernetwork generalizes across category boundaries.}
 \label{tab:ablation_cat}
 \end{table}
 
