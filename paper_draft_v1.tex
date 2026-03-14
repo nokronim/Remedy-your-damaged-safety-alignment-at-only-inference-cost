@@ -479,31 +479,26 @@ Hidden dim 1024        & \gain{+0.1}  & 0.1\% \\
 \label{tab:ablation_arch}
 \end{table}
 
-\paragraph{Comparison with Safe LoRA.}
-Table~\ref{tab:vs_safelora} compares \method{} against Safe LoRA~\cite{hsu2024safe}, which projects LoRA updates to preserve alignment. Safe LoRA requires access to the aligned model and modifies the fine-tuning process itself, whereas \method{} operates purely at inference time. On three LLaMA-3-8B domains, Safe LoRA achieves only 15--75\% harmful refusal on BeaverTails and 69--84\% on HEx-PHI, while \method{} achieves $>$99\% on both benchmarks. Safe LoRA also degrades task accuracy more severely, particularly on BoolQ ($-$9.2\% vs.\ our $-$0.3\%).
+\paragraph{Comparison with Existing Defenses.}
+Table~\ref{tab:comparison} contrasts \method{} with prior approaches along key practical dimensions. Post-hoc methods like Safe LoRA~\cite{hsu2024safe} and Vaccine~\cite{yi2024vaccine} require access to the aligned model weights and intervene during fine-tuning, making them inapplicable to already-deployed checkpoints. External classifiers like Llama Guard~\cite{inan2023llama} are model-agnostic but cannot adapt to how each fine-tuned variant has shifted the safety boundary. \method{} uniquely requires no safety data, no retraining, and no modification of the fine-tuned model, while producing model-specific safety classifiers.
 
 \begin{table}[h]
 \centering
 \small
-\begin{tabular}{@{}llccc@{}}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}lccccc@{}}
 \toprule
-& & \textbf{Acc (\%)} & \multicolumn{2}{c}{\textbf{Harm.\ Rate $\downarrow$}} \\
-\cmidrule(lr){4-5}
-\textbf{Method} & \textbf{Domain} & & BT & HEx \\
+\textbf{Method} & \textbf{No retrain} & \textbf{No safety data} & \textbf{Model-specific} & \textbf{Post-deploy} \\
 \midrule
-\multirow{3}{*}{Safe LoRA}
-& BoolQ     & 78.0 \drop{-9.2}  & 40.1\% & 19.3\% \\
-& ARC       & 93.0 \gain{+6.5}  & 85.1\% & 31.0\% \\
-& HellaSwag & 84.0 \drop{-5.5}  & 25.0\% & 16.0\% \\
-\midrule
-\multirow{3}{*}{\method{}}
-& BoolQ     & 86.9 \drop{-0.3}  & 0.1\%  & 0.0\%  \\
-& ARC       & 86.5 \same         & 0.0\%  & 0.0\%  \\
-& HellaSwag & 89.2 \drop{-0.3}  & 0.1\%  & 0.0\%  \\
+Safe LoRA         & \checkmark & \checkmark & \checkmark &            \\
+Vaccine           &            &            & \checkmark &            \\
+Llama Guard       & \checkmark & \checkmark &            & \checkmark \\
+\method{} (ours)  & \checkmark & \checkmark & \checkmark & \checkmark \\
 \bottomrule
-\end{tabular}
-\caption{Comparison with Safe LoRA on LLaMA-3-8B. Safe LoRA modifies the fine-tuning process; \method{} operates at inference time. \method{} achieves dramatically lower harmful rates while better preserving accuracy. Acc deltas are relative to LoRA.}
-\label{tab:vs_safelora}
+\end{tabular}%
+}
+\caption{Qualitative comparison with existing defenses. \method{} is the only approach that is model-specific, requires no retraining or safety data, and can be applied post-deployment.}
+\label{tab:comparison}
 \end{table}
 
 \end{document}
