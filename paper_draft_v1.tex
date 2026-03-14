@@ -171,16 +171,9 @@ The safety classifier is generated via a dedicated branch that aggregates inform
 
 The hypernetwork is trained on $K$ domains (with $M$ held out) using three complementary losses:
 \begin{equation}
-    \mathcal{L} = \underbrace{\mathcal{L}_\text{recon}}_\text{weight MSE}
-              + \alpha \underbrace{\mathcal{L}_\text{cls}}_\text{calibration BCE}
-              + \beta  \underbrace{\mathcal{L}_\text{func}}_\text{probe BCE}
+    \mathcal{L} = \mathcal{L}_\text{recon} + \alpha\, \mathcal{L}_\text{cls} + \beta\, \mathcal{L}_\text{func}
 \end{equation}
-
-\begin{itemize}[itemsep=2pt, topsep=2pt]
-    \item $\mathcal{L}_\text{recon}$: MSE between generated and ground-truth side network weights, providing dense supervision across all parameters.
-    \item $\mathcal{L}_\text{cls}$: BCE on safety score predictions using the calibration prompts ($\alpha{=}10$).
-    \item $\mathcal{L}_\text{func}$: BCE on safety score predictions using a separate batch of safe and harmful probe prompts ($\beta{=}5$). This behavioral loss verifies that the generated classifier works on new inputs, not just the calibration set.
-\end{itemize}
+where $\mathcal{L}_\text{recon}$ is the MSE between generated and ground-truth side network weights, providing dense supervision across all parameters; $\mathcal{L}_\text{cls}$ is BCE on safety score predictions using the calibration prompts ($\alpha{=}10$); and $\mathcal{L}_\text{func}$ is BCE on a separate batch of safe and harmful probe prompts ($\beta{=}5$), verifying that the generated classifier generalizes beyond the calibration set.
 
 Training runs for 100 epochs with learning rate $5 \times 10^{-5}$ and hidden dimension 512.
 
