@@ -87,7 +87,7 @@ where $l(k)$ denotes the backbone layer associated with side layer $k$. The modu
 % Training proceeds in two stages. First, we train domain-specific safety heads to obtain supervision for the hypernetwork. Second, the hypernetwork is trained to generate these weights from activation fingerprints.
 Training proceeds in two stages. First, we train domain-specific safety heads for a set of fine-tuned models to obtain supervision pairs consisting of activation fingerprints and corresponding safety head weights. Second, the hypernetwork is trained to map activation fingerprints to these weights, enabling it to generate safety heads for new fine-tuned models at inference time.
 
-\mysection{Ground-truth Safety Head Collection.} We collect supervised pairs $\{(\mathcal{M}_d, \theta_d^*)\}_{d=1}^K$ by training one side network per domain:
+\mysection{Ground-truth Safety Head Collection.}\label{sec:gt} We collect supervised pairs $\{(\mathcal{M}_d, \theta_d^*)\}_{d=1}^K$ by training one side network per domain:
 \begin{enumerate}
     \item Fine-tune $\mathcal{M}_0$ on domain $d$ with LoRA~\cite{hu2022lora} (rank 16, $\alpha{=}32$); merge the adapter to obtain $\mathcal{M}_d$.
     \item Freeze $\mathcal{M}_d$; attach a randomly initialized side network.
