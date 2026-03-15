@@ -1,14 +1,27 @@
-\section{Conclusions}
-\label{sec:conclusions}
+\section{Conclusion}
+\label{sec:conclusion}
+
+\method{} generates model-specific safety classifiers at inference time by mapping fine-tuned model activations to safety head weights through a hypernetwork. It virtually eliminates harmful outputs across diverse domains and two model architectures while preserving task accuracy, and transfers zero-shot to unseen safety benchmarks. Ablations reveal that behavioral probe supervision and sufficient training diversity are the most critical ingredients. The approach offers a scalable path toward safety restoration for the growing ecosystem of fine-tuned language models.
+
+\paragraph{Future Work.} Generation-level safety monitoring, scaling to 70B+ models, cross-architecture transfer, and robustness to adversarial jailbreak attacks.
 
 
 \section*{Limitations}
 
-This document does not cover the content requirements for ACL or any
-other specific venue.  Check the author instructions for
-information on
-maximum page lengths, the required ``Limitations'' section,
-and so on.
+Our approach requires a one-time setup cost: ground-truth side networks must be trained for each of the training domains before hypernetwork training can begin. The safety classifier operates at the prompt level and does not monitor generated outputs, so harmful completions of seemingly benign prompts may not be caught. We evaluate on 7--8B parameter models; scaling behavior to significantly larger models remains an open question. Finally, while we test on three safety benchmarks, evaluation on adversarial jailbreak attacks and multi-turn conversations would further validate robustness.
+
+
+%\section{Conclusions}
+%\label{sec:conclusions}
+%
+%
+%\section*{Limitations}
+%
+%This document does not cover the content requirements for ACL or any
+%other specific venue.  Check the author instructions for
+%information on
+%maximum page lengths, the required ``Limitations'' section,
+%and so on.
 
 % \section*{Acknowledgments} % Maybe not for first submission because of double blind policy?
 
