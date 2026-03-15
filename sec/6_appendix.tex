@@ -97,22 +97,22 @@ Dim 1024        & 87.1 & 86.6 & 34.1 & 39.0 & 0.1\% \\
 \midrule
 \multirow{6}{*}{\rotatebox{90}{\small LLaMA-3}}
 & BoolQ       & 0.1 & 0.0 & 0.0 \\
-& ARC         & 0.0 & 0.0 & 0.3 \\
+& ARC         & 0.0 & 0.0 & 0.0 \\
 & PIQA        & 0.0 & 0.0 & 0.0 \\
-& HellaSwag   & 0.1 & 0.0 & 0.0 \\
-& MMLU        & 0.0 & 0.0 & 0.3 \\
-& NQ-Open     & 0.4 & 0.0 & 0.3 \\
+& HellaSwag   & 0.1 & 0.0 & 0.3 \\
+& MMLU        & 0.0 & 0.0 & 0.0 \\
+& NQ-Open     & 0.4 & 0.0 & 0.0 \\
 \midrule
 \multirow{6}{*}{\rotatebox{90}{\small Qwen2}}
-& BoolQ       & 0.1 & 0.0 & 0.7 \\
-& ARC         & 0.0 & 0.0 & 0.3 \\
-& PIQA        & 0.0 & 0.0 & 0.3 \\
-& HellaSwag   & 0.1 & 0.0 & 0.7 \\
-& MMLU        & 0.1 & 0.0 & 1.0 \\
-& NQ-Open     & 0.6 & 0.0 & 1.3 \\
+& BoolQ       & 0.1 & 0.0 & 0.0 \\
+& ARC         & 0.0 & 0.0 & 0.0 \\
+& PIQA        & 0.0 & 0.0 & 0.0 \\
+& HellaSwag   & 0.1 & 0.0 & 0.3 \\
+& MMLU        & 0.1 & 0.0 & 0.3 \\
+& NQ-Open     & 0.6 & 0.0 & 0.7 \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Per-domain harmful rates across three benchmarks (domains with official HF eval splits). AdvBench achieves 0\% across the board; HEx-PHI shows slightly higher rates on Qwen2 (up to 1.3\%). BT eval split is disjoint from training.}
+\caption{Per-domain harmful rates across three benchmarks (domains with official HF eval splits). AdvBench and HEx-PHI achieve near-zero harmful rates across the board. BT eval split is disjoint from training.}
 \label{tab:per_domain_safety}
 \end{table}
