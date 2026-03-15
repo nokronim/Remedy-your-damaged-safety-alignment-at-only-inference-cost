@@ -56,7 +56,7 @@ Llama Guard         & none         &  $\times$   &  \checkmark &  \checkmark  \\
 
 \subsection{Main Results}
 
-Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tuning increases the harmful rate from 3--7\% (base) to up to 43\%, with the largest degradation on instruction-following and commonsense domains. \method{} reduces the harmful rate to below 0.5\% across all 12 holdout domains and both architectures, while preserving task accuracy within 1 percentage point.
+Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tuning increases the harmful rate from 3--7\% (base) to up to 43\%, with the largest degradation on instruction-following and commonsense domains. \method{} reduces the harmful rate to below 1\% across all 12 holdout domains and both architectures, while preserving task accuracy within 1 percentage point.
 
 \begin{table}[t]
 \centering
@@ -113,7 +113,7 @@ Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tu
 \bottomrule
 \end{tabular}%
 }
-\caption{Main results on three holdout splits. \method{} reduces harmful rates from up to 43\% to $<$0.5\% with $<$1\% accuracy drop. $^\dagger$20\% holdout eval.}
+\caption{Main results on three holdout splits. \method{} reduces harmful rates from up to 43\% to $<$1\% with $<$1\% accuracy drop. $^\dagger$20\% holdout eval.}
 \label{tab:main_results}
 \end{table}
 
