@@ -46,11 +46,41 @@ WizardLM & Instruction & 10k \\
 \section{Implementation Details}
 \label{app:implementation}
 
-\paragraph{Side Network.} Qwen2-7B: $h_s{=}896$, 7 heads, 12 layers ($\sim$3\% of backbone). LLaMA-3-8B: $h_s{=}1024$, 8 heads, 12 layers.
+Table~\ref{tab:hyperparams} summarizes all hyperparameters.
 
-\paragraph{LoRA Fine-Tuning.} Rank 16, $\alpha{=}32$, all linear layers, 3 epochs, lr $2{\times}10^{-4}$.
-
-\paragraph{Hypernetwork.} Hidden dim 512, classifier LoRA rank 16, lr $5{\times}10^{-5}$, 100 epochs, $N_\text{cal}{=}50$ prompts, direction projection dim 256, magnitude hidden dim 128. Loss weights: $\alpha{=}10$, $\beta{=}5$.
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}llc@{}}
+\toprule
+\textbf{Component} & \textbf{Parameter} & \textbf{Value} \\
+\midrule
+\multirow{4}{*}{Side Network}
+& Hidden dim ($h_s$)        & $h/4$ \\
+& Layers ($K$)              & 12 \\
+& Attention heads            & 7 / 8 \\
+& Overhead                   & $\sim$3\% \\
+\midrule
+\multirow{4}{*}{LoRA Fine-Tuning}
+& Rank                       & 16 \\
+& $\alpha$                   & 32 \\
+& Target modules             & all linear \\
+& Epochs / lr                & 3 / $2{\times}10^{-4}$ \\
+\midrule
+\multirow{8}{*}{Hypernetwork}
+& Hidden dim                 & 512 \\
+& Classifier rank            & 16 \\
+& Direction proj.\ dim       & 256 \\
+& Magnitude hidden dim       & 128 \\
+& $N_\text{cal}$             & 50 \\
+& Epochs / lr                & 100 / $5{\times}10^{-5}$ \\
+& $\alpha$ ($\mathcal{L}_\text{cls}$) & 10 \\
+& $\beta$ ($\mathcal{L}_\text{func}$) & 5 \\
+\bottomrule
+\end{tabular}
+\caption{Hyperparameters. Side network heads: 7 for Qwen2-7B ($h_s{=}896$), 8 for LLaMA-3-8B ($h_s{=}1024$).}
+\label{tab:hyperparams}
+\end{table}
 
 \section{Additional Ablations}
 \label{app:ablations}
