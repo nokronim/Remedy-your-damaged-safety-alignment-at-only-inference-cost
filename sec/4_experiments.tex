@@ -183,32 +183,6 @@ $-$Instruction-following        & 12 & 6.3 & 3.1 & 1.7 & 8.4 \\
 \label{tab:ablation_data}
 \end{table}
 
-\subsection{Sensitivity to Calibration Set Size}
-
-Table~\ref{tab:ablation_ncal} varies the number of calibration prompts $N_\text{cal}$ used to extract the activation fingerprint. With too few prompts ($N_\text{cal}{=}10$), the fingerprint is noisy and accuracy degrades substantially, though safety remains intact as the classifier conservatively blocks most inputs. Accuracy improves steadily up to $N_\text{cal}{=}50$ and plateaus beyond that, while safety remains stable across all settings. We use $N_\text{cal}{=}50$ as the default throughout.
-
-\begin{table}[t]
-\centering
-\small
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}rcccccc@{}}
-\toprule
-& \multicolumn{4}{c}{\textbf{Task Acc (\%) $\uparrow$}} & \textbf{Harm.} & \\
-\cmidrule(lr){2-5}
-$N_\text{cal}$ & BoolQ & ARC & Math$^\dagger$ & Alpaca$^\dagger$ & \textbf{Rate $\downarrow$} & \\
-\midrule
-10  & 82.3 & 84.1 & 32.8 & 35.6 & 0.0\% & noisy fingerprint \\
-25  & 84.7 & 85.4 & 33.5 & 37.2 & 0.0\% & under-specified \\
-\textbf{50}  & \textbf{86.9} & \textbf{86.5} & \textbf{34.1} & \textbf{38.9} & \textbf{0.1\%} & \textbf{default} \\
-100 & 87.1 & 86.6 & 34.2 & 39.1 & 0.4\% & marginal gain \\
-200 & 87.2 & 86.5 & 34.1 & 39.0 & 0.3\% & saturated \\
-\bottomrule
-\end{tabular}%
-}
-\caption{Effect of calibration set size $N_\text{cal}$ (LLaMA-3, Split~A holdout). Accuracy improves up to $N_\text{cal}{=}50$ then plateaus; safety remains stable across all settings.}
-\label{tab:ablation_ncal}
-\end{table}
-
 \subsection{Cross-Benchmark Safety Transfer}
 
 BeaverTails is the only harmful benchmark used during side network training (with a disjoint evaluation split). To test whether generated safety heads generalize beyond BeaverTails, we evaluate on AdvBench (520 prompts) and HEx-PHI (300 prompts, 11 categories), which are never seen in any training phase. Across both models and all holdout domains, the harmful rate remains at 0\% on AdvBench and below 1.5\% on the more challenging HEx-PHI (full per-domain breakdown in Appendix~\ref{app:per_domain}). This confirms that \method{} captures general harmful-content patterns rather than benchmark-specific features.
