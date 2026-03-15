@@ -4,41 +4,14 @@
 % Change to "preprint" to generate a non-anonymous version with page numbers.
 \usepackage[review]{acl}
 
-% Standard package includes
-\usepackage{times}
-\usepackage{latexsym}
+\input{preamble}
 
-% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
-\usepackage[T1]{fontenc}
-% For Vietnamese characters
-% \usepackage[T5]{fontenc}
-% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+\newcommand{\method}{SafeHead}
+\newcommand{\lam}{\lambda}
+\newcommand{\remark}[1]{{\color{red}\textbf{[#1]}}}
 
-% This assumes your files are encoded as UTF8
-\usepackage[utf8]{inputenc}
 
-% This is not strictly necessary, and may be commented out,
-% but it will improve the layout of the manuscript,
-% and will typically save some space.
-\usepackage{microtype}
-
-% This is also not strictly necessary, and may be commented out.
-% However, it will improve the aesthetics of text in
-% the typewriter font.
-\usepackage{inconsolata}
-
-%Including images in your LaTeX document requires adding
-%additional package(s)
-\usepackage{graphicx}
-
-% If the title and author information does not fit in the area allocated, uncomment the following
-%
-%\setlength\titlebox{<dim>}
-%
-% and set <dim> to something 5cm or larger.
-
-% \title{Activation-Conditioned Hypernetworks for Zero-Shot Safety Heads on Fine-Tuned Language Models}
-\title{Safety Alignment Is Model-Dependent:\\ Inference-Time Recovery for Fine-Tuned Language Models}
+\title{Inference-Time Safety Recovery for Fine-Tuned Language Models \\via Activation-Conditioned Hypernetworks}
 
 % Author information can be set in various styles:
 % For several authors from the same institution:
@@ -119,9 +92,8 @@
 %\bibliography{custom,anthology-overleaf-1,anthology-overleaf-2}
 
 % Custom bibliography entries only
+% \bibliographystyle{acl_natbib}
 \bibliography{custom}
-
-\appendix
 
 \input{sec/6_appendix}
 
