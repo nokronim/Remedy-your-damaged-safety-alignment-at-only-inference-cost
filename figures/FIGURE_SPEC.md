@@ -1,207 +1,216 @@
 # Figure Specifications for SafeHead Paper
 
-Generate these figures for the paper. Style: clean academic, serif fonts, no gridlines, minimal decoration.
-Column width ~3.3in, double-column ~7in. Output: PDF for LaTeX.
+## Design Language (apply to ALL figures)
 
-Color scheme throughout: green (#4CAF50) = safe/preserved, red (#F44336) = harmful/degraded, blue (#2196F3) = our method.
+**Color Palette:**
+- Primary blue: `#4A90D9` (model components)
+- Primary red/coral: `#E8726A` (harmful / safety head)
+- Primary green: `#5CB85C` (safe / preserved)
+- Accent purple: `#8E7CC3` (hypernetwork)
+- Accent orange: `#F5A623` (activations)
+- Background fills: use 10% opacity versions of the above
+- Text: `#333333` (dark gray, never pure black)
+- Subtle borders: `#CCCCCC`
 
----
+**Typography:**
+- Headings in boxes: 11pt, semibold, dark gray
+- Labels on arrows: 9pt, regular, 60% gray
+- Phase titles: 14pt, bold, colored to match phase
+- Math: use italic where needed but keep it minimal
 
-## Figure 1: Pipeline Overview (CRITICAL — Section 1 or 3)
-
-**Type:** Architecture/flow diagram (use TikZ, draw.io, or Figma)
-
-**Layout:** Three-phase horizontal flow, left to right.
-
-**Phase 1 — Ground-Truth Collection (left):**
-- Show a base aligned model M₀ at top
-- Arrow labeled "LoRA fine-tuning" to 22 fine-tuned models M₁...M₂₂ (show as a stack of 3-4 model icons with "×22" label)
-- For each Mᵢ: freeze backbone, train side network on safe+harmful data
-- Output: 22 pairs (Mᵢ, θᵢ*) — show as paired icons
-- Label: "One-time setup"
-
-**Phase 2 — Hypernetwork Training (center):**
-- Input: activation fingerprints from each Mᵢ (show as layered horizontal bars, one per backbone layer)
-- These feed into a box labeled "Hypernetwork G"
-- Inside the box, show two sub-components:
-  - "Direction-Magnitude Decomposition" — split activation vector into d̂ (unit arrow) and m (scalar bar)
-  - "Layer-wise Factorized Generation" — separate MLPs per layer
-- Output arrows to generated weights θ̂ᵢ
-- Loss arrows: L_recon (MSE to ground-truth θᵢ*), L_func (BCE on probe prompts)
-- Label: "Train once on K domains"
-
-**Phase 3 — Inference (right):**
-- New unseen model M_d* arrives (highlighted, with "unseen" label)
-- Step 1: Extract activations from 50 calibration prompts (show prompt icons → model → activation bars)
-- Step 2: Single forward pass through trained hypernetwork → safety head weights
-- Step 3: Safety head attached alongside M_d*
-- Per-prompt routing:
-  - λ ≤ 0.5 → green arrow → "Base model output (unchanged)"
-  - λ > 0.5 → red arrow → "Refusal response"
-- Label: "< 1 minute, no training"
-- Emphasize: no gradients, no safety data, no model modification
-
-**Visual emphasis:** Phase 3 should be the largest/most prominent — it's the deployment story.
+**Visual Style:**
+- Rounded rectangles with 8px corner radius
+- Soft drop shadows (2px offset, 10% opacity, 4px blur)
+- Arrows: 2px stroke, rounded caps, slight curve (not straight lines)
+- Use icons where possible (model = stacked layers icon, data = document icon)
+- White space between elements — don't crowd
+- Subtle gradient fills on key boxes (top-light to bottom-darker, same hue)
 
 ---
 
-## Figure 2: Safety Head Architecture (Section 3.2)
+## Figure 1: Pipeline Overview (double-column width, ~7in × 2.5in)
 
-**Type:** Architecture diagram (TikZ or vector)
+**Layout:** Three panels left-to-right, connected by thick dashed arrows. Each panel has a colored background rectangle (very light fill, rounded corners 12px).
 
-**Layout:** Vertical, showing backbone and side network side by side.
+### Panel 1 — "Collect Training Pairs" (blue theme)
+**Background:** `#4A90D9` at 5% opacity
 
-**Left column — Frozen Backbone:**
-- Tall rectangle divided into L=32 layers (show ~8 representative layers)
-- Label each: "Layer 0", "Layer 2", "Layer 4", ..., "Layer 22"
-- Color: gray (frozen, not modified)
-- Input at bottom: "Input prompt x"
+**Elements top to bottom:**
+1. **Title:** "Phase 1: Collect Training Pairs" in blue, 14pt bold
+2. **Base model box:** Rounded rect, `#E8E8E8` fill, white border
+   - Text: "Aligned LLM" with a small shield icon ️🛡
+   - Size: 140×40px
+3. **Downward arrow** labeled "LoRA fine-tuning" (gray, 9pt)
+4. **Stack of 3 overlapping boxes** (offset by 4px each), blue gradient fill
+   - Front box text: "Fine-tuned Models"
+   - Show 3 stacked to imply many
+   - Blue fill from `#D6E4F0` to `#B8D0E8`
+5. **Downward arrow** labeled "train side network per domain"
+6. **Stack of 3 overlapping boxes**, coral/red gradient fill
+   - Front box text: "Safety Heads (ground truth)"
+   - Red fill from `#F5D5D0` to `#E8B8B0`
+7. **Small label below:** "K domain pairs" in 8pt gray italic
 
-**Right column — Side Network (Safety Head):**
-- Shorter rectangle, K=12 layers
-- Color: blue (our generated component)
-- Label: "Side Network (~3% params)"
-- Each side layer is smaller than backbone layer (show width difference for h_s vs h)
+### Panel 2 — "Train Hypernetwork" (purple theme)
+**Background:** `#8E7CC3` at 5% opacity
 
-**Connections between them — Ladder:**
-- Diagonal arrows from backbone layers 0,2,4,...,22 to side layers 1,...,12
-- At each connection point, show the gating equation:
-  - Small box: "W_down" (downsample h → h_s)
-  - Gate icon: "μₖ" (learnable gate)
-  - Formula nearby (small): h_in = μ·W_down·h_back + (1-μ)·h_side
+**Elements top to bottom:**
+1. **Title:** "Phase 2: Train Hypernetwork" in purple, 14pt bold
+2. **Activation box:** Rounded rect, orange fill `#FEF0D5`
+   - Text: "Activation Fingerprint"
+   - Small bar-chart icon to the left of text (representing layer activations)
+3. **Split into two arrows** going down-left and down-right:
+   - Left box: "Direction" (orange fill, italic "what changed")
+   - Right box: "Magnitude" (orange fill, italic "how much")
+4. **Both arrows merge into:**
+5. **Large central box** — the hypernetwork, purple gradient fill
+   - Text: "Hypernetwork G" in white, bold
+   - Size: 180×60px, prominent
+   - Subtle purple gradient from `#A594D6` to `#7B68AE`
+6. **Downward arrow**
+7. **Output box:** "Generated Safety Head" in coral fill
+8. **Side annotation** (small, to the right): three loss labels stacked:
+   - "L_recon" "L_cls" "L_func"
+   - Connected to output box with a thin dashed line
 
-**Top of side network:**
-- Mean pool → MLP → σ → λ score
-- Label: "Lambda Classifier"
-- Decision diamond:
-  - λ ≤ 0.5: green arrow → "Pass through (base model output)"
-  - λ > 0.5: red arrow → "Refuse (canned refusal)"
+### Panel 3 — "Deploy" (green theme)
+**Background:** `#5CB85C` at 5% opacity
 
-**Key labels:** "Frozen Backbone (not modified)", "Generated Safety Head", "Selective Routing"
+**Elements top to bottom:**
+1. **Title:** "Phase 3: Deploy" in green, 14pt bold
+2. **New model box:** Green border (2px), white fill, green glow/shadow
+   - Text: "New Fine-tuned Model"
+   - Small badge above: "unseen" in green italic 9pt
+3. **Downward arrow** labeled "calibration prompts"
+4. **Hypernetwork box** (same purple as Panel 2 but lighter, implying "frozen")
+   - Text: "Hypernetwork G" with a ❄ snowflake or lock icon
+   - Dashed border to show it's frozen
+5. **Downward arrow** labeled "single forward pass" with a ⚡ bolt icon
+6. **Safety head box:** Coral fill, text "Safety Head"
+7. **Fork into two paths:**
+   - **Left path (green arrow, curved):** → green box "Safe output ✓"
+     - Label on arrow: "safe" in green
+   - **Right path (red arrow, curved):** → red box "Refused ✗"
+     - Label on arrow: "harmful" in red
+8. **Small label centered below:** "< 1 minute · no training · no modification"
+
+### Panel connectors:
+- Between Panel 1→2: thick dashed arrow (4px, gray), labeled "training data"
+- Between Panel 2→3: thick dashed arrow, labeled "trained model"
+- Arrows should be slightly curved, not straight
 
 ---
 
-## Figure 3: Safety Degradation + Recovery (Section 4.2)
+## Figure 2: Safety Head Architecture (single-column, ~3.3in × 4in)
 
-**Type:** Grouped bar chart
+**Layout:** Vertical, two columns side by side.
 
-**Data (LLaMA-3-8B, 12 holdout domains, sorted by LoRA harmful rate):**
+### Left column — Backbone
+- **Title above:** "Frozen Backbone" in gray
+- **Tall rounded rectangle** divided into 8 horizontal bands (layers)
+  - Fill: light gray `#F0F0F0`
+  - Each band has very subtle horizontal line separators
+  - Label bottom band: "Layer 0" (9pt gray)
+  - Label top band: "Layer L"
+  - Ice crystal / lock icon in top-right corner (frozen indicator)
+- **Input arrow** from below: "Input prompt x"
 
-| Domain | Base Harm% | LoRA Harm% | Ours Harm% |
-|--------|-----------|-----------|-----------|
-| PIQA | 7.1 | 40.0 | 0.0 |
-| OpenHermes | 7.1 | 39.0 | 0.0 |
-| HellaSwag | 7.1 | 35.1 | 0.1 |
-| Dolly | 7.1 | 28.3 | 0.1 |
-| Alpaca | 7.1 | 25.7 | 0.1 |
-| CSenseQA | 7.1 | 20.0 | 0.0 |
-| NQ-Open | 7.1 | 20.0 | 0.4 |
-| BoolQ | 7.1 | 18.6 | 0.1 |
-| AG News | 7.1 | 15.1 | 0.0 |
-| MMLU | 7.1 | 12.4 | 0.0 |
-| ARC | 7.1 | 8.6 | 0.0 |
-| Comp Math | 7.1 | 7.0 | 0.0 |
+### Right column — Safety Head
+- **Title above:** "Safety Head" in blue
+- **Shorter rounded rectangle** (visually ~60% height of backbone), 8 bands
+  - Fill: light blue gradient
+  - Visually narrower than backbone (showing smaller hidden dim)
+- **Brace on right side** with label "~3% params"
 
-**Style:**
-- 3 grouped bars per domain: green (Base), red (LoRA), blue (Ours)
-- Blue bars are nearly invisible (near 0) — that's the point
-- Y-axis: "Harmful Output Rate (%)", range 0-45%
-- X-axis: domain names, rotated 35°
-- Sorted descending by LoRA harmful rate
-- Legend in upper right
-- Optional annotation arrow on PIQA: "Fine-tuning degrades safety → SafeHead restores it"
+### Connections (ladder)
+- **Diagonal dashed arrows** from each backbone layer to corresponding side layer
+  - Orange colored, 1.5px, dashed
+  - Small diamond/dot at connection point
+  - One arrow labeled "gate μ_k" (just one, to avoid clutter)
 
-**Key message:** LoRA causes dramatic safety degradation (red towers); SafeHead eliminates it (blue invisible).
+### Top section — Classifier + Routing
+- Above the side network: **"Safety Score λ" box** (coral fill, rounded)
+  - Connected from side network top via arrow labeled "pool → MLP"
+- Above λ box: **fork into two curved paths**
+  - Left curve → green rounded box with checkmark: "Pass through"
+  - Right curve → red rounded box with X: "Refuse"
+  - Labels on curves: "safe" (green) and "harmful" (red)
+  - No numbers, no thresholds
 
 ---
 
-## Figure 4: Accuracy Preservation Scatter (Section 4.2)
+## Figure 3: Safety Degradation Bar Chart (single-column, ~3.3in × 2.5in)
 
-**Type:** Scatter plot, 2 panels side by side
+**Style:** Clean grouped bars, no grid, white background.
 
-**Layout:** Left = LLaMA-3-8B, Right = Qwen2-7B
+**Data (12 domains, sorted by LoRA harmful rate):**
+```
+PIQA       | Base 7.1 | LoRA 40.0 | Ours 0.0
+OpenHermes | Base 7.1 | LoRA 39.0 | Ours 0.0
+HellaSwag  | Base 7.1 | LoRA 35.1 | Ours 0.1
+Dolly      | Base 7.1 | LoRA 28.3 | Ours 0.1
+Alpaca     | Base 7.1 | LoRA 25.7 | Ours 0.1
+CSenseQA   | Base 7.1 | LoRA 20.0 | Ours 0.0
+NQ-Open    | Base 7.1 | LoRA 20.0 | Ours 0.4
+BoolQ      | Base 7.1 | LoRA 18.6 | Ours 0.1
+AG News    | Base 7.1 | LoRA 15.1 | Ours 0.0
+MMLU       | Base 7.1 | LoRA 12.4 | Ours 0.0
+ARC        | Base 7.1 | LoRA  8.6 | Ours 0.0
+Math       | Base 7.1 | LoRA  7.0 | Ours 0.0
+```
 
-**Data (12 points per panel — one per holdout domain):**
+**Design:**
+- 3 bars per domain: green (Base), red (LoRA), blue (Ours)
+- Bar width: ~8px with 2px gap between groups
+- Y-axis: "Harmful Output Rate (%)", range 0–45, ticks at 0,10,20,30,40
+- X-axis: domain names rotated 40°
+- Legend: top-right, horizontal, inside plot
+- Blue "Ours" bars are nearly invisible — that IS the visual point
+- Optional: thin horizontal dashed line at y=7.1 (base rate) for reference
 
-LLaMA-3: (LoRA_acc, Ours_acc) pairs:
-(87.2, 86.9), (86.5, 86.5), (34.1, 34.1), (39.0, 38.8), (87.8, 87.9), (89.5, 89.2), (81.7, 81.5), (54.8, 55.0), (61.2, 61.0), (28.1, 27.8), (90.6, 90.6), (34.4, 34.2)
+---
 
-Qwen2: (LoRA_acc, Ours_acc) pairs:
-(88.4, 88.3), (91.3, 91.1), (74.4, 74.2), (39.6, 39.6), (90.8, 90.5), (93.2, 93.3), (84.6, 84.7), (57.2, 57.1), (68.7, 68.5), (22.7, 22.5), (98.7, 98.5), (35.6, 35.6)
+## Figure 4: Accuracy Preservation Scatter (single-column, ~3.3in × 1.8in)
 
-**Style:**
-- Dashed gray y=x line (perfect preservation)
-- Green dots: Ours ≥ LoRA (on or above line)
-- Blue dots: Ours < LoRA (below line, minor drop)
-- All points should cluster tightly on the diagonal
+**Layout:** Two panels side by side (LLaMA-3, Qwen2)
+
+**Data points (LoRA_acc, Ours_acc):**
+
+LLaMA-3: (87.2,86.9) (86.5,86.5) (34.1,34.1) (39.0,38.9) (87.8,87.7) (89.5,89.1) (81.7,81.5) (54.8,54.6) (61.2,61.0) (28.1,27.7) (90.6,90.6) (34.4,34.4)
+
+Qwen2: (88.4,88.2) (91.3,91.3) (74.4,74.1) (39.6,39.5) (90.8,90.6) (93.2,92.8) (84.6,84.5) (57.2,57.0) (68.7,68.4) (22.7,22.2) (97.6,97.6) (35.6,35.4)
+
+**Design:**
+- Dashed gray diagonal line (y=x, "perfect preservation")
+- Blue filled circles (6px radius) with thin white border
+- All points cluster on/near the diagonal
 - Axes: "LoRA Accuracy (%)" vs "SafeHead Accuracy (%)"
 - Equal aspect ratio
-- Title per panel: "LLaMA-3-8B" / "Qwen2-7B"
-
-**Key message:** All points on the diagonal = accuracy perfectly preserved.
-
----
-
-## Figure 5: Component Ablation (Section 4.4)
-
-**Type:** Horizontal bar chart or grouped vertical bars
-
-**Data (LLaMA-3-8B, Split A holdout):**
-
-| Variant | Acc Delta | Harmful Rate |
-|---------|-----------|-------------|
-| Full system | ±0 | 0.1% |
-| -L_func^safe | -10.3 | 0.3% |
-| -L_func (recon only) | -3.8 | 0.4% |
-| -Domain calibration | -1.4 | 5.4% |
-| -Factorized cls gen. | -4.1 | 0.2% |
-
-**Style:**
-- Two bars per variant: blue (Acc delta, negative = worse) and red (Harmful rate, higher = worse)
-- Full system bar highlighted (green border or different shade)
-- Annotate the -10.3 bar: "Classifier over-blocks safe prompts"
-- Annotate the 5.4% bar: "Safety degrades without calibration"
-
-**Key message:** Every component contributes; removing any one hurts accuracy or safety.
+- Panel titles: model names in bold
+- No grid, just axis lines
 
 ---
 
-## Figure 6: Lambda Score Distributions (Section 4 or Appendix)
+## Production Workflow
 
-**Type:** Overlapping histograms, 3 panels (BoolQ, PIQA, HellaSwag)
+1. **Option A (recommended): Canva**
+   - Go to canva.com → Custom size → set to 7×2.5in (Fig 1) or 3.3×4in (Fig 2)
+   - Use "Elements" search for icons (shield, lightning bolt, lock, checkmark)
+   - Copy the color codes from above
+   - Export as PDF
 
-**Data:** Simulated from our domL/harmL statistics:
-- Safe domain prompts: beta(1.2, 15) distribution → peaked near λ=0
-- Harmful prompts: beta(15, 1.2) distribution → peaked near λ=1
-- ~3% of safe prompts cross threshold (matching ~97% domL)
-- ~1% of harmful prompts miss threshold (matching ~99% harmL)
+2. **Option B: Google Slides**
+   - One slide per figure, set custom slide size
+   - Use shapes, connectors, text boxes
+   - Download as PDF
 
-**Style:**
-- Blue semi-transparent: safe prompts
-- Red semi-transparent: harmful prompts
-- Dashed black vertical line at λ=0.5 (threshold)
-- X-axis: "λ score" (0 to 1)
-- Y-axis: "Density"
-- Clear bimodal separation visible
-- Title per panel: domain name in bold
+3. **Option C: Figma** (best quality but steeper learning curve)
+   - Use auto-layout for alignment
+   - Export as PDF/SVG
 
-**Key message:** Clean separation between safe and harmful — classifier learns meaningful boundary.
+4. **Option D: TikZ** (already in repo as fig_pipeline.tex, fig_architecture.tex)
+   - Compile with paper to see result
+   - Iterate by editing coordinates
+   - Text is native LaTeX (best for math symbols)
 
----
-
-## Figure 7: Method Comparison Table (visual version, optional)
-
-Instead of Table comparing methods, a visual diagram could be more impactful:
-- Show 4 methods as rows
-- Columns: icons for each property (per-model cost, model-specific, non-destructive, no aligned model needed)
-- Checkmarks/crosses with color coding
-- Our row highlighted
-
----
-
-## Production notes:
-- Figures 1 and 2 (architecture diagrams): recommend generating on claude.ai with artifact preview for visual iteration
-- Figures 3-6 (data plots): can be generated with matplotlib (script exists at figures/generate_plots_v2.py)
-- All figures should use consistent font sizes (10-11pt labels)
-- PDF output at 300 DPI for any raster elements
-- Test each figure at column width (3.3in) to ensure readability
+For Figures 3-4 (data plots), use matplotlib with the exact data above, or plot in Google Sheets and style manually.
