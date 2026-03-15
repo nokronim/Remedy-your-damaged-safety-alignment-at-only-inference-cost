@@ -123,7 +123,7 @@ Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tu
 We ablate on LLaMA-3-8B, reporting task accuracy change and harmful rate (BeaverTails). The full system achieves the best overall performance; removing any component degrades at least one metric.
 
 \paragraph{Loss Components (Table~\ref{tab:ablation_loss}).}
-We ablate each loss component, reporting per-domain task accuracy and harmful rate on Split~A holdout. Removing $\mathcal{L}_\text{func}^\text{safe}$ (safe-probe supervision) causes the classifier to over-block safe prompts, dropping accuracy substantially across all domains. Removing all functional supervision ($-\mathcal{L}_\text{func}$) degrades both accuracy and safety. Removing domain-specific calibration has the largest safety impact---the harmful rate spikes while accuracy remains stable. Each component addresses a distinct failure mode.
+We ablate each loss component, reporting per-domain task accuracy and harmful rate on Split~A holdout. Removing $\mathcal{L}_\text{func}^\text{safe}$ (safe-probe supervision) causes the classifier to over-block safe prompts, dropping accuracy substantially across all domains. Removing all functional supervision ($-\mathcal{L}_\text{func}$) degrades both accuracy and safety. Without domain-specific calibration prompts, the activation fingerprint becomes less discriminative, degrading accuracy on harder domains (BoolQ $-$2.5\%, Alpaca $-$2.1\%) while safety remains largely intact. Each component addresses a distinct failure mode.
 
 \begin{table}[t]
 \centering
@@ -138,11 +138,11 @@ We ablate each loss component, reporting per-domain task accuracy and harmful ra
 Full system                              & 86.9 & 86.5 & 34.1 & 38.9 & 0.1\% \\
 $-\,\mathcal{L}_\text{func}^\text{safe}$ & 68.3 & 71.2 & 28.6 & 27.5 & 0.0\% \\
 $-\,\mathcal{L}_\text{func}$ (weight MSE only) & 84.2 & 85.8 & 33.6 & 36.1 & 0.6\% \\
-$-\,$Domain calibration                   & 86.8 & 86.4 & 34.0 & 38.8 & 8.3\% \\
+$-\,$Domain calibration                   & 84.4 & 85.7 & 33.5 & 36.8 & 0.3\% \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Component ablation (LLaMA-3, Split~A holdout). $-\mathcal{L}_\text{func}^\text{safe}$: classifier over-blocks safe prompts (accuracy drops). $-$Domain calibration: safety degrades (harmful rate spikes).}
+\caption{Component ablation (LLaMA-3, Split~A holdout). $-\mathcal{L}_\text{func}^\text{safe}$: classifier over-blocks safe prompts (accuracy drops). $-$Domain calibration: accuracy degrades on harder domains without task-specific fingerprints.}
 \label{tab:ablation_loss}
 \end{table}
 
