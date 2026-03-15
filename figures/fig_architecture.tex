@@ -1,74 +1,82 @@
-% Architecture diagram — cleaner, no lambda threshold numbers
-\begin{figure}[t]
+% % Architecture diagram — cleaner, no lambda threshold numbers
+% \begin{figure}[t]
+% \centering
+% \resizebox{0.92\columnwidth}{!}{%
+% \begin{tikzpicture}[
+%     >=Stealth,
+%     layer/.style={draw, rounded corners=2pt, minimum height=0.5cm, font=\tiny, line width=0.5pt},
+%     arr/.style={->, line width=0.8pt},
+%     lbl/.style={font=\tiny, color=black!55},
+% ]
+
+% % ===================== Backbone =====================
+% \node[font=\small\bfseries, color=gray!60] at (0, 8) {Frozen Backbone};
+
+% \foreach \i/\l in {0/0, 1/1, 2/2, 3/3, 4/4, 5/5, 6/6, 7/7} {
+%     \node[layer, fill=gray!10, minimum width=2.4cm] (back\i) at (0, \i*0.9) {};
+% }
+% \node[font=\tiny, color=gray!50] at (0, 0) {Layer 0};
+% \node[font=\tiny, color=gray!50] at (0, 6.3) {Layer $L$};
+
+% % Backbone connections
+% \foreach \i [evaluate=\i as \j using int(\i+1)] in {0,...,6} {
+%     \draw[gray!25, line width=0.5pt] (back\i) -- (back\j);
+% }
+
+% % Input
+% \node[below=0.4cm of back0, font=\scriptsize] (input) {Input $x$};
+% \draw[arr, gray!50] (input) -- (back0);
+
+% % ===================== Side Network =====================
+% \node[font=\small\bfseries, color=blue!60] at (4.5, 8) {Safety Head};
+
+% \foreach \i in {0,...,7} {
+%     \node[layer, fill=blue!10, minimum width=1.5cm] (side\i) at (4.5, \i*0.9) {};
+% }
+
+% % Side connections
+% \foreach \i [evaluate=\i as \j using int(\i+1)] in {0,...,6} {
+%     \draw[blue!25, line width=0.5pt] (side\i) -- (side\j);
+% }
+
+% % ===================== Ladder Connections =====================
+% \foreach \i in {0,...,7} {
+%     \draw[arr, orange!50, densely dashed, line width=0.6pt] (back\i.east) -- (side\i.west);
+% }
+
+% % Gate label
+% \node[font=\tiny, color=orange!60, rotate=25] at (2.25, 4.5) {ladder gates $\mu_k$};
+
+% % Size annotation
+% \draw[decorate, decoration={brace, amplitude=4pt, mirror}, gray!40]
+%     ([xshift=0.9cm]side0.east) -- ([xshift=0.9cm]side7.east)
+%     node[midway, right=5pt, font=\tiny, color=gray!50, text width=1cm, align=center] {$\sim$3\%\\params};
+
+% % ===================== Classifier =====================
+% \node[draw, rounded corners=4pt, fill=red!12, minimum width=1.8cm, minimum height=0.6cm, above=0.6cm of side7, font=\scriptsize, line width=0.6pt] (cls) {Safety Score};
+% \draw[arr, blue!50] (side7) -- node[right, lbl] {pool} (cls);
+
+% % Score output
+% \node[above=0.5cm of cls, font=\small] (score) {$\lambda$};
+% \draw[arr] (cls) -- (score);
+
+% % ===================== Routing (clean, no threshold numbers) =====================
+% \node[draw, rounded corners=3pt, fill=green!12, font=\scriptsize, minimum width=1.5cm, line width=0.5pt] (safe) at (2.5, 9.8) {Pass through};
+% \node[draw, rounded corners=3pt, fill=red!12, font=\scriptsize, minimum width=1.5cm, line width=0.5pt] (block) at (6.5, 9.8) {Refuse};
+
+% \draw[arr, green!60!black, line width=0.8pt] (score) -| (safe) node[pos=0.25, above, font=\tiny, color=green!60!black] {safe};
+% \draw[arr, red!50!black, line width=0.8pt] (score) -| (block) node[pos=0.25, above, font=\tiny, color=red!50!black] {harmful};
+
+% \end{tikzpicture}%
+% }
+% \caption{Safety head architecture. A lightweight side transformer connects to the frozen backbone via gated ladder connections. The safety score $\lambda$ determines routing: safe prompts bypass the side network; harmful prompts trigger a refusal.}
+% \label{fig:architecture}
+% \end{figure}
+
+
+\begin{figure*}[t]
 \centering
-\resizebox{0.92\columnwidth}{!}{%
-\begin{tikzpicture}[
-    >=Stealth,
-    layer/.style={draw, rounded corners=2pt, minimum height=0.5cm, font=\tiny, line width=0.5pt},
-    arr/.style={->, line width=0.8pt},
-    lbl/.style={font=\tiny, color=black!55},
-]
-
-% ===================== Backbone =====================
-\node[font=\small\bfseries, color=gray!60] at (0, 8) {Frozen Backbone};
-
-\foreach \i/\l in {0/0, 1/1, 2/2, 3/3, 4/4, 5/5, 6/6, 7/7} {
-    \node[layer, fill=gray!10, minimum width=2.4cm] (back\i) at (0, \i*0.9) {};
-}
-\node[font=\tiny, color=gray!50] at (0, 0) {Layer 0};
-\node[font=\tiny, color=gray!50] at (0, 6.3) {Layer $L$};
-
-% Backbone connections
-\foreach \i [evaluate=\i as \j using int(\i+1)] in {0,...,6} {
-    \draw[gray!25, line width=0.5pt] (back\i) -- (back\j);
-}
-
-% Input
-\node[below=0.4cm of back0, font=\scriptsize] (input) {Input $x$};
-\draw[arr, gray!50] (input) -- (back0);
-
-% ===================== Side Network =====================
-\node[font=\small\bfseries, color=blue!60] at (4.5, 8) {Safety Head};
-
-\foreach \i in {0,...,7} {
-    \node[layer, fill=blue!10, minimum width=1.5cm] (side\i) at (4.5, \i*0.9) {};
-}
-
-% Side connections
-\foreach \i [evaluate=\i as \j using int(\i+1)] in {0,...,6} {
-    \draw[blue!25, line width=0.5pt] (side\i) -- (side\j);
-}
-
-% ===================== Ladder Connections =====================
-\foreach \i in {0,...,7} {
-    \draw[arr, orange!50, densely dashed, line width=0.6pt] (back\i.east) -- (side\i.west);
-}
-
-% Gate label
-\node[font=\tiny, color=orange!60, rotate=25] at (2.25, 4.5) {ladder gates $\mu_k$};
-
-% Size annotation
-\draw[decorate, decoration={brace, amplitude=4pt, mirror}, gray!40]
-    ([xshift=0.9cm]side0.east) -- ([xshift=0.9cm]side7.east)
-    node[midway, right=5pt, font=\tiny, color=gray!50, text width=1cm, align=center] {$\sim$3\%\\params};
-
-% ===================== Classifier =====================
-\node[draw, rounded corners=4pt, fill=red!12, minimum width=1.8cm, minimum height=0.6cm, above=0.6cm of side7, font=\scriptsize, line width=0.6pt] (cls) {Safety Score};
-\draw[arr, blue!50] (side7) -- node[right, lbl] {pool} (cls);
-
-% Score output
-\node[above=0.5cm of cls, font=\small] (score) {$\lambda$};
-\draw[arr] (cls) -- (score);
-
-% ===================== Routing (clean, no threshold numbers) =====================
-\node[draw, rounded corners=3pt, fill=green!12, font=\scriptsize, minimum width=1.5cm, line width=0.5pt] (safe) at (2.5, 9.8) {Pass through};
-\node[draw, rounded corners=3pt, fill=red!12, font=\scriptsize, minimum width=1.5cm, line width=0.5pt] (block) at (6.5, 9.8) {Refuse};
-
-\draw[arr, green!60!black, line width=0.8pt] (score) -| (safe) node[pos=0.25, above, font=\tiny, color=green!60!black] {safe};
-\draw[arr, red!50!black, line width=0.8pt] (score) -| (block) node[pos=0.25, above, font=\tiny, color=red!50!black] {harmful};
-
-\end{tikzpicture}%
-}
-\caption{Safety head architecture. A lightweight side transformer connects to the frozen backbone via gated ladder connections. The safety score $\lambda$ determines routing: safe prompts bypass the side network; harmful prompts trigger a refusal.}
+\includegraphics[width=0.85\textwidth]{figures/fig2_architecture.pdf}
+\caption{Safety head architecture. The frozen backbone's hidden states are downsampled via gated ladder connections into a lightweight side network ($\sim$3\% of backbone parameters). The side network produces a safety score that routes safe prompts to the base model output and harmful prompts to a refusal response.}
 \label{fig:architecture}
-\end{figure}
+\end{figure*}

@@ -12,17 +12,17 @@ We propose a different approach: rather than retraining or applying a one-size-f
 Concretely, we introduce \method{}, a \textit{hypernetwork}~\cite{ha2017hypernetworks} that takes intermediate activations from any fine-tuned model as input and outputs the weights of a small \textit{safety head}---a side network~\cite{sung2022lst} that classifies each prompt as safe or harmful. At deployment, a single forward pass through the hypernetwork produces a model-specific safety head from only 50 calibration prompts, with no gradient computation and no model modification.
 
 \begin{figure*}[t]
-	\centering
-	\includegraphics[width=\textwidth]{figures/fig1_pipeline.pdf}
-	\caption{\method{} pipeline. \textbf{Top}: Training phase (one-time). Collect (model, safety head) pairs, extract activation fingerprints with direction-magnitude decomposition, and train a hypernetwork to generate safety head weights. \textbf{Bottom}: Inference. For any new fine-tuned model, extract activations and generate a model-specific safety head in a single forward pass---no training, no safety data, no model modification required.}
-	\label{fig:pipeline}
+\centering
+\includegraphics[width=\textwidth]{figures/fig1_pipeline.pdf}
+\caption{\method{} pipeline. \textbf{Top}: Training phase (one-time). Collect (model, safety head) pairs, extract activation fingerprints with direction-magnitude decomposition, and train a hypernetwork to generate safety head weights. \textbf{Bottom}: Inference. For any new fine-tuned model, extract activations and generate a model-specific safety head in a single forward pass---no training, no safety data, no model modification required.}
+\label{fig:pipeline}
 \end{figure*}
 
 \paragraph{Contributions.}
 \begin{enumerate}
-	\item We introduce \textbf{activation-conditioned safety generation}: the safety classifier is automatically produced from each fine-tuned model's activation fingerprint, requiring no per-model training or safety data at deployment.
-	\item We propose \textbf{\method{}}, combining layer-wise factorized weight generation with direction-magnitude activation decomposition to make high-dimensional weight prediction tractable.
-	\item We validate on \textbf{two architectures}, \textbf{12 unseen domains}, and \textbf{three safety benchmarks}, demonstrating near-complete harmful elimination with negligible accuracy loss.
+    \item We introduce \textbf{activation-conditioned safety generation}: the safety classifier is automatically produced from each fine-tuned model's activation fingerprint, requiring no per-model training or safety data at deployment.
+    \item We propose \textbf{\method{}}, combining layer-wise factorized weight generation with direction-magnitude activation decomposition to make high-dimensional weight prediction tractable.
+    \item We validate on \textbf{two architectures}, \textbf{12 unseen domains}, and \textbf{three safety benchmarks}, demonstrating near-complete harmful elimination with negligible accuracy loss.
 \end{enumerate}
 
 %\begin{itemize}
