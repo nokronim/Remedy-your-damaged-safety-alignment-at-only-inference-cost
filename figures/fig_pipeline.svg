@@ -80,7 +80,7 @@
 
   <!-- Speed banner -->
   <rect x="140" y="340" width="400" height="44" rx="22" fill="#534AB7" stroke="#3C3489" stroke-width="0.5"/>
-  <text class="th" x="340" y="356" text-anchor="middle" dominant-baseline="central" fill="#EEEDFE">Inference: deploy in ~10 seconds</text>
+  <text class="th" x="340" y="356" text-anchor="middle" dominant-baseline="central" fill="#EEEDFE">⚡ Inference: deploy in seconds</text>
   <text class="ts" x="340" y="374" text-anchor="middle" dominant-baseline="central" fill="#CECBF6">No training, no gradients, no safety data needed</text>
 
   <!-- Inference container -->
