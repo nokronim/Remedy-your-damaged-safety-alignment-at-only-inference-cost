@@ -18,12 +18,12 @@ Let $\mathcal{M}_0$ be a safety-aligned base LLM and $\mathcal{M}_d$ a variant f
 \end{equation}
 where $\mathbf{A}(\cdot)$ denotes activations from a small calibration set and $\lambda \in [0,1]$ is a safety score ($\lambda \approx 0$: safe; $\lambda \approx 1$: harmful).
 
-\input{figures/fig_architecture}
-
 \subsection{\method{} Architecture}
 \label{sec:arch}
 
 We build on the Ladder Side-Tuning (LST) architecture~\cite{sung2022lst} and extend it for safety classification (Figure~\ref{fig:architecture}).
+
+\input{figures/fig_architecture}
 
 \mysection{Side Transformer.} $K{=}12$ layers with hidden dimension $h_s = h/r$ ($r{=}4$). For Qwen2-7B: $h_s{=}896$, 7 heads; for LLaMA-3-8B: $h_s{=}1024$, 8 heads ($\sim$3\% of backbone parameters).
 
@@ -38,7 +38,8 @@ where $\mu_k = \sigma(\alpha_k/\tau)$ is a learned gate.
 \subsection{Activation-Conditioned Hypernetwork}
 \label{sec:hypernet}
 
-The hypernetwork $G$ maps an activation fingerprint to the full set of side-network classifier parameters. We make this high-dimensional prediction tractable through two complementary strategies.
+The safety head described above defines the classifier architecture. We now describe how its parameters are generated automatically from
+activation fingerprints. Using a hypernetwork $G$, we map an activation fingerprint to the full set of side-network classifier parameters. We make this high-dimensional prediction tractable through two complementary strategies.
 
 \mysection{Activation Fingerprint Extraction. } For each model $\mathcal{M}_d$, we run $N_\text{cal}{=}50$ domain-specific calibration prompts and average the hidden state at each layer $l$ after the final token:
 \begin{equation}
