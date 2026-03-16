@@ -4,7 +4,9 @@
 \section{Method}
 \label{sec:method}
 
-Our proposed \method{} framework generates a model-specific \ssn{} for recovering safety in fine-tuned language models. The \ssn{} is a lightweight side network that performs prompt-level safety classification, and its weights are predicted by a hypernetwork from activation fingerprints of the target model. During training, we collect pairs of fine-tuned models and their corresponding \ssn{}s across multiple domains to supervise the hypernetwork. At inference, we produce a \method{} for a fine-tuned model on an unseen domain whose safety alignment may have degraded using only a small set of calibration prompts. In the following sections, we describe the problem setup, the architecture, and the hypernetwork training and deployment procedure.
+Our proposed \method{} framework generates a model-specific \ssn{} for recovering safety in fine-tuned language models. The \ssn{} is a lightweight side network that performs prompt-level safety classification, and its weights are predicted by a hypernetwork from activation fingerprints of the target model. During training, we collect pairs of fine-tuned models and their corresponding \ssn{}s across multiple domains to supervise the hypernetwork. At inference, we produce a \ssn{} for a fine-tuned model on an unseen domain whose safety alignment may have degraded using our proposed \method{}.
+%only a small set of calibration prompts. 
+In the following sections, we describe the problem setup, the architecture, and the hypernetwork training and deployment procedure.
 
 % \method{} operates in three phases: (1)~collect ground-truth \ssn{}s for a set of training datasets (\S\ref{sec:gt}), (2)~train a hypernetwork to predict \ssn{} weights from model activations (\S\ref{sec:hypernet}), and (3)~at inference, generate a safety head for any new fine-tuned model in one forward pass (\S\ref{sec:deploy}).
 
@@ -45,7 +47,8 @@ where $\mathbf{h}^{(l)}_\text{back}$ denotes the backbone hidden state at layer 
 \subsection{Activation-Conditioned Hypernetwork}
 \label{sec:hypernet}
 
-The \ssn{} described above defines the classifier architecture. We now describe how its parameters are generated automatically from activation fingerprints. The hypernetwork $G$ takes the activation fingerprint of a fine-tuned model as input and predicts the parameters of the \ssn{}. To make the high-dimensional weight prediction feasible, we employ two complementary design strategies.
+% The \ssn{} described above defines the classifier architecture. 
+We now describe how the \ssn{} parameters are generated automatically from activation fingerprints. The hypernetwork $G$ takes the activation fingerprint of a fine-tuned model as input and predicts the parameters of the \ssn{}. To make the high-dimensional weight prediction feasible, we employ two complementary design strategies.
 
 
 \mysection{Activation Fingerprint Extraction. } For each model $\mathcal{M}_d$, we run $N_\text{cal}{=}50$ domain-specific calibration prompts and average the backbone hidden state at each layer $l$ after the final token:
@@ -87,7 +90,7 @@ where $l(k)$ denotes the backbone layer associated with side layer $k$. The modu
 % Training proceeds in two stages. First, we train domain-specific \ssn{}s to obtain supervision for the hypernetwork. Second, the hypernetwork is trained to generate these weights from activation fingerprints.
 Training proceeds in two stages. First, we train domain-specific \ssn{}s for a set of fine-tuned models to obtain supervision pairs consisting of activation fingerprints and corresponding \ssn{} weights. Second, the hypernetwork is trained to map activation fingerprints to these weights, enabling it to generate \ssn{}s for new fine-tuned models at inference time.
 
-\mysection{Ground-truth Safety Head Collection.}\label{sec:gt} We collect supervised pairs $\{(\mathcal{M}_d, \theta_d^*)\}_{d=1}^K$ by training one side network per domain:
+\mysection{Ground-truth Safety Head Collection.}\label{sec:gt} We collect supervised pairs $\{(\mathcal{M}_d, \theta_d^*)\}_{d=1}^D$ by training one side network per domain:
 \begin{enumerate}
     \item Fine-tune $\mathcal{M}_0$ on domain $d$ with LoRA~\cite{hu2022lora} (rank 16, $\alpha{=}32$); merge the adapter to obtain $\mathcal{M}_d$.
     \item Freeze $\mathcal{M}_d$; attach a randomly initialized side network.
@@ -95,7 +98,7 @@ Training proceeds in two stages. First, we train domain-specific \ssn{}s for a s
 \end{enumerate}
 Training uses a selective loss: harmful prompts receive both language-modeling loss and classification loss; safe prompts receive only classification loss. This teaches the side network when to intervene without degrading task performance on safe inputs. All side networks share the same initialization, ensuring weight-space alignment for hypernetwork supervision.
 
-\mysection{Hypernetwork Training.} The hypernetwork is trained on $K_\text{train}$ domains (with $K_\text{held}$ held out for evaluation; $K_\text{train}{=}18$, $K_\text{held}{=}4$ in our experiments) using three complementary losses:
+\mysection{Hypernetwork Training.} The hypernetwork is trained on $D_\text{train}$ domains (with $D_\text{held}$ held out for evaluation; $D_\text{train}{=}18$, $D_\text{held}{=}4$ in our experiments) using three complementary losses:
 \begin{equation}
     \mathcal{L} = \mathcal{L}_\text{recon} + \alpha\, \mathcal{L}_\text{cls} + \beta\, \mathcal{L}_\text{func}
 \end{equation}
