@@ -60,17 +60,16 @@ We compare against Llama Guard 4~\cite{inan2023llama} (12B), the latest model-ag
 
 \begin{table}[t]
 \centering
-\renewcommand{\arraystretch}{1.2}
+\small
 \begin{tabular}{@{}lccc@{}}
 \toprule
 \textbf{Method} & \textbf{BT} & \textbf{AdvBench} & \textbf{HEx-PHI} \\
-& (700) & (520) & (300) \\
 \midrule
 Llama Guard 4 & 53.6 & 6.5 & 6.7 \\
 \method{} (ours) & \textbf{0.7} & \textbf{0.0} & \textbf{0.3} \\
 \bottomrule
 \end{tabular}
-\caption{Harmful prompt miss rate (\%, $\downarrow$). Percentage of harmful prompts \textit{not} flagged by each method. \method{} results averaged across 12 holdout models. BT = BeaverTails (eval split, disjoint from training).}
+\caption{Harmful prompt miss rate (\%, $\downarrow$). \method{} averaged across 12 holdout models. BT = BeaverTails (eval split, disjoint from training).}
 \label{tab:llamaguard}
 \end{table}
 
