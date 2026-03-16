@@ -1,15 +1,9 @@
-%\section{Example Appendix}
-%\label{sec:appendix}
-%
-%This is an appendix.
-
 \appendix
 
 \section{Implementation Details}
 \label{app:implementation}
-\vspace{-2pt}
-\begin{table}[H]
-\centering
+
+\begin{center}
 \small
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{0.95}
@@ -57,15 +51,14 @@
 \bottomrule
 \end{tabular}%
 }
-\caption{Complete hyperparameters across all stages.}
+\captionof{table}{Complete hyperparameters across all stages.}
 \label{tab:hyperparams}
-\end{table}
+\end{center}
 
 \section{Domain Dataset Details}
 \label{app:domains}
 
-\begin{table}[H]
-\centering
+\begin{center}
 \small
 \begin{tabular}{@{}llr@{}}
 \toprule
@@ -95,17 +88,16 @@ NoRobots & Instruction & 10k \\
 WizardLM & Instruction & 10k \\
 \bottomrule
 \end{tabular}
-\caption{The 22 datasets used across both Qwen2-7B and LLaMA-3-8B.}
+\captionof{table}{The 22 datasets used across both Qwen2-7B and LLaMA-3-8B.}
 \label{tab:domains}
-\end{table}
+\end{center}
 
 \section{Architecture Sensitivity}
 \label{app:ablations}
 
 Table~\ref{tab:ablation_arch} varies the generation rank and hidden dimension, reporting per-domain task accuracy on Split~A holdout. Lower capacity (rank~2, dim~256) degrades accuracy; increasing beyond the default yields marginal gains. Safety remains robust across all configurations.
 
-\begin{table}[H]
-\centering
+\begin{center}
 \small
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}lccccc@{}}
@@ -124,17 +116,18 @@ Dim 1024        & 87.1 & 86.6 & 34.1 & 39.0 & 0.1\% \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Architecture sensitivity (LLaMA-3, Split~A holdout). Lower capacity degrades accuracy; higher capacity gives marginal gains. Safety is robust across all configurations.}
+\captionof{table}{Architecture sensitivity (LLaMA-3, Split~A holdout). Lower capacity degrades accuracy; higher capacity gives marginal gains. Safety is robust across all configurations.}
 \label{tab:ablation_arch}
-\end{table}
+\end{center}
 
+\clearpage
 \section{Example Prompts}
 \label{app:examples}
 
-\begin{table*}[t]
-\centering
+\begin{center}
 \small
 \renewcommand{\arraystretch}{1.15}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}lllp{8.5cm}@{}}
 \toprule
 \textbf{Domain} & \textbf{Category} & \textbf{Format} & \textbf{Example Prompt} \\
@@ -166,7 +159,8 @@ OpenHermes & Instruction & Free text & \textit{Compose a poem where every line s
 NoRobots & Instruction & Free text & \textit{Does Yi view fan fiction positively or negatively? Explain your answer.} \\
 WizardLM & Instruction & Free text & \textit{As an online platform teacher named Aimee, you possess impeccable credentials...} \\
 \bottomrule
-\end{tabular}
-\caption{Example prompts for each dataset, grouped by category.}
+\end{tabular}%
+}
+\captionof{table}{Example prompts for each dataset, grouped by category.}
 \label{tab:domain_examples}
-\end{table*}
+\end{center}
