@@ -65,19 +65,34 @@ z_fused = [z_dir; z_mag]    (concatenation, 640-dim)
 
 ### 3.1 Layer-wise Factorized Generation
 
-Instead of predicting all ~230M parameters at once, we predict each side-network layer's weights independently:
+Instead of predicting all ~230M parameters at once, we predict each side-network layer's weights independently. Each layer's generation is conditioned on **both local and global signals**:
 
 ```
-theta_k = H_k(a_{l(k)})    for k = 1, ..., K=12 side layers
+theta_k = H_k(local_k, global_emb)    for k = 1, ..., K=12 side layers
 ```
 
 Where l(k) is the backbone layer connected to side layer k (every other layer: 0, 2, 4, ..., 22).
 
-**Shared weight generation MLP:**
-- Input: z_fused (640-dim)
-- Architecture: Linear(640, 512) → GELU → Linear(512, 512) → GELU → Linear(512, output_dim)
+**Two conditioning signals per layer:**
+
+1. **Local signal** (layer-specific, 257-dim):
+   - Per-layer direction projection: `local_dir = W_local_proj * d_{l(k)}` → 256-dim
+   - Per-layer log-magnitude: `local_mag = log ||a_{l(k)}||` → 1 scalar
+   - Concatenated: `local_k = [local_dir; local_mag]` → 257-dim
+   - This captures what happened at THIS specific layer
+
+2. **Global signal** (shared across all layers, 512-dim):
+   - The fused direction-magnitude embedding from step 2 (z_fused → domain_fusion → global_emb)
+   - This captures the overall behavioral shift of the model across ALL layers
+   - Provides context: "what kind of model is this?" while local says "what happened at this layer?"
+
+**Layer generation network:**
+- Input: cat(local_k, global_emb) = 257 + 512 = 769-dim
+- Architecture: Linear(769, 512) → GELU → Linear(512, 512) → GELU → Linear(512, output_dim)
 - Most parameters are shared across all 12 layers
 - Each layer has a small **layer-specific adapter** (additional linear projection) that specializes the output
+
+**Why both?** Local-only would miss cross-layer patterns (e.g., a model fine-tuned on math shifts differently at layers 5 vs 25, but the global pattern tells you "this is a math model"). Global-only would generate the same weights for every layer, missing layer-specific structure.
 
 **What weights are generated per layer:**
 - Self-attention: Q, K, V, O projection matrices (each h_s × h_s = 1024 × 1024)
