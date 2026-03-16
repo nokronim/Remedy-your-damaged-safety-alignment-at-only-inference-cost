@@ -55,7 +55,11 @@ We now describe how the \ssn{} parameters are generated automatically from activ
 \begin{equation}
     \mathbf{a}_l^{(d)} = \frac{1}{N_\text{cal}} \sum_{i=1}^{N_\text{cal}} \mathbf{h}_l^{(d)}(x_i) \in \mathbb{R}^{h}
 \end{equation}
-These $L$ vectors form a compact behavioral fingerprint of how fine-tuning shifted the model's representations.
+These $L$ vectors form a compact behavioral fingerprint of how fine-tuning shifted the model's representations as:
+\begin{equation}
+    \mathbf{A}(\mathcal{M}_d) = \{\mathbf{a}_1^{(d)}, \dots, \mathbf{a}_L^{(d)}\}
+\end{equation}
+\mathbf{A}(\mathcal{M}_d) = \{\mathbf{a}_1^{(d)}, \dots, \mathbf{a}_L^{(d)}\}
 
 \mysection{Direction-Magnitude Decomposition.} Each activation vector is split into a unit direction and log-magnitude:
 % \begin{equation}
@@ -74,11 +78,12 @@ The direction captures the nature of the representational change, while the magn
     \mathbf{z}_\text{dir} = \text{Attn}(W_\text{proj}\,\hat{\mathbf{d}}_l^{(d)}), \quad
     \mathbf{z}_\text{mag} = \text{MLP}(m_l^{(d)})
 \end{equation}
-The fused representation $[\mathbf{z}_\text{dir};\, \mathbf{z}_\text{mag}]$ feeds the weight-generation MLP.
+The fused representation $\mathbf{z} = [\mathbf{z}_\text{dir};\, \mathbf{z}_\text{mag}]$ feeds the weight-generation MLP.
 
 \mysection{Layer-wise Factorized Generation.} Rather than predicting all parameters jointly, we generate each side layer's weights independently from the corresponding backbone activation:
 \begin{equation}
-    \theta_k = H_k(\mathbf{a}_{l(k)}^{(d)}),
+    % \theta_k = H_k(\mathbf{a}_{l(k)}^{(d)}),
+    \theta_k = H_k(\mathbf{a}_{l(k)}^{(d)}, \mathbf{z})
 \end{equation}
 where $l(k)$ denotes the backbone layer associated with side layer $k$. The modules $H_k$ share most parameters across layers but include layer-specific adapters, reducing the effective output dimensionality per prediction.
 
