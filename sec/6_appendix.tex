@@ -121,13 +121,13 @@ Dim 1024        & 87.1 & 86.6 & 34.1 & 39.0 & 0.1\% \\
 \end{center}
 
 \clearpage
+\onecolumn
 \section{Example Prompts}
 \label{app:examples}
 
 \begin{center}
 \small
 \renewcommand{\arraystretch}{1.15}
-\resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}lllp{8.5cm}@{}}
 \toprule
 \textbf{Domain} & \textbf{Category} & \textbf{Format} & \textbf{Example Prompt} \\
@@ -159,8 +159,7 @@ OpenHermes & Instruction & Free text & \textit{Compose a poem where every line s
 NoRobots & Instruction & Free text & \textit{Does Yi view fan fiction positively or negatively? Explain your answer.} \\
 WizardLM & Instruction & Free text & \textit{As an online platform teacher named Aimee, you possess impeccable credentials...} \\
 \bottomrule
-\end{tabular}%
-}
+\end{tabular}
 \captionof{table}{Example prompts for each dataset, grouped by category.}
 \label{tab:domain_examples}
 \end{center}
