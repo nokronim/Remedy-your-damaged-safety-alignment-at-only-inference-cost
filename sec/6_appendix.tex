@@ -143,39 +143,4 @@ Dim 1024        & 87.1 & 86.6 & 34.1 & 39.0 & 0.1\% \\
 \label{tab:ablation_arch}
 \end{table}
 
-\section{Per-Domain Safety Scores}
-\label{app:per_domain}
-
-\begin{table}[H]
-\centering
-\small
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}cl ccc ccc@{}}
-\toprule
-& & \multicolumn{3}{c}{\textbf{LLaMA-3-8B}} & \multicolumn{3}{c}{\textbf{Qwen2-7B}} \\
-\cmidrule(lr){3-5} \cmidrule(lr){6-8}
-\textbf{Sp.} & \textbf{Domain} & BT & Adv & HEx & BT & Adv & HEx \\
-\midrule
-\multirow{4}{*}{A}
-& BoolQ          & 0.1 & 0.0 & 0.0 & 0.1 & 0.0 & 0.0 \\
-& ARC            & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 \\
-& Comp.\ Math    & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 \\
-& Alpaca         & 0.1 & 0.0 & 0.0 & 0.4 & 0.0 & 0.0 \\
-\cmidrule{1-8}
-\multirow{4}{*}{B}
-& PIQA           & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 \\
-& HellaSwag      & 0.1 & 0.0 & 0.3 & 0.1 & 0.0 & 0.3 \\
-& CSenseQA       & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 \\
-& OpenHermes     & 0.0 & 0.0 & 0.0 & 0.1 & 0.0 & 0.1 \\
-\cmidrule{1-8}
-\multirow{4}{*}{C}
-& MMLU           & 0.0 & 0.0 & 0.0 & 0.1 & 0.0 & 0.3 \\
-& NQ-Open        & 0.4 & 0.0 & 0.0 & 0.6 & 0.0 & 0.7 \\
-& AG News        & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 \\
-& Dolly          & 0.1 & 0.0 & 0.0 & 0.3 & 0.0 & 0.0 \\
-\bottomrule
-\end{tabular}%
-}
-\caption{Per-domain harmful rates (\%) across all three holdout splits and safety benchmarks. BT column matches Table~3. Adv = AdvBench, HEx = HEx-PHI (both zero-shot, never seen in training).}
-\label{tab:per_domain_safety}
-\end{table}
+% Per-domain safety table moved to main body (Section 4, Cross-Benchmark Transfer)

@@ -236,4 +236,38 @@ Our hypernetwork is trained on LoRA-merged models, but practitioners also use fu
 
 \subsection{Cross-Benchmark Safety Transfer}
 
-BeaverTails is the only harmful benchmark used during side network training (with a disjoint evaluation split). To test whether generated \ssn{}s generalize beyond BeaverTails, we evaluate on AdvBench (520 prompts) and HEx-PHI (300 prompts, 11 categories), which are never seen in any training phase. Across both models and all holdout datasets, the harmful rate remains at 0\% on AdvBench and below 1\% on HEx-PHI (full per-domain breakdown in Appendix~\ref{app:per_domain}). This confirms that \method{} captures general harmful-content patterns rather than benchmark-specific features.
+BeaverTails is the only harmful benchmark used during side network training (with a disjoint evaluation split). To test whether generated \ssn{}s generalize beyond BeaverTails, we evaluate on AdvBench (520 prompts) and HEx-PHI (300 prompts, 11 categories), which are never seen in any training phase. Table~\ref{tab:per_domain_safety} reports per-domain harmful rates across all three benchmarks. AdvBench achieves 0\% harmful rate across the board; HEx-PHI remains below 1\% on both models. This confirms that \method{} captures general harmful-content patterns rather than benchmark-specific features.
+
+\begin{table}[t]
+\centering
+\renewcommand{\arraystretch}{1.15}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}cl ccc ccc@{}}
+\toprule
+& & \multicolumn{3}{c}{\textbf{LLaMA-3-8B}} & \multicolumn{3}{c}{\textbf{Qwen2-7B}} \\
+\cmidrule(lr){3-5} \cmidrule(lr){6-8}
+\textbf{Sp.} & \textbf{Domain} & BT & Adv & HEx & BT & Adv & HEx \\
+\midrule
+\multirow{4}{*}{A}
+& BoolQ          & 0.1 & 0.0 & 0.0 & 0.1 & 0.0 & 0.0 \\
+& ARC            & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 \\
+& Comp.\ Math    & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 \\
+& Alpaca         & 0.1 & 0.0 & 0.0 & 0.4 & 0.0 & 0.0 \\
+\cmidrule{1-8}
+\multirow{4}{*}{B}
+& PIQA           & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 \\
+& HellaSwag      & 0.1 & 0.0 & 0.3 & 0.1 & 0.0 & 0.3 \\
+& CSenseQA       & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 \\
+& OpenHermes     & 0.0 & 0.0 & 0.0 & 0.1 & 0.0 & 0.1 \\
+\cmidrule{1-8}
+\multirow{4}{*}{C}
+& MMLU           & 0.0 & 0.0 & 0.0 & 0.1 & 0.0 & 0.3 \\
+& NQ-Open        & 0.4 & 0.0 & 0.0 & 0.6 & 0.0 & 0.7 \\
+& AG News        & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 \\
+& Dolly          & 0.1 & 0.0 & 0.0 & 0.3 & 0.0 & 0.0 \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Per-domain harmful rates (\%) across all three safety benchmarks and holdout splits. BT = BeaverTails (eval split disjoint from training). Adv = AdvBench, HEx = HEx-PHI (both zero-shot).}
+\label{tab:per_domain_safety}
+\end{table}
