@@ -41,8 +41,8 @@ Table~\ref{tab:comparison} contrasts \method{} with prior approaches along four 
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}lcccc@{}}
 \toprule
-\textbf{Method} & \textbf{Per-model} & \textbf{Model-} & \textbf{Non-} & \textbf{No aligned}  \\
-                & \textbf{cost}      & \textbf{specific} & \textbf{destructive} & \textbf{model req.} \\
+\textbf{Method} & \textbf{Per-model} & \textbf{Model-} & \textbf{Weights} & \textbf{No aligned}  \\
+                & \textbf{cost}      & \textbf{specific} & \textbf{unchanged} & \textbf{model req.} \\
 \midrule
 Vaccine             & full train   &  \checkmark &  $\times$  &  \checkmark \\
 SafeInstr~\cite{bianchi2024safetytuned} & partial train &  \checkmark &  $\times$  &  \checkmark \\
@@ -52,7 +52,7 @@ Llama Guard         & none         &  $\times$   &  \checkmark &  \checkmark  \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Comparison with existing defenses. \method{} is the only approach that is model-specific, non-destructive, and deployable without access to the original aligned model.}
+\caption{Comparison with existing defenses. \method{} is the only approach that is model-specific, leaves weights unchanged, and requires no access to the original aligned model.}
 \label{tab:comparison}
 \end{table}
 
