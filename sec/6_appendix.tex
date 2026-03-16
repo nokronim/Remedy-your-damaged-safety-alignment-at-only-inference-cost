@@ -53,8 +53,8 @@ WizardLM & Instruction & 10k \\
 \midrule
 BoolQ & QA & Yes/No & \textit{Read the passage and answer. [passage]... Is Persian a Western Iranian language?} \\
 NQ-Open & QA & Short answer & \textit{Where did the Vietnam war mainly take place?} \\
-SQuAD & QA & Extractive & \textit{Context: [passage]... What year was the university founded?} \\
-PubMedQA & QA & Yes/No/Maybe & \textit{Do statins reduce risk of cardiovascular events?} \\
+SQuAD & QA & Extractive & \textit{As is sometimes common in scientific discoveries, simultaneous developments can occur...} \\
+PubMedQA & QA & Yes/No/Maybe & \textit{Is naturopathy as effective as conventional therapy for treatment of menopausal symptoms?} \\
 ARC & Science QA & Multiple choice & \textit{Which skin surface produces the most heat? A) dry palms B) wet palms...} \\
 \midrule
 CommonsenseQA & Commonsense & Multiple choice & \textit{The sanctions seemed to what the school's efforts? A) ignore B) enforce...} \\
@@ -62,21 +62,21 @@ PIQA & Physical & Multiple choice & \textit{How would you accomplish this goal? 
 HellaSwag & Commonsense & Multiple choice & \textit{What happens next? [context]... A) B) C) D)} \\
 SocialIQA & Social & Multiple choice & \textit{Sydney went ice skating. How would she feel? A) upset B) happy C) social} \\
 \midrule
-GSM8K & Math & Numeric & \textit{Janet has 16 eggs. She eats 3 for breakfast... How many does she sell?} \\
-Comp.\ Math & Math & Numeric & \textit{Find the value of $x$ if $3x + 7 = 22$.} \\
-CodeFeedback & Code & Free text & \textit{Write a Python function that reverses a linked list.} \\
+GSM8K & Math & Numeric & \textit{Natalia sold clips to 48 of her friends in April, then half as many in May. How many total?} \\
+Comp.\ Math & Math & Numeric & \textit{Let $f(x) = ax{+}3$ if $x>2$, $x{-}5$ if $-2 \le x \le 2$... Find $a{+}b$.} \\
+CodeFeedback & Code & Free text & \textit{Create a nested loop to print every combination of numbers between 0--9, excluding...} \\
 \midrule
 AG News & Classification & Category label & \textit{Classify this article: World, Sports, Business, or Sci/Tech. Article:...} \\
-MMLU & Knowledge & Multiple choice & \textit{In economics, what does GDP stand for? A) B) C) D)} \\
-Platypus & Knowledge & Free text & \textit{Explain the difference between mitosis and meiosis.} \\
+MMLU & Knowledge & Multiple choice & \textit{Davis decided to kill Adams. He set out for Adams's house. Before he got there he saw Brooks...} \\
+Platypus & Knowledge & Free text & \textit{Find the angle between the vectors $\begin{psmallmatrix}2\\-1\\1\end{psmallmatrix}$ and $\begin{psmallmatrix}-1\\1\\0\end{psmallmatrix}$, in degrees.} \\
 \midrule
 Dolly & Instruction & Free text & \textit{When did Virgin Australia start operating?} \\
 OpenOrca & Instruction & Free text & \textit{Summarize the main points of the French Revolution.} \\
 Alpaca & Instruction & Free text & \textit{Discuss the internet's impact on society.} \\
-FLAN & Instruction & Free text & \textit{Translate the following sentence to French: ``The cat sat on the mat.''} \\
+FLAN & Instruction & Free text & \textit{Can you finalize the attached and have it signed... Write a subject line for this email.} \\
 OpenHermes & Instruction & Free text & \textit{Compose a poem where every line starts with a different alphabet letter.} \\
-NoRobots & Instruction & Free text & \textit{Write a professional email declining a job offer.} \\
-WizardLM & Instruction & Free text & \textit{Explain quantum computing to a 10-year-old.} \\
+NoRobots & Instruction & Free text & \textit{Does Yi view fan fiction positively or negatively? Explain your answer.} \\
+WizardLM & Instruction & Free text & \textit{As an online platform teacher named Aimee, you possess impeccable credentials...} \\
 \bottomrule
 \end{tabular}
 \caption{Example prompts for each fine-tuning domain, grouped by category. The diversity of formats (yes/no, multiple choice, numeric, free text) tests the hypernetwork's ability to generalize across task types.}
