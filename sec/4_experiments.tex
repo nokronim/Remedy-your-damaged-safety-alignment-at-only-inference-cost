@@ -53,7 +53,9 @@ Llama Guard         & none         &  $\times$   &  \checkmark &  \checkmark  \\
 
 \subsection{Main Results}
 
-Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tuning increases the harmful rate from 3--7\% (base) to up to 43\%, with the largest degradation on instruction-following and commonsense domains. \method{} reduces the harmful rate to below 1\% across all 12 holdout datasets and both architectures, while preserving task accuracy within 1 percentage point.
+Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tuning increases the harmful rate from 3--7\% (base) to up to 43\%, with the largest degradation on instruction-following and commonsense domains. \method{} reduces the harmful rate to below 1\% across all 12 holdout datasets and both architectures, while preserving task accuracy within 1 percentage point. Averaged across all 12 holdout datasets, the mean harmful rate is $0.07 {\pm} 0.12\%$ for LLaMA-3 and $0.14 {\pm} 0.19\%$ for Qwen2, with mean accuracy drops of $0.16 {\pm} 0.15$\,pp and $0.21 {\pm} 0.15$\,pp respectively.
+
+The highest residual harmful rates occur on NQ-Open (0.4\% LLaMA-3, 0.6\% Qwen2). We attribute this to NQ-Open's unusual fine-tuning dynamics: LoRA actually \textit{decreases} accuracy relative to the base model (28.1 vs.\ 33.4\% for LLaMA-3), indicating minimal representational shift. The resulting weak activation fingerprint makes it harder for the hypernetwork to generate a well-calibrated \ssn{}.
 
 \begin{table}[t]
 \centering
