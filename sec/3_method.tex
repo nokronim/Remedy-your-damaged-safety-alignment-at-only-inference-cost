@@ -4,7 +4,7 @@
 \section{Method}
 \label{sec:method}
 
-Our proposed \method{} framework generates a model-specific \ssn{} for recovering safety in fine-tuned language models. The \ssn{} is a lightweight side network that performs prompt-level safety classification, and its weights are predicted by a hypernetwork from activation fingerprints of the target model. During training, we collect pairs of fine-tuned models and their corresponding \ssn{}s across multiple domains to supervise the hypernetwork. At inference, we produce an \ssn{} for a fine-tuned model on an unseen domain whose safety alignment may have degraded using our proposed \method{}.
+Our proposed \method{} framework generates a model-specific \ssn{} for recovering safety in fine-tuned language models. The \ssn{} is a lightweight side network that performs prompt-level safety classification, and its weights are predicted by a hypernetwork from activation fingerprints of the target model. During training, we collect pairs of fine-tuned models and their corresponding \ssn{}s across multiple domains to supervise the hypernetwork. At inference, we produce an \ssn{} for a fine-tuned model on an unseen domain whose safety alignment may have degraded, using our proposed \method{}.
 %only a small set of calibration prompts. 
 In the following sections, we describe the problem setup, the architecture, and the hypernetwork training and deployment procedure.
 

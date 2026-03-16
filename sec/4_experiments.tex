@@ -42,7 +42,7 @@ C & MMLU {\small(Knowledge)} & NQ-Open {\small(QA)} & AG News$^\dagger$ {\small(
 Vaccine             & full train   &  \checkmark &  $\times$  &  \checkmark \\
 SafeInstr~\cite{bianchi2024safetytuned} & partial train &  \checkmark &  $\times$  &  \checkmark \\
 Safe LoRA           & projection   &  \checkmark &  $\times$  &  $\times$    \\
-Llama Guard         & none         &  $\times$   &  \checkmark &  \checkmark  \\
+Llama Guard 4       & none         &  $\times$   &  \checkmark &  \checkmark  \\
 \method{} (ours)    & 1 fwd pass   &  \checkmark &  \checkmark &  \checkmark  \\
 \bottomrule
 \end{tabular}%
@@ -112,7 +112,7 @@ Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tu
 \end{table}
 
 \paragraph{Comparison with Llama Guard 4.}
-We compare against Llama Guard 4~\cite{inan2023llama} (12B), the latest model-agnostic safety classifier, on the same three benchmarks (Table~\ref{tab:llamaguard}). Llama Guard misses 53.6\% of BeaverTails harmful prompts, while performing better on AdvBench (6.5\% missed) and HEx-PHI (6.7\% missed). The gap is largest on BeaverTails, whose 14-category harm taxonomy includes subtle categories (misinformation, controversial framing) that may fall outside Llama Guard's predefined scope. \method{} maintains $<$1\% miss rate across all three benchmarks, illustrating the advantage of model-conditioned safety classification over fixed-taxonomy approaches.
+We compare against Llama Guard 4 (12B), the latest version of the Llama Guard family~\cite{inan2023llama}, on the same three benchmarks (Table~\ref{tab:llamaguard}). Llama Guard misses 53.6\% of BeaverTails harmful prompts, while performing better on AdvBench (6.5\% missed) and HEx-PHI (6.7\% missed). The gap is largest on BeaverTails, whose 14-category harm taxonomy includes subtle categories (misinformation, controversial framing) that may fall outside Llama Guard's predefined scope. \method{} maintains $<$1\% miss rate across all three benchmarks, illustrating the advantage of model-conditioned safety classification over fixed-taxonomy approaches.
 
 \begin{table}[t]
 \centering
