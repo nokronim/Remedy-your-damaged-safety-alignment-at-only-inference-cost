@@ -36,8 +36,8 @@ C & MMLU {\small(Knowledge)} & NQ-Open {\small(QA)} & AG News$^\dagger$ {\small(
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{@{}lcccc@{}}
 \toprule
-\textbf{Method} & \textbf{Per-model} & \textbf{Model-} & \textbf{Weights} & \textbf{No aligned}  \\
-                & \textbf{cost}      & \textbf{specific} & \textbf{unchanged} & \textbf{model req.} \\
+\textbf{Method} & \textbf{Per-model} & \textbf{Model-} & \textbf{Weights} & \textbf{No $\mathcal{M}_0$ at}  \\
+                & \textbf{cost}      & \textbf{specific} & \textbf{unchanged} & \textbf{deploy time} \\
 \midrule
 Vaccine             & full train   &  \checkmark &  $\times$  &  \checkmark \\
 SafeInstr~\cite{bianchi2024safetytuned} & partial train &  \checkmark &  $\times$  &  \checkmark \\
@@ -47,7 +47,7 @@ Llama Guard         & none         &  $\times$   &  \checkmark &  \checkmark  \\
 \bottomrule
 \end{tabular}%
 }
-\caption{Comparison with existing defenses. \method{} is the only approach that is model-specific, leaves weights unchanged, and requires no access to the original aligned model.}
+\caption{Comparison with existing defenses. \method{} is the only approach that is model-specific, leaves weights unchanged, and requires no access to the aligned base model at deployment. Note: \method{}'s one-time training phase uses $\mathcal{M}_0$ to create fine-tuned variants; at deployment, only the fine-tuned model and the hypernetwork are needed.}
 \label{tab:comparison}
 \end{table}
 
@@ -179,7 +179,7 @@ $-$Instruction-following        & 12 & \textbf{6.3} & \textbf{3.1} & \textbf{1.7
 
 \subsection{Sensitivity to Calibration Set Size}
 
-Table~\ref{tab:ablation_ncal} varies the number of calibration prompts $N_\text{cal}$ used to extract the activation fingerprint. With too few prompts ($N_\text{cal}{=}10$), the fingerprint is noisy and accuracy degrades substantially, though safety remains intact as the classifier conservatively blocks most inputs. Accuracy improves steadily up to $N_\text{cal}{=}50$ and plateaus beyond that, while safety remains stable across all settings. We use $N_\text{cal}{=}50$ as the default throughout.
+Table~\ref{tab:ablation_ncal} varies the number of calibration prompts $N_\text{cal}$ used to extract the activation fingerprint. With too few prompts ($N_\text{cal}{=}10$), the fingerprint is noisy: the generated \ssn{} produces safety scores skewed toward $\lambda{>}0.5$ even for safe prompts, causing over-blocking that degrades accuracy while achieving a deceptively low harmful rate. This reflects fingerprint noise rather than threshold sensitivity---at $N_\text{cal}{\ge}50$ the classifier separates safe and harmful prompts cleanly at the fixed threshold $\lambda{=}0.5$. Accuracy improves steadily up to $N_\text{cal}{=}50$ and plateaus beyond that. We use $N_\text{cal}{=}50$ as the default.
 
 \begin{table}[t]
 \centering

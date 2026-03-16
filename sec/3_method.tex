@@ -95,7 +95,7 @@ Training proceeds in two stages. First, we train domain-specific \ssn{}s for a s
 \end{enumerate}
 Training uses a selective loss: harmful prompts receive both language-modeling loss and classification loss; safe prompts receive only classification loss. This teaches the side network when to intervene without degrading task performance on safe inputs. All side networks share the same initialization, ensuring weight-space alignment for hypernetwork supervision.
 
-\mysection{Hypernetwork Training.} The hypernetwork is trained on $K$ domains (with $M$ held out) using three complementary losses:
+\mysection{Hypernetwork Training.} The hypernetwork is trained on $K_\text{train}$ domains (with $K_\text{held}$ held out for evaluation; $K_\text{train}{=}18$, $K_\text{held}{=}4$ in our experiments) using three complementary losses:
 \begin{equation}
     \mathcal{L} = \mathcal{L}_\text{recon} + \alpha\, \mathcal{L}_\text{cls} + \beta\, \mathcal{L}_\text{func}
 \end{equation}
