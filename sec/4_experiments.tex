@@ -56,7 +56,7 @@ Llama Guard         & none         &  $\times$   &  \checkmark &  \checkmark  \\
 Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tuning increases the harmful rate from 3--7\% (base) to up to 43\%, with the largest degradation on instruction-following and commonsense domains. \method{} reduces the harmful rate to below 1\% across all 12 holdout datasets and both architectures, while preserving task accuracy within 1 percentage point. The highest residual rates (NQ-Open, 0.6\%) still represent $>$95\% relative reduction from the fine-tuned model.
 
 \paragraph{Comparison with Llama Guard 4.}
-We compare against Llama Guard 4~\cite{inan2023llama} (12B), the latest model-agnostic safety classifier, on the same three benchmarks (Table~\ref{tab:llamaguard}). Llama Guard detects only 46.4\% of BeaverTails harmful prompts, while achieving higher rates on AdvBench (93.5\%) and HEx-PHI (93.3\%). The gap is largest on BeaverTails, whose 14-category harm taxonomy includes subtle categories (misinformation, controversial framing) that may fall outside Llama Guard's predefined scope. \method{} achieves $>$99\% detection across all three benchmarks, illustrating the advantage of model-conditioned safety classification over fixed-taxonomy approaches.
+We compare against Llama Guard 4~\cite{inan2023llama} (12B), the latest model-agnostic safety classifier, on the same three benchmarks (Table~\ref{tab:llamaguard}). Llama Guard misses 53.6\% of BeaverTails harmful prompts, while performing better on AdvBench (6.5\% missed) and HEx-PHI (6.7\% missed). The gap is largest on BeaverTails, whose 14-category harm taxonomy includes subtle categories (misinformation, controversial framing) that may fall outside Llama Guard's predefined scope. \method{} maintains $<$1\% miss rate across all three benchmarks, illustrating the advantage of model-conditioned safety classification over fixed-taxonomy approaches.
 
 \begin{table}[t]
 \centering
@@ -66,11 +66,11 @@ We compare against Llama Guard 4~\cite{inan2023llama} (12B), the latest model-ag
 \textbf{Method} & \textbf{BT} & \textbf{AdvBench} & \textbf{HEx-PHI} \\
 & (700) & (520) & (300) \\
 \midrule
-Llama Guard 4 & 46.4 & 93.5 & 93.3 \\
-\method{} (ours) & \textbf{99.3} & \textbf{100.0} & \textbf{99.7} \\
+Llama Guard 4 & 53.6 & 6.5 & 6.7 \\
+\method{} (ours) & \textbf{0.7} & \textbf{0.0} & \textbf{0.3} \\
 \bottomrule
 \end{tabular}
-\caption{Harmful prompt detection rate (\%, $\uparrow$). \method{} results averaged across 12 holdout models. BT = BeaverTails (eval split, disjoint from training).}
+\caption{Harmful prompt miss rate (\%, $\downarrow$). Percentage of harmful prompts \textit{not} flagged by each method. \method{} results averaged across 12 holdout models. BT = BeaverTails (eval split, disjoint from training).}
 \label{tab:llamaguard}
 \end{table}
 
