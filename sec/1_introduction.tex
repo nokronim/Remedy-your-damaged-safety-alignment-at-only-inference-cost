@@ -5,6 +5,8 @@ Large language models ship with safety alignment that curbs harmful outputs~\cit
 
 We propose a different approach: since each fine-tuning recipe shifts internal representations in a distinct way, we use these shifts as a fingerprint to \textit{generate} a model-specific safety classifier automatically.
 
+The key insight is that fine-tuning leaves a characteristic signature in the model's intermediate representations. Even when two models are fine-tuned on unrelated tasks, the pattern of activation shifts across layers encodes information about how safety-relevant features have been altered. By training a hypernetwork to read these signatures, we can predict what safety classifier each model needs without ever seeing harmful data at deployment time.
+
 Concretely, we introduce \method{}, a \textit{hypernetwork}~\cite{ha2017hypernetworks} that takes intermediate activations from any fine-tuned model as input and outputs the weights of a \textit{Safe Side Network} (\ssn{})---a side network~\cite{sung2022lst} that classifies each prompt as safe or harmful. At deployment, a single forward pass through the hypernetwork produces a model-specific \ssn{} from only 50 calibration prompts, with no gradient computation and no model modification.
 
 \begin{figure*}[t]
