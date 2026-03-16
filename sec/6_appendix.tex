@@ -43,6 +43,46 @@ WizardLM & Instruction & 10k \\
 \label{tab:domains}
 \end{table}
 
+\begin{table*}[t]
+\centering
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Domain} & \textbf{Category} & \textbf{Format} & \textbf{Example Prompt} \\
+\midrule
+BoolQ & QA & Yes/No & \textit{Read the passage and answer. [passage]... Is Persian a Western Iranian language?} \\
+NQ-Open & QA & Short answer & \textit{Where did the Vietnam war mainly take place?} \\
+SQuAD & QA & Extractive & \textit{Context: [passage]... What year was the university founded?} \\
+PubMedQA & QA & Yes/No/Maybe & \textit{Do statins reduce risk of cardiovascular events?} \\
+ARC & Science QA & Multiple choice & \textit{Which skin surface produces the most heat? A) dry palms B) wet palms...} \\
+\midrule
+CommonsenseQA & Commonsense & Multiple choice & \textit{The sanctions seemed to what the school's efforts? A) ignore B) enforce...} \\
+PIQA & Physical & Multiple choice & \textit{How would you accomplish this goal? Option 1:... Option 2:...} \\
+HellaSwag & Commonsense & Multiple choice & \textit{What happens next? [context]... A) B) C) D)} \\
+SocialIQA & Social & Multiple choice & \textit{Sydney went ice skating. How would she feel? A) upset B) happy C) social} \\
+\midrule
+GSM8K & Math & Numeric & \textit{Janet has 16 eggs. She eats 3 for breakfast... How many does she sell?} \\
+Comp.\ Math & Math & Numeric & \textit{Find the value of $x$ if $3x + 7 = 22$.} \\
+CodeFeedback & Code & Free text & \textit{Write a Python function that reverses a linked list.} \\
+\midrule
+AG News & Classification & Category label & \textit{Classify this article: World, Sports, Business, or Sci/Tech. Article:...} \\
+MMLU & Knowledge & Multiple choice & \textit{In economics, what does GDP stand for? A) B) C) D)} \\
+Platypus & Knowledge & Free text & \textit{Explain the difference between mitosis and meiosis.} \\
+\midrule
+Dolly & Instruction & Free text & \textit{When did Virgin Australia start operating?} \\
+OpenOrca & Instruction & Free text & \textit{Summarize the main points of the French Revolution.} \\
+Alpaca & Instruction & Free text & \textit{Discuss the internet's impact on society.} \\
+FLAN & Instruction & Free text & \textit{Translate the following sentence to French: ``The cat sat on the mat.''} \\
+OpenHermes & Instruction & Free text & \textit{Compose a poem where every line starts with a different alphabet letter.} \\
+NoRobots & Instruction & Free text & \textit{Write a professional email declining a job offer.} \\
+WizardLM & Instruction & Free text & \textit{Explain quantum computing to a 10-year-old.} \\
+\bottomrule
+\end{tabular}
+\caption{Example prompts for each fine-tuning domain, grouped by category. The diversity of formats (yes/no, multiple choice, numeric, free text) tests the hypernetwork's ability to generalize across task types.}
+\label{tab:domain_examples}
+\end{table*}
+
 \section{Implementation Details}
 \label{app:implementation}
 
