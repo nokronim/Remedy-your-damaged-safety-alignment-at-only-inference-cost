@@ -112,20 +112,20 @@ Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tu
 \end{table}
 
 \paragraph{Comparison with Llama Guard 4.}
-We compare against Llama Guard 4 (12B), the latest version of the Llama Guard family~\cite{inan2023llama}, on the same three benchmarks (Table~\ref{tab:llamaguard}). Llama Guard misses 53.6\% of BeaverTails harmful prompts, while performing better on AdvBench (6.5\% missed) and HEx-PHI (6.7\% missed). The gap is largest on BeaverTails, whose 14-category harm taxonomy includes subtle categories (misinformation, controversial framing) that may fall outside Llama Guard's predefined scope. \method{} maintains $<$1\% miss rate across all three benchmarks, illustrating the advantage of model-conditioned safety classification over fixed-taxonomy approaches.
+We compare against Llama Guard 4 (12B), the latest version of the Llama Guard family~\cite{inan2023llama}, on the same three benchmarks (Table~\ref{tab:llamaguard}). On the two fully zero-shot benchmarks---where neither method has seen training data---Llama Guard misses 6.5\% of AdvBench and 6.7\% of HEx-PHI prompts, while \method{} misses 0.0\% and 0.3\% respectively, despite using an \ssn{} with only $\sim$3\% of backbone parameters versus Llama Guard's dedicated 12B model. On BeaverTails, the gap widens further (53.6\% vs.\ 0.7\%), though BeaverTails is used during \ssn{} training (with a disjoint eval split), so we consider the zero-shot benchmarks the primary basis for comparison.
 
 \begin{table}[t]
 \centering
 \small
 \begin{tabular}{@{}lccc@{}}
 \toprule
-\textbf{Method} & \textbf{BT} & \textbf{AdvBench} & \textbf{HEx-PHI} \\
+\textbf{Method} & \textbf{AdvBench} & \textbf{HEx-PHI} & \textbf{BT$^\dagger$} \\
 \midrule
-Llama Guard 4 & 53.6 & 6.5 & 6.7 \\
-\method{} (ours) & \textbf{0.7} & \textbf{0.0} & \textbf{0.3} \\
+Llama Guard 4 & 6.5 & 6.7 & 53.6 \\
+\method{} (ours) & \textbf{0.0} & \textbf{0.3} & \textbf{0.7} \\
 \bottomrule
 \end{tabular}
-\caption{Harmful prompt miss rate (\%, $\downarrow$). \method{} averaged across 12 holdout models. BT = BeaverTails (eval split, disjoint from training).}
+\caption{Harmful prompt miss rate (\%, $\downarrow$). \method{} averaged across 12 holdout models. $^\dagger$BeaverTails eval split (disjoint from training); AdvBench and HEx-PHI are zero-shot for both methods.}
 \label{tab:llamaguard}
 \end{table}
 
