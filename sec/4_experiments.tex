@@ -5,7 +5,24 @@
 
 \mysection{Models and Domains.} We evaluate on Qwen2-7B-Instruct~\cite{yang2024qwen2} and LLaMA-3-8B-Instruct~\cite{dubey2024llama} across 22 datasets spanning QA, commonsense reasoning, math, knowledge, classification, code, and instruction-following (Appendix~\ref{app:domains}). Each dataset is fine-tuned with LoRA (rank 16, $\alpha{=}32$) and merged.
 
-\paragraph{Safety Benchmarks.} We evaluate on three harmful prompt benchmarks: BeaverTails~\cite{ji2024beavertails} (700 prompts, 14 categories), AdvBench~\cite{zou2023universal} (520 prompts), and HEx-PHI~\cite{qi2024hexphi} (300 prompts, 11 categories). BeaverTails is used as the harmful data source during \textit{side network training} (\S\ref{sec:gt}); the evaluation split is disjoint from training. AdvBench and HEx-PHI are never seen in any training phase.
+\paragraph{Safety Benchmarks.} We evaluate on three harmful prompt benchmarks (Table~\ref{tab:safety_benchmarks}). BeaverTails is used as the harmful data source during \ssn{} training (\S\ref{sec:gt}); the evaluation split is disjoint from training. AdvBench and HEx-PHI are never seen in any training phase, serving as zero-shot safety tests.
+
+\begin{table}[t]
+\centering
+\small
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{@{}lrcl@{}}
+\toprule
+\textbf{Benchmark} & \textbf{Prompts} & \textbf{Cat.} & \textbf{Seen during training} \\
+\midrule
+BeaverTails~\cite{ji2024beavertails} & 700 & 14 & \ssn{} training (disjoint split) \\
+AdvBench~\cite{zou2023universal} & 520 & --- & Neither \\
+HEx-PHI~\cite{qi2024hexphi} & 300 & 11 & Neither \\
+\bottomrule
+\end{tabular}
+\caption{Safety benchmarks used for evaluation.}
+\label{tab:safety_benchmarks}
+\end{table}
 
 \paragraph{Evaluation Protocol.}
 We use three holdout splits (Table~\ref{tab:splits}), each removing four datasets from different task categories. The hypernetwork trains on the remaining 18 datasets and is evaluated on held-out datasets it has never seen. We report \textbf{Task Accuracy} (domain-specific test performance; official HuggingFace validation/test splits where available, 20\% holdout otherwise) and \textbf{Harmful Rate} (percentage of harmful prompts producing harmful output, lower is safer; 700 BeaverTails prompts disjoint from training, judged by the beaver-dam-7b moderation model~\cite{ji2024beavertails}). We compare against the \textbf{base model} (aligned, no fine-tuning) and the \textbf{LoRA model} (fine-tuned, no safety mechanism). Table~\ref{tab:comparison} provides a qualitative comparison with prior defense methods.
