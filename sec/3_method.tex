@@ -4,29 +4,29 @@
 \section{Method}
 \label{sec:method}
 
-Our proposed \method{} framework generates a model-specific safety head for recovering safety in fine-tuned language models. The safety head is a lightweight side network that performs prompt-level safety classification, and its weights are predicted by a hypernetwork from activation fingerprints of the target model. During training, we collect pairs of fine-tuned models and their corresponding safety heads across multiple domains to supervise the hypernetwork. At inference, we produce a \method{} for a fine-tuned model on an unseen domain whose safety alignment may have degraded using only a small set of calibration prompts. In the following sections, we describe the problem setup, the architecture, and the hypernetwork training and deployment procedure.
+Our proposed \method{} framework generates a model-specific \ssn{} for recovering safety in fine-tuned language models. The \ssn{} is a lightweight side network that performs prompt-level safety classification, and its weights are predicted by a hypernetwork from activation fingerprints of the target model. During training, we collect pairs of fine-tuned models and their corresponding \ssn{}s across multiple domains to supervise the hypernetwork. At inference, we produce a \method{} for a fine-tuned model on an unseen domain whose safety alignment may have degraded using only a small set of calibration prompts. In the following sections, we describe the problem setup, the architecture, and the hypernetwork training and deployment procedure.
 
-% \method{} operates in three phases: (1)~collect ground-truth safety heads for a set of training domains (\S\ref{sec:gt}), (2)~train a hypernetwork to predict safety head weights from model activations (\S\ref{sec:hypernet}), and (3)~at inference, generate a safety head for any new fine-tuned model in one forward pass (\S\ref{sec:deploy}).
+% \method{} operates in three phases: (1)~collect ground-truth \ssn{}s for a set of training datasets (\S\ref{sec:gt}), (2)~train a hypernetwork to predict \ssn{} weights from model activations (\S\ref{sec:hypernet}), and (3)~at inference, generate a safety head for any new fine-tuned model in one forward pass (\S\ref{sec:deploy}).
 
 \subsection{Problem Formulation}
 
-Let $\mathcal{M}_0$ be a safety-aligned base LLM and $\mathcal{M}_d$ a fine-tuned version of $\mathcal{M}_0$ on domain $d$. Fine-tuning may weaken or alter the safety behavior of $\mathcal{M}_d$, causing it to comply with harmful prompts that $\mathcal{M}_0$ would refuse. We seek a generator $G$ that, given any fine-tuned model $\mathcal{M}_{d^*}$ from a potentially unseen domain, produces a safety head $f_\theta$:
+Let $\mathcal{M}_0$ be a safety-aligned base LLM and $\mathcal{M}_d$ a fine-tuned version of $\mathcal{M}_0$ on domain $d$. Fine-tuning may weaken or alter the safety behavior of $\mathcal{M}_d$, causing it to comply with harmful prompts that $\mathcal{M}_0$ would refuse. We seek a generator $G$ that, given any fine-tuned model $\mathcal{M}_{d^*}$ from a potentially unseen domain, produces an \ssn{} $f_\theta$:
 \begin{equation}
 \theta = G\!\big(\mathbf{A}(\mathcal{M}_{d^*})\big), \quad \lambda = f_\theta(x),
 \end{equation}
-where $x$ denotes the input prompt, $\mathbf{A}(\cdot)$ denotes activations extracted from a small calibration set, and $\lambda \in [0,1]$ is a safety score ($\lambda \approx 0$: safe; $\lambda \approx 1$: harmful). In our framework, the generator $G$ is implemented as a hypernetwork that predicts the parameters $\theta$ of the safety head from the activation fingerprint of the fine-tuned model (see Sec \ref{sec:hypernet}).
+where $x$ denotes the input prompt, $\mathbf{A}(\cdot)$ denotes activations extracted from a small calibration set, and $\lambda \in [0,1]$ is a safety score ($\lambda \approx 0$: safe; $\lambda \approx 1$: harmful). In our framework, the generator $G$ is implemented as a hypernetwork that predicts the parameters $\theta$ of the \ssn{} from the activation fingerprint of the fine-tuned model (see Sec \ref{sec:hypernet}).
 
 % \mid \mathcal{M}_{d^*}
 
 \subsection{\method{} Architecture}
 \label{sec:arch}
 
-The safety head $f_\theta$ is a lightweight side network attached to the frozen backbone that predicts a safety score for each prompt and determines whether the model should produce a response or refuse. We build on the Ladder Side-Tuning (LST) architecture~\cite{sung2022lst} and extend it for safety classification. Figure~\ref{fig:architecture} illustrates the overall design.
+The \ssn{} $f_\theta$ is a lightweight side network attached to the frozen backbone that predicts a safety score for each prompt and determines whether the model should produce a response or refuse. We build on the Ladder Side-Tuning (LST) architecture~\cite{sung2022lst} and extend it for safety classification. Figure~\ref{fig:architecture} illustrates the overall design.
 
 \input{figures/fig_architecture}
 
 % \mysection{Side Transformer.} $K{=}12$ layers with hidden dimension $h_s = h/r$ ($r{=}4$). For Qwen2-7B: $h_s{=}896$, 7 heads; for LLaMA-3-8B: $h_s{=}1024$, 8 heads ($\sim$3\% of backbone parameters).
-\mysection{Side Transformer.} The safety head is implemented as a small Transformer that processes ladder-fused representations derived from the backbone hidden states. It consists of $K{=}12$ layers with hidden dimension $h_s = h/r$. We set $r{=}4$, yielding $h_s{=}896$ with 7 attention heads for Qwen2-7B and $h_s{=}1024$ with 8 attention heads for LLaMA-3-8B (i.e., $\sim$3\% of backbone parameters).
+\mysection{Side Transformer.} The \ssn{} is implemented as a small Transformer that processes ladder-fused representations derived from the backbone hidden states. It consists of $K{=}12$ layers with hidden dimension $h_s = h/r$. We set $r{=}4$, yielding $h_s{=}896$ with 7 attention heads for Qwen2-7B and $h_s{=}1024$ with 8 attention heads for LLaMA-3-8B (i.e., $\sim$3\% of backbone parameters).
 
 % \mysection{Ladder Connections.} Each side layer $k$ fuses downsampled backbone hidden states with side hidden states via a learnable gate:
 % \begin{equation}
@@ -40,12 +40,12 @@ The safety head $f_\theta$ is a lightweight side network attached to the frozen 
 \end{equation}
 where $\mathbf{h}^{(l)}_\text{back}$ denotes the backbone hidden state at layer $l$, $\mathbf{h}^{(k-1)}_\text{side}$ denotes the side network hidden state from the previous layer, and $\mu_k = \sigma(\alpha_k/\tau)$ is a learned gate.
 
-\mysection{Selective Routing.} After the final side layer, hidden states are mean-pooled and passed through an MLP to produce $\lambda$. At inference, prompts scoring above the threshold are routed to a refusal response; those below bypass the side network entirely, so the base model runs unmodified. This selective routing preserves task accuracy because safe prompts never interact with the safety head.
+\mysection{Selective Routing.} After the final side layer, hidden states are mean-pooled and passed through an MLP to produce $\lambda$. At inference, prompts scoring above the threshold are routed to a refusal response; those below bypass the side network entirely, so the base model runs unmodified. This selective routing preserves task accuracy because safe prompts never interact with the \ssn{}.
 
 \subsection{Activation-Conditioned Hypernetwork}
 \label{sec:hypernet}
 
-The safety head described above defines the classifier architecture. We now describe how its parameters are generated automatically from activation fingerprints. The hypernetwork $G$ takes the activation fingerprint of a fine-tuned model as input and predicts the parameters of the safety head. To make the high-dimensional weight prediction feasible, we employ two complementary design strategies.
+The \ssn{} described above defines the classifier architecture. We now describe how its parameters are generated automatically from activation fingerprints. The hypernetwork $G$ takes the activation fingerprint of a fine-tuned model as input and predicts the parameters of the \ssn{}. To make the high-dimensional weight prediction feasible, we employ two complementary design strategies.
 
 
 \mysection{Activation Fingerprint Extraction. } For each model $\mathcal{M}_d$, we run $N_\text{cal}{=}50$ domain-specific calibration prompts and average the backbone hidden state at each layer $l$ after the final token:
@@ -79,13 +79,13 @@ The fused representation $[\mathbf{z}_\text{dir};\, \mathbf{z}_\text{mag}]$ feed
 \end{equation}
 where $l(k)$ denotes the backbone layer associated with side layer $k$. The modules $H_k$ share most parameters across layers but include layer-specific adapters, reducing the effective output dimensionality per prediction.
 
-\mysection{Classifier Generation.} The safety head classifier is generated via a dedicated branch that aggregates information across all layers using cross-layer attention, producing a global embedding of the model's behavioral shift. This embedding is mapped through an MLP with a low-rank output factorization ($W_\text{cls} = B \cdot A$, rank $r{=}16$) for efficiency.
+\mysection{Classifier Generation.} The \ssn{} classifier is generated via a dedicated branch that aggregates information across all layers using cross-layer attention, producing a global embedding of the model's behavioral shift. This embedding is mapped through an MLP with a low-rank output factorization ($W_\text{cls} = B \cdot A$, rank $r{=}16$) for efficiency.
 
 \subsection{Training and Deployment}
 \label{sec:deploy}
 
-% Training proceeds in two stages. First, we train domain-specific safety heads to obtain supervision for the hypernetwork. Second, the hypernetwork is trained to generate these weights from activation fingerprints.
-Training proceeds in two stages. First, we train domain-specific safety heads for a set of fine-tuned models to obtain supervision pairs consisting of activation fingerprints and corresponding safety head weights. Second, the hypernetwork is trained to map activation fingerprints to these weights, enabling it to generate safety heads for new fine-tuned models at inference time.
+% Training proceeds in two stages. First, we train domain-specific \ssn{}s to obtain supervision for the hypernetwork. Second, the hypernetwork is trained to generate these weights from activation fingerprints.
+Training proceeds in two stages. First, we train domain-specific \ssn{}s for a set of fine-tuned models to obtain supervision pairs consisting of activation fingerprints and corresponding \ssn{} weights. Second, the hypernetwork is trained to map activation fingerprints to these weights, enabling it to generate \ssn{}s for new fine-tuned models at inference time.
 
 \mysection{Ground-truth Safety Head Collection.}\label{sec:gt} We collect supervised pairs $\{(\mathcal{M}_d, \theta_d^*)\}_{d=1}^K$ by training one side network per domain:
 \begin{enumerate}
@@ -101,4 +101,4 @@ Training uses a selective loss: harmful prompts receive both language-modeling l
 \end{equation}
 where $\mathcal{L}_\text{recon}$ is the MSE between generated and ground-truth side network weights, providing dense supervision across all parameters; $\mathcal{L}_\text{cls}$ is BCE on safety score predictions using the calibration prompts ($\alpha{=}10$); and $\mathcal{L}_\text{func}$ is BCE on a separate batch of safe and harmful probe prompts ($\beta{=}5$), verifying that the generated classifier generalizes beyond the calibration set. Training runs for 100 epochs with learning rate $5 \times 10^{-5}$ and hidden dimension 512.
 
-\mysection{Deployment.} Given a new fine-tuned model $\mathcal{M}_{d^*}$: (1)~extract layer-wise activations from $N_\text{cal}$ calibration prompts; (2)~run one forward pass through the hypernetwork to obtain safety head weights; (3)~load the safety head alongside $\mathcal{M}_{d^*}$. The entire process completes in under one minute on a single GPU, with no safety data, no gradients, and no model modification.
+\mysection{Deployment.} Given a new fine-tuned model $\mathcal{M}_{d^*}$: (1)~extract layer-wise activations from $N_\text{cal}$ calibration prompts; (2)~run one forward pass through the hypernetwork to obtain \ssn{} weights; (3)~load the \ssn{} alongside $\mathcal{M}_{d^*}$. The entire process completes in under one minute on a single GPU, with no safety data, no gradients, and no model modification.

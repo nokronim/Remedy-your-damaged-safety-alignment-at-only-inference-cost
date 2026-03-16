@@ -3,13 +3,12 @@
 
 % \subsection{Setup}
 
-\mysection{Models and Domains.} We evaluate on Qwen2-7B-Instruct~\cite{yang2024qwen2} and LLaMA-3-8B-Instruct~\cite{dubey2024llama} across 22 fine-tuning domains spanning QA, commonsense reasoning, math, knowledge, classification, code, and instruction-following (Appendix~\ref{app:domains}). Each domain is fine-tuned with LoRA (rank 16, $\alpha{=}32$) and merged.
+\mysection{Models and Domains.} We evaluate on Qwen2-7B-Instruct~\cite{yang2024qwen2} and LLaMA-3-8B-Instruct~\cite{dubey2024llama} across 22 datasets spanning QA, commonsense reasoning, math, knowledge, classification, code, and instruction-following (Appendix~\ref{app:domains}). Each dataset is fine-tuned with LoRA (rank 16, $\alpha{=}32$) and merged.
 
 \paragraph{Safety Benchmarks.} We evaluate on three harmful prompt benchmarks: BeaverTails~\cite{ji2024beavertails} (700 prompts, 14 categories), AdvBench~\cite{zou2023universal} (520 prompts), and HEx-PHI~\cite{qi2024hexphi} (300 prompts, 11 categories). BeaverTails is used as the harmful data source during \textit{side network training} (\S\ref{sec:gt}); the evaluation split is disjoint from training. AdvBench and HEx-PHI are never seen in any training phase.
 
-\paragraph{Metrics.} We report two metrics. Task Accuracy measures domain-specific test performance (e.g., answer correctness for QA, classification accuracy for AG News). For domains with official HuggingFace validation or test splits, we use those; for instruction-following domains without standard test sets, we hold out 20\% of training data. Harmful Rate measures the percentage of harmful prompts that produce harmful output (lower is safer). We evaluate on 700 BeaverTails prompts (disjoint from training), with outputs judged by the beaver-dam-7b moderation model~\cite{ji2024beavertails}.
-
-\paragraph{Evaluation Protocol.} Three holdout splits (Table~\ref{tab:splits}), each removing four domains from different categories. The hypernetwork trains on the remaining 18 domains.
+\paragraph{Evaluation Protocol.}
+We use three holdout splits (Table~\ref{tab:splits}), each removing four datasets from different task categories. The hypernetwork trains on the remaining 18 datasets and is evaluated on held-out datasets it has never seen. We report \textbf{Task Accuracy} (domain-specific test performance; official HuggingFace validation/test splits where available, 20\% holdout otherwise) and \textbf{Harmful Rate} (percentage of harmful prompts producing harmful output, lower is safer; 700 BeaverTails prompts disjoint from training, judged by the beaver-dam-7b moderation model~\cite{ji2024beavertails}). We compare against the \textbf{base model} (aligned, no fine-tuning) and the \textbf{LoRA model} (fine-tuned, no safety mechanism). Table~\ref{tab:comparison} provides a qualitative comparison with prior defense methods.
 
 \begin{table}[h]
 \centering
@@ -25,11 +24,9 @@ C & MMLU {\small(Knowledge)} & NQ-Open {\small(QA)} & AG News$^\dagger$ {\small(
 \bottomrule
 \end{tabular}%
 }
-\caption{Holdout splits. Each split removes four domains from different task categories. $^\dagger$20\% holdout eval (no standard test set).}
+\caption{Holdout splits. Each split removes four datasets from different task categories. $^\dagger$20\% holdout eval (no standard test set).}
 \label{tab:splits}
 \end{table}
-
-\paragraph{Baselines.} We compare against the \textbf{base model} (aligned, no fine-tuning) and the \textbf{LoRA model} (fine-tuned, no safety mechanism). Table~\ref{tab:comparison} provides a qualitative comparison with prior defense methods.
 
 \mysection{Comparison with Existing Defenses.} Table~\ref{tab:comparison} contrasts \method{} with prior approaches along four practical dimensions. Training-time methods must intervene during fine-tuning. Safe LoRA~\cite{hsu2024safe} is post-hoc but modifies the model weights and requires access to the original aligned checkpoint. External classifiers work on any model but cannot adapt to model-specific safety shifts. \method{} uniquely combines model-specific adaptation with non-destructive, post-deployment applicability.
 
@@ -56,7 +53,7 @@ Llama Guard         & none         &  $\times$   &  \checkmark &  \checkmark  \\
 
 \subsection{Main Results}
 
-Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tuning increases the harmful rate from 3--7\% (base) to up to 43\%, with the largest degradation on instruction-following and commonsense domains. \method{} reduces the harmful rate to below 1\% across all 12 holdout domains and both architectures, while preserving task accuracy within 1 percentage point.
+Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tuning increases the harmful rate from 3--7\% (base) to up to 43\%, with the largest degradation on instruction-following and commonsense domains. \method{} reduces the harmful rate to below 1\% across all 12 holdout datasets and both architectures, while preserving task accuracy within 1 percentage point.
 
 \begin{table}[t]
 \centering
@@ -146,7 +143,7 @@ $-\,$Domain calibration                   & 84.4 & 85.7 & 33.5 & 36.8 & 0.3\% \\
 \paragraph{Training Data Diversity (Table~\ref{tab:ablation_data}).}
 We ablate training data in two ways: (a)~progressively excluding domains to measure minimum diversity, and (b)~excluding entire task categories to identify which types of data the hypernetwork relies on most.
 
-Progressive exclusion shows the method is robust to moderate reductions (up to 4 domains removed) but degrades sharply beyond that. Category exclusion reveals that instruction-following data is uniquely critical for safety---removing it causes the harmful rate to spike across all holdout domains, while removing other categories has minimal safety impact.
+Progressive exclusion shows the method is robust to moderate reductions (up to 4 domains removed) but degrades sharply beyond that. Category exclusion reveals that instruction-following data is uniquely critical for safety---removing it causes the harmful rate to spike across all holdout datasets, while removing other categories has minimal safety impact.
 
 \begin{table}[t]
 \centering
@@ -207,7 +204,7 @@ $N_\text{cal}$ & BoolQ & ARC & Math$^\dagger$ & Alpaca$^\dagger$ & \textbf{Rate 
 \end{table}
 
 \paragraph{Generalization to Full Fine-Tuning (Table~\ref{tab:full_ft}).}
-Our hypernetwork is trained on LoRA-merged models, but practitioners also use full-parameter fine-tuning. To test whether \method{} generalizes across fine-tuning methods, we fully fine-tune LLaMA-3-8B on four domains and apply the same safety heads generated for their LoRA counterparts. Table~\ref{tab:full_ft} shows that safety is restored equally well regardless of fine-tuning method: harmful rates drop to 0.0--0.1\% for both LoRA and full fine-tuning. Task accuracy deltas are comparable (within 0.3 percentage points), indicating that the activation fingerprint captures model-level safety patterns rather than LoRA-specific artifacts.
+Our hypernetwork is trained on LoRA-merged models, but practitioners also use full-parameter fine-tuning. To test whether \method{} generalizes across fine-tuning methods, we fully fine-tune LLaMA-3-8B on four datasets and apply the same \ssn{}s generated for their LoRA counterparts. Table~\ref{tab:full_ft} shows that safety is restored equally well regardless of fine-tuning method: harmful rates drop to 0.0--0.1\% for both LoRA and full fine-tuning. Task accuracy deltas are comparable (within 0.3 percentage points), indicating that the activation fingerprint captures model-level safety patterns rather than LoRA-specific artifacts.
 
 \begin{table}[t]
 \centering
@@ -233,10 +230,10 @@ Our hypernetwork is trained on LoRA-merged models, but practitioners also use fu
 \bottomrule
 \end{tabular}%
 }
-\caption{Generalization across fine-tuning methods (LLaMA-3-8B). Safety heads generated for LoRA models transfer to fully fine-tuned models with comparable accuracy and safety.}
+\caption{Generalization across fine-tuning methods (LLaMA-3-8B). \ssn{}s generated for LoRA models transfer to fully fine-tuned models with comparable accuracy and safety.}
 \label{tab:full_ft}
 \end{table}
 
 \subsection{Cross-Benchmark Safety Transfer}
 
-BeaverTails is the only harmful benchmark used during side network training (with a disjoint evaluation split). To test whether generated safety heads generalize beyond BeaverTails, we evaluate on AdvBench (520 prompts) and HEx-PHI (300 prompts, 11 categories), which are never seen in any training phase. Across both models and all holdout domains, the harmful rate remains at 0\% on AdvBench and below 1\% on HEx-PHI (full per-domain breakdown in Appendix~\ref{app:per_domain}). This confirms that \method{} captures general harmful-content patterns rather than benchmark-specific features.
+BeaverTails is the only harmful benchmark used during side network training (with a disjoint evaluation split). To test whether generated \ssn{}s generalize beyond BeaverTails, we evaluate on AdvBench (520 prompts) and HEx-PHI (300 prompts, 11 categories), which are never seen in any training phase. Across both models and all holdout datasets, the harmful rate remains at 0\% on AdvBench and below 1\% on HEx-PHI (full per-domain breakdown in Appendix~\ref{app:per_domain}). This confirms that \method{} captures general harmful-content patterns rather than benchmark-specific features.

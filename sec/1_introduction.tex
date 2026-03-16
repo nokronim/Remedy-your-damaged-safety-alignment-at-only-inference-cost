@@ -9,12 +9,12 @@ Current defenses fall into two camps, each with a fundamental limitation.
 
 We propose a different approach: rather than retraining or applying a one-size-fits-all classifier, we \textit{generate} a safety mechanism tailored to each fine-tuned model automatically. Since each fine-tuning recipe shifts the model's internal representations in a distinct way, we use these representation shifts as a fingerprint to produce a model-specific safety classifier.
 
-Concretely, we introduce \method{}, a \textit{hypernetwork}~\cite{ha2017hypernetworks} that takes intermediate activations from any fine-tuned model as input and outputs the weights of a small \textit{safety head}---a side network~\cite{sung2022lst} that classifies each prompt as safe or harmful. At deployment, a single forward pass through the hypernetwork produces a model-specific safety head from only 50 calibration prompts, with no gradient computation and no model modification.
+Concretely, we introduce \method{}, a \textit{hypernetwork}~\cite{ha2017hypernetworks} that takes intermediate activations from any fine-tuned model as input and outputs the weights of a \textit{Safe Side Network} (\ssn{})---a side network~\cite{sung2022lst} that classifies each prompt as safe or harmful. At deployment, a single forward pass through the hypernetwork produces a model-specific \ssn{} from only 50 calibration prompts, with no gradient computation and no model modification.
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/assets/safety_remedy_figure.pdf}
-\caption{\method{} pipeline. \textbf{Top}: Training phase (one-time). Collect (model, safety head) pairs, extract activation fingerprints with direction-magnitude decomposition, and train a hypernetwork to generate safety head weights. \textbf{Bottom}: Inference. For any new fine-tuned model, extract activations and generate a model-specific safety head in a single forward pass---no training, no safety data, no model modification required.}
+\caption{\method{} pipeline. \textbf{Top}: Training phase (one-time). Collect (model, \ssn{}) pairs, extract activation fingerprints with direction-magnitude decomposition, and train a hypernetwork to generate \ssn{} weights. \textbf{Bottom}: Inference. For any new fine-tuned model, extract activations and generate a model-specific \ssn{} in a single forward pass---no training, no safety data, no model modification required.}
 \label{fig:pipeline}
 \end{figure*}
 
