@@ -66,7 +66,7 @@ Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tu
 \toprule
 & & \multicolumn{4}{c}{\textbf{Task Acc (\%) $\uparrow$}} & \multicolumn{3}{c}{\textbf{Harm.\ Rate (\%) $\downarrow$}} \\
 \cmidrule(lr){3-6} \cmidrule(lr){7-9}
-& \textbf{Domain} & Base & LoRA & Ours & $\Delta$ & Base & LoRA & Ours \\
+& \textbf{Domain} & Base & LoRA & Ours & $\Delta{\downarrow}$ & Base & LoRA & Ours \\
 \midrule
 \multicolumn{9}{@{}l}{\textit{\textbf{LLaMA-3-8B}}} \\
 \midrule
@@ -87,8 +87,6 @@ Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tu
 & NQ-Open       & 33.4 & 28.1 & 27.7 & {-0.4} & 7.1 & 20.0 & 0.4 \\
 & AG News$^\dagger$ & 77.6 & 90.6 & 90.6 & {$\pm$0} & 7.1 & 15.1 & 0.0 \\
 & Dolly$^\dagger$ & 29.4 & 34.4 & 34.4 & {$\pm$0} & 7.1 & 28.3 & 0.1 \\
-\cmidrule{1-9}
-& \textbf{Average} & --- & --- & --- & {-0.1} & 7.1 & 22.4 & 0.1 \\
 \midrule
 \multicolumn{9}{@{}l}{\textit{\textbf{Qwen2-7B}}} \\
 \midrule
@@ -109,8 +107,6 @@ Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tu
 & NQ-Open       & 28.2 & 22.7 & 22.2 & {-0.5} & 3.4 & 11.9 & 0.6 \\
 & AG News$^\dagger$ & 72.1 & 97.6 & 97.6 & {$\pm$0} & 3.4 & 10.1 & 0.0 \\
 & Dolly$^\dagger$ & 30.2 & 35.6 & 35.4 & {-0.2} & 3.4 & 22.1 & 0.3 \\
-\cmidrule{1-9}
-& \textbf{Average} & --- & --- & --- & {-0.2} & 3.4 & 19.1 & 0.1 \\
 \bottomrule
 \end{tabular}%
 }
