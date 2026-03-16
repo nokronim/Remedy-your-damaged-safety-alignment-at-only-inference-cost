@@ -16,7 +16,7 @@ Let $\mathcal{M}_0$ be a safety-aligned base LLM and $\mathcal{M}_d$ a fine-tune
 \begin{equation}
 \theta = G\!\big(\mathbf{A}(\mathcal{M}_{d^*})\big), \quad \lambda = f_\theta(x),
 \end{equation}
-where $x$ denotes the input prompt, $\mathbf{A}(\cdot)$ denotes activations extracted from a small calibration set, and $\lambda \in [0,1]$ is a safety score ($\lambda \approx 0$: safe; $\lambda \approx 1$: harmful). In our framework, the generator $G$ is implemented as a hypernetwork that predicts the parameters $\theta$ of the \ssn{} from the activation fingerprint of the fine-tuned model (see Sec \ref{sec:hypernet}).
+where $x$ denotes the input prompt, $\mathbf{A}(\cdot)$ denotes activations extracted from a small calibration set (see Eq. \ref{eq:all_activations}), and $\lambda \in [0,1]$ is a safety score ($\lambda \approx 0$: safe; $\lambda \approx 1$: harmful). In our framework, the generator $G$ is implemented as a hypernetwork that predicts the parameters $\theta$ of the \ssn{} from the activation fingerprint of the fine-tuned model (see Sec \ref{sec:hypernet}).
 
 % \mid \mathcal{M}_{d^*}
 
@@ -27,20 +27,13 @@ The \ssn{} $f_\theta$ is a lightweight side network attached to the frozen backb
 
 \input{figures/fig_architecture}
 
-% \mysection{Side Transformer.} $K{=}12$ layers with hidden dimension $h_s = h/r$ ($r{=}4$). For Qwen2-7B: $h_s{=}896$, 7 heads; for LLaMA-3-8B: $h_s{=}1024$, 8 heads ($\sim$3\% of backbone parameters).
 \mysection{Side Transformer.} The \ssn{} is implemented as a small Transformer that processes ladder-fused representations derived from the backbone hidden states. It consists of $K{=}12$ layers with hidden dimension $h_s = h/r$. We set $r{=}4$, yielding $h_s{=}896$ with 7 attention heads for Qwen2-7B and $h_s{=}1024$ with 8 attention heads for LLaMA-3-8B (i.e., $\sim$3\% of backbone parameters).
-
-% \mysection{Ladder Connections.} Each side layer $k$ fuses downsampled backbone hidden states with side hidden states via a learnable gate:
-% \begin{equation}
-%     \mathbf{h}^{(k)}_\text{in} = \mu_k \cdot W_\text{down}\, \mathbf{h}^{(l)}_\text{back} + (1{-}\mu_k) \cdot \mathbf{h}^{(k-1)}_\text{side}
-% \end{equation}
-% where $\mu_k = \sigma(\alpha_k/\tau)$ is a learned gate.
 
 \mysection{Ladder Connections.} Each side layer $k$ fuses downsampled backbone hidden states with side hidden states via a learnable gate:
 \begin{equation}
-    \mathbf{h}^{(k)}_\text{in} = \mu_k \cdot W_\text{down}\, \mathbf{h}^{(l)}_\text{back} + (1{-}\mu_k) \cdot \mathbf{h}^{(k-1)}_\text{side}
+    \mathbf{h}^{(k)}_\text{in} = \mu_k \cdot W_\text{down}\, \mathbf{h}^{\phi(k)}_\text{back} + (1{-}\mu_k) \cdot \mathbf{h}^{(k-1)}_\text{side}
 \end{equation}
-where $\mathbf{h}^{(l)}_\text{back}$ denotes the backbone hidden state at layer $l$, $\mathbf{h}^{(k-1)}_\text{side}$ denotes the side network hidden state from the previous layer, and $\mu_k = \sigma(\alpha_k/\tau)$ is a learned gate.
+where $\phi(k)$ maps side layer $k$ to a backbone layer, $\mathbf{h}^{\phi(k)}_\text{back}$ denotes the corresponding backbone hidden state, $\mathbf{h}^{(k-1)}_\text{side}$ denotes the side network hidden state from the previous layer, and $\mu_k = \sigma(g_k/\tau)$ is a learned gate, where $g_k \in \mathbb{R}$ is a learnable scalar parameter for layer $k$ and $\tau$ is a temperature hyperparameter.
 
 \mysection{Selective Routing.} After the final side layer, hidden states are mean-pooled and passed through an MLP to produce $\lambda$. At inference, prompts scoring above the threshold are routed to a refusal response; those below bypass the side network entirely, so the base model runs unmodified. This selective routing preserves task accuracy because safe prompts never interact with the \ssn{}.
 
@@ -51,62 +44,50 @@ where $\mathbf{h}^{(l)}_\text{back}$ denotes the backbone hidden state at layer 
 We now describe how the \ssn{} parameters are generated automatically from activation fingerprints. The hypernetwork $G$ takes the activation fingerprint of a fine-tuned model as input and predicts the parameters of the \ssn{}. To make the high-dimensional weight prediction feasible, we employ two complementary design strategies.
 
 
-\mysection{Activation Fingerprint Extraction. } For each model $\mathcal{M}_d$, we run $N_\text{cal}{=}50$ domain-specific calibration prompts and average the backbone hidden state at each layer $l$ after the final token:
+\mysection{Activation Fingerprint Extraction. } For each model $\mathcal{M}_d$, we run $N_\text{cal}{=}50$ domain-specific calibration prompts and average the backbone hidden state at each layer $l = 1, \dots, L$ after the final token:
 \begin{equation}
-    \mathbf{a}_l^{(d)} = \frac{1}{N_\text{cal}} \sum_{i=1}^{N_\text{cal}} \mathbf{h}_l^{(d)}(x_i) \in \mathbb{R}^{h}
+    \mathbf{a}_l^{(d)} = \frac{1}{N_\text{cal}} \sum_{i=1}^{N_\text{cal}} \mathbf{h}_l^{(d)}(x_i) \in \mathbb{R}^{h}.
 \end{equation}
 These $L$ vectors form a compact behavioral fingerprint of how fine-tuning shifted the model's representations as:
 \begin{equation}
-    \mathbf{A}(\mathcal{M}_d) = \{\mathbf{a}_1^{(d)}, \dots, \mathbf{a}_L^{(d)}\}
+    \mathbf{A}(\mathcal{M}_d) = \{\mathbf{a}_l^{(d)}\}_{l=1}^L.
+    \label{eq:all_activations}
 \end{equation}
-\mathbf{A}(\mathcal{M}_d) = \{\mathbf{a}_1^{(d)}, \dots, \mathbf{a}_L^{(d)}\}
+From now on, unless otherwise specified, we omit the domain superscript $(d)$ in $\mathbf{a}_l^{(d)}$ for readability, as all quantities refer to a fixed model $\mathcal{M}_d$ fine-tuned on domain $d$.
 
-\mysection{Direction-Magnitude Decomposition.} Each activation vector is split into a unit direction and log-magnitude:
-% \begin{equation}
-%     \hat{\mathbf{d}}_l = \frac{\mathbf{a}_l}{\|\mathbf{a}_l\|}, \quad m_l = \log \|\mathbf{a}_l\|
-% \end{equation}
+\mysection{Direction-Magnitude Decomposition.} To enable more structured conditioning of the hypernetwork, we separate directional changes in representation space from their scale. Specifically, each activation vector is split into a unit direction and log-magnitude:
 \begin{equation}
-    \hat{\mathbf{d}}_l^{(d)} = \frac{\mathbf{a}_l^{(d)}}{\|\mathbf{a}_l^{(d)}\|}, \quad m_l^{(d)} = \log \|\mathbf{a}_l^{(d)}\|
+    \hat{\mathbf{d}}_l = \frac{\mathbf{a}_l}{\|\mathbf{a}_l\|}, \quad m_l = \log \|\mathbf{a}_l\|.
 \end{equation}
-% The direction encodes what changed; the magnitude encodes how much. Separate encoders process each component:
 The direction captures the nature of the representational change, while the magnitude reflects its strength.
-% \begin{equation}
-%     \mathbf{z}_\text{dir} = \text{Attn}(W_\text{proj}\,\hat{\mathbf{d}}_l), \quad
-%     \mathbf{z}_\text{mag} = \text{MLP}(m_l)
-% \end{equation}
-\begin{equation}
-    \mathbf{z}_\text{dir} = \text{Attn}(W_\text{proj}\,\hat{\mathbf{d}}_l^{(d)}), \quad
-    \mathbf{z}_\text{mag} = \text{MLP}(m_l^{(d)})
-\end{equation}
-The fused representation $\mathbf{z} = [\mathbf{z}_\text{dir};\, \mathbf{z}_\text{mag}]$ feeds the weight-generation MLP.
+\begin{align}
+\mathbf{z}_\text{dir} &= \text{Attn}\big(\{W_\text{proj}\,\hat{\mathbf{d}}_l\}_{l=1}^L\big),\\
+\mathbf{z}_\text{mag} &= \text{MLP}\big(\{m_l\}_{l=1}^L\big),
+\end{align}
+where $W_\text{proj}$ is a learnable projection matrix. The fused representation $\mathbf{z} = [\mathbf{z}_\text{dir};\, \mathbf{z}_\text{mag}]$ aggregates information across all layers and feeds the weight-generation modules.
 
 \mysection{Layer-wise Factorized Generation.} Rather than predicting all parameters jointly, we generate each side layer's weights independently from the corresponding backbone activation:
 \begin{equation}
-    % \theta_k = H_k(\mathbf{a}_{l(k)}^{(d)}),
-    \theta_k = H_k(\mathbf{a}_{l(k)}^{(d)}, \mathbf{z})
+    \theta_k = H_k(\mathbf{a}_{\phi(k)}, \mathbf{z}),
 \end{equation}
-where $l(k)$ denotes the backbone layer associated with side layer $k$. The modules $H_k$ share most parameters across layers but include layer-specific adapters, reducing the effective output dimensionality per prediction.
+where $\phi: \{1,\dots,K\} \rightarrow \{1,\dots,L\}$ maps each side layer $k$ to its corresponding backbone layer. $\mathbf{a}_{\phi(k)}$ provides layer-specific information and $\mathbf{z}$ captures global cross-layer context. The modules $H_k$ share most parameters across layers but include layer-specific adapters, reducing the effective output dimensionality per prediction.
 
 \mysection{Classifier Generation.} The \ssn{} classifier is generated via a dedicated branch that aggregates information across all layers using cross-layer attention, producing a global embedding of the model's behavioral shift. This embedding is mapped through an MLP with a low-rank output factorization ($W_\text{cls} = B \cdot A$, rank $r{=}16$) for efficiency.
 
 \subsection{Training and Deployment}
 \label{sec:deploy}
 
-% Training proceeds in two stages. First, we train domain-specific \ssn{}s to obtain supervision for the hypernetwork. Second, the hypernetwork is trained to generate these weights from activation fingerprints.
-Training proceeds in two stages. First, we train domain-specific \ssn{}s for a set of fine-tuned models to obtain supervision pairs consisting of activation fingerprints and corresponding \ssn{} weights. Second, the hypernetwork is trained to map activation fingerprints to these weights, enabling it to generate \ssn{}s for new fine-tuned models at inference time.
+% Training proceeds in two stages. First, we train domain-specific \ssn{}s for a set of fine-tuned models to obtain supervision pairs consisting of activation fingerprints and corresponding \ssn{} weights. Second, the hypernetwork is trained to map activation fingerprints to these weights, enabling it to generate \ssn{}s for new fine-tuned models at inference time.
+Training proceeds in two stages: (1) learning domain-specific \ssn{}s to construct supervision targets, and (2) training the hypernetwork to predict these weights from activation fingerprints.
 
-\mysection{Ground-truth Safety Head Collection.}\label{sec:gt} We collect supervised pairs $\{(\mathcal{M}_d, \theta_d^*)\}_{d=1}^D$ by training one side network per domain:
-\begin{enumerate}
-    \item Fine-tune $\mathcal{M}_0$ on domain $d$ with LoRA~\cite{hu2022lora} (rank 16, $\alpha{=}32$); merge the adapter to obtain $\mathcal{M}_d$.
-    \item Freeze $\mathcal{M}_d$; attach a randomly initialized side network.
-    \item Train the side network on a mixture of domain-specific safe data and category-balanced harmful data from BeaverTails~\cite{ji2024beavertails} ($\sim$7k samples).
-\end{enumerate}
-Training uses a selective loss: harmful prompts receive both language-modeling loss and classification loss; safe prompts receive only classification loss. This teaches the side network when to intervene without degrading task performance on safe inputs. All side networks share the same initialization, ensuring weight-space alignment for hypernetwork supervision.
+\mysection{Ground-truth SSN Collection.}\label{sec:gt}
+We collect supervised pairs $\{(\mathcal{M}_d, \theta_d^*)\}_{d=1}^D$ by training one side network per domain. For each domain $d$, we first fine-tune the base model $\mathcal{M}_0$ using LoRA~\cite{hu2022lora} and merge the adapter to obtain $\mathcal{M}_d$. We then freeze $\mathcal{M}_d$ and attach a randomly initialized side network. The side network is trained on a mixture of domain-specific safe data and category-balanced harmful data from BeaverTails~\cite{ji2024beavertails} ($\sim$7k samples).
+Training uses a selective loss: harmful prompts receive both language-modeling loss and classification loss, while safe prompts receive only classification loss. This encourages the side network to learn when to intervene without degrading task performance on safe inputs. All side networks share the same initialization, ensuring weight-space alignment for hypernetwork supervision.
 
 \mysection{Hypernetwork Training.} The hypernetwork is trained on $D_\text{train}$ domains (with $D_\text{held}$ held out for evaluation; $D_\text{train}{=}18$, $D_\text{held}{=}4$ in our experiments) using three complementary losses:
 \begin{equation}
-    \mathcal{L} = \mathcal{L}_\text{recon} + \alpha\, \mathcal{L}_\text{cls} + \beta\, \mathcal{L}_\text{func}
+    \mathcal{L} = \mathcal{L}_\text{recon} + \beta_1\, \mathcal{L}_\text{cls} + \beta_2\, \mathcal{L}_\text{func}
 \end{equation}
-where $\mathcal{L}_\text{recon}$ is the MSE between generated and ground-truth side network weights, providing dense supervision across all parameters; $\mathcal{L}_\text{cls}$ is BCE on safety score predictions using the calibration prompts ($\alpha{=}10$); and $\mathcal{L}_\text{func}$ is BCE on a separate batch of safe and harmful probe prompts ($\beta{=}5$), verifying that the generated classifier generalizes beyond the calibration set. Training runs for 100 epochs with learning rate $5 \times 10^{-5}$ and hidden dimension 512.
+where $\mathcal{L}_\text{recon}$ is the MSE between generated and ground-truth side network weights, providing dense supervision across all parameters; $\mathcal{L}_\text{cls}$ is BCE on safety score predictions using the calibration prompts ($\beta_1{=}10$); and $\mathcal{L}_\text{func}$ is BCE on a separate batch of safe and harmful probe prompts ($\beta_2{=}5$), verifying that the generated classifier generalizes beyond the calibration set. Training runs for 100 epochs with learning rate $5 \times 10^{-5}$ and hidden dimension 512.
 
 \mysection{Deployment.} Given a new fine-tuned model $\mathcal{M}_{d^*}$: (1)~extract layer-wise activations from $N_\text{cal}$ calibration prompts; (2)~run one forward pass through the hypernetwork to obtain \ssn{} weights; (3)~load the \ssn{} alongside $\mathcal{M}_{d^*}$. The entire process completes in under one minute on a single GPU, with no safety data, no gradients, and no model modification.
