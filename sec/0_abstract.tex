@@ -1,8 +1,6 @@
 % HyperSafe
 \begin{abstract}
 Safety alignment in large language models is fragile under fine-tuning: even benign task adaptation can substantially increase harmful compliance. Current defenses either retrain each checkpoint individually or deploy model-agnostic classifiers that cannot account for how fine-tuning has reshaped safety boundaries.
-
 We propose \method{}, a framework that generates a lightweight, model-specific safety classifier for any fine-tuned checkpoint at inference time. A hypernetwork maps intermediate activations of the fine-tuned model---treated as a compact behavioral fingerprint---to the parameters of a \textit{Safe Side Network} (\ssn{}) that classifies prompts as safe or harmful. At deployment, a single forward pass produces a complete \ssn{} from 50 calibration prompts, with no gradient computation and no model modification.
-
 We evaluate across two model families (Qwen2-7B and LLaMA-3-8B), 22 fine-tuning datasets, and three safety benchmarks. \method{} reduces harmful rates from up to 43\% to below 1\% while preserving task accuracy, and outperforms Llama Guard 4 on all three benchmarks.
 \end{abstract}

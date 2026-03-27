@@ -12,7 +12,7 @@ Concretely, we introduce \method{}, a \textit{hypernetwork}~\cite{ha2017hypernet
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/assets/safety_remedy_figure.pdf}
-\caption{\method{} pipeline. \textbf{Top}: Training phase (one-time). Collect (model, \ssn{}) pairs, extract activation fingerprints with direction-magnitude decomposition, and train a hypernetwork to generate \ssn{} weights. \textbf{Bottom}: Inference. For any new fine-tuned model, extract activations and generate a model-specific \ssn{} in a single forward pass---no training, no safety data, no model modification required.}
+\caption{Our \method{} pipeline. \textbf{Top}: Training phase (one-time). Collect (model, \ssn{}) pairs, extract activation fingerprints with direction-magnitude decomposition, and train a hypernetwork to generate \ssn{} weights. \textbf{Bottom}: Inference. For any new fine-tuned model, extract activations and generate a model-specific \ssn{} in a single forward pass---no training, no safety data, no model modification required.}
 \label{fig:pipeline}
 \end{figure*}
 
