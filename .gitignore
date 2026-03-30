@@ -1,0 +1,45 @@
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.fdb_latexmk
+*.fls
+*.fmt
+*.log
+*.gz
+*.synctex.gz
+*.synctex(busy)
+*.out
+*.toc
+*.lof
+*.lot
+*.xdv
+
+# Intermediate files
+*.dpth
+*.md5
+*.auxlock
+
+# Output
+*.pdf
+
+# BibTeX
+*.bib.bak
+
+# Backup/temp files
+*.bak
+*~
+*.swp
+*.swo
+
+# PGF/TikZ
+-eps-converted-to.pdf
+
+# Texpad
+.texpadtmp
