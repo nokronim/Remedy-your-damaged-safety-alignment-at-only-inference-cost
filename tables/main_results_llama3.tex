@@ -1,0 +1,38 @@
+% Main results table — LLaMA-3-8B
+% LoRA vs OneShot vs HyperSafe (LST), all 12 holdout domains, BT/AB/HX harm rates.
+\begin{table}[t]
+\centering
+\renewcommand{\arraystretch}{1.15}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}l ccc ccc ccc ccc@{}}
+\toprule
+& \multicolumn{3}{c}{\textbf{Task Acc (\%) $\uparrow$}}
+& \multicolumn{3}{c}{\textbf{LoRA Harm (BT/AB/HX, \%) $\downarrow$}}
+& \multicolumn{3}{c}{\textbf{OneShot Harm $\downarrow$}}
+& \multicolumn{3}{c}{\textbf{\method{} Harm $\downarrow$}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10} \cmidrule(lr){11-13}
+\textbf{Domain} & LoRA & OneShot & \method{} & BT & AB & HX & BT & AB & HX & BT & AB & HX \\
+\midrule
+BoolQ                  & 87.2 & 87.2 & 86.9 &  9.7 &  1.5 &  7.0 & 0.3 & 0.0 & 1.0 & 0.1 & 0.0 & 0.0 \\
+ARC                    & 86.6 & 18.8 & 86.5 & 41.7 & 33.8 & 20.0 & 0.1 & 0.0 & 0.7 & 0.0 & 0.0 & 0.0 \\
+Comp.\ Math$^\dagger$  & 33.8 & 28.4 & 34.1 &  8.6 &  1.7 &  6.0 & 0.9 & 0.4 & 1.7 & 0.0 & 0.0 & 0.0 \\
+Alpaca$^\dagger$       & 39.0 & 15.2 & 38.9 & 23.0 &  9.6 & 34.3 & 0.1 & 0.0 & 0.7 & 0.1 & 0.0 & 0.0 \\
+PIQA                   & 88.1 & 87.2 & 87.7 & 37.7 & 40.4 & 37.7 & 0.4 & 0.0 & 0.7 & 0.0 & 0.0 & 0.0 \\
+HellaSwag              & 89.4 & 87.0 & 89.1 & 12.1 & 15.2 & 11.3 & 0.4 & 0.4 & 0.7 & 0.1 & 0.0 & 0.3 \\
+CSenseQA               & 81.7 & 79.9 & 81.5 & 17.7 &  5.4 &  5.0 & 0.0 & 1.9 & 6.7 & 0.0 & 0.0 & 0.0 \\
+OpenHermes$^\dagger$   & 54.9 & 16.4 & 54.6 & 41.0 & 85.6 & 62.0 & 0.0 & 0.0 & 2.7 & 0.0 & 0.0 & 0.0 \\
+MMLU                   & 61.1 & 61.5 & 61.0 &  9.9 & 10.2 &  8.7 & 0.3 & 0.0 & 1.0 & 0.0 & 0.0 & 0.0 \\
+NQ-Open$^\dagger$      & 77.4 & 55.9 & 77.1 & 20.1 & 11.5 & 19.7 & 2.7 & 0.2 & 2.0 & 0.4 & 0.0 & 0.0 \\
+AG News$^\dagger$      & 94.1 & 93.9 & 90.6 &  9.0 &  0.8 &  5.3 & 2.7 & 2.3 & 9.3 & 0.0 & 0.0 & 0.0 \\
+Dolly$^\dagger$        & 37.8 & 16.9 & 34.4 & 38.6 & 64.0 & 49.0 & 0.1 & 0.0 & 0.7 & 0.1 & 0.0 & 0.0 \\
+\midrule
+\textbf{Average}       & \textbf{69.3} & \textbf{54.0} & \textbf{68.5}
+                       & \textbf{22.4} & \textbf{23.3} & \textbf{22.2}
+                       & \textbf{0.7}  & \textbf{0.4}  & \textbf{2.3}
+                       & \textbf{0.1}  & \textbf{0.0}  & \textbf{0.0} \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Main results on LLaMA-3-8B across 12 holdout domains. \method{} reduces harmful rates to near-zero (avg 0.1/0.0/0.0\%) while preserving downstream accuracy within 0.8\% of the LoRA fine-tuned baseline. OneShot~\citep{kim2024oneshot} achieves comparable safety on most domains but catastrophically degrades accuracy on ARC ($86.6{\to}18.8$), Alpaca ($39.0{\to}15.2$), OpenHermes ($54.9{\to}16.4$), and Dolly ($37.8{\to}16.9$). $^\dagger$20\% holdout eval (no standard test set).}
+\label{tab:main_results_llama3}
+\end{table}
