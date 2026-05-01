@@ -1,6 +1,8 @@
 % Comparison with existing defenses --- moved from Experiments to Introduction
 % to motivate \method{}'s positioning early in the paper.
 \begin{table}[t]
+\caption{Comparison with existing defenses against fine-tuning-induced safety degradation. \method{} is the only approach that is simultaneously model-specific (adapts to each fine-tuning recipe), leaves the deployed weights unchanged (no accuracy risk from weight modification), requires no access to the aligned base model $\mathcal{M}_0$ at deployment, and incurs only a single HyperNetwork forward pass per new checkpoint. \method{}'s one-time training phase uses $\mathcal{M}_0$ to construct $(\textsc{model}, \textsc{ssn})$ training pairs; at deployment, only the fine-tuned model and the trained HyperNetwork are needed.}
+\label{tab:comparison}
 \centering
 \renewcommand{\arraystretch}{1.25}
 \resizebox{0.95\columnwidth}{!}{%
@@ -22,6 +24,4 @@ WildGuard~\cite{han2024wildguard}        & none           &  $\times$   &  \chec
 \bottomrule
 \end{tabular}%
 }
-\caption{Comparison with existing defenses against fine-tuning-induced safety degradation. \method{} is the only approach that is simultaneously model-specific (adapts to each fine-tuning recipe), leaves the deployed weights unchanged (no accuracy risk from weight modification), requires no access to the aligned base model $\mathcal{M}_0$ at deployment, and incurs only a single HyperNetwork forward pass per new checkpoint. \method{}'s one-time training phase uses $\mathcal{M}_0$ to construct $(\textsc{model}, \textsc{ssn})$ training pairs; at deployment, only the fine-tuned model and the trained HyperNetwork are needed.}
-\label{tab:comparison}
 \end{table}
