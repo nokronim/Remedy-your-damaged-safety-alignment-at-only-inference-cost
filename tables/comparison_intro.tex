@@ -11,13 +11,11 @@
 \textbf{Method} & \textbf{Setup cost} & \textbf{Model-} & \textbf{Preserves} & \textbf{Standalone} \\
                 & \textbf{per checkpoint} & \textbf{aware}  & \textbf{model weights} & \textbf{at deploy} \\
 \midrule
-LISA~\cite{huang2024lisa}                & full train     &  \checkmark &  $\times$  &  \checkmark \\
 Vaccine~\cite{yi2024vaccine}             & full train     &  \checkmark &  $\times$  &  \checkmark \\
 SafeInstr~\cite{bianchi2024safetytuned}  & partial train  &  \checkmark &  $\times$  &  \checkmark \\
 Safe LoRA~\cite{hsu2024safe}             & projection     &  \checkmark &  $\times$  &  $\times$    \\
-OneShot SFT~\cite{zhang2026safety}       & 1-example SFT  &  \checkmark &  $\times$  &  \checkmark  \\
+OneShot~\cite{zhang2026safety}           & 1-example SFT  &  \checkmark &  $\times$  &  \checkmark  \\
 Llama Guard 4~\cite{inan2023llama}       & none           &  $\times$   &  \checkmark &  \checkmark  \\
-ShieldGemma~\cite{zeng2024shieldgemma}   & none           &  $\times$   &  \checkmark &  \checkmark  \\
 WildGuard~\cite{han2024wildguard}        & none           &  $\times$   &  \checkmark &  \checkmark  \\
 \midrule
 \textbf{\method{} (ours)}                & 1 fwd pass     &  \checkmark &  \checkmark &  \checkmark  \\
