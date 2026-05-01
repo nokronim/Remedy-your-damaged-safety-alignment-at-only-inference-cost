@@ -1,7 +1,7 @@
 % HyperSafe
 \begin{abstract}
 Safety alignment in large language models is fragile under fine-tuning, as even benign adaptation can increase harmful compliance. 
-Existing defenses either retrain safety mechanisms per checkpoint or use model-agnostic classifiers that do not capture model-specific shifts.
+Existing defenses typically rely on per-checkpoint interventions --- either retraining or modifying the model weights --- or on model-agnostic classifiers that do not capture model-specific shifts; both directions face a trade-off between deployment cost and recipe-specific protection.
 We propose HyperSafe, a framework that generates a model-specific safety classifier at inference time. 
 Our approach is based on the hypothesis that fine-tuning induces characteristic shifts in intermediate representations, which serve as an activation fingerprint. 
 A hypernetwork maps these fingerprints to the parameters of a \textit{Safe Side Network} (\ssn{}) that classifies prompts as safe or harmful. 
