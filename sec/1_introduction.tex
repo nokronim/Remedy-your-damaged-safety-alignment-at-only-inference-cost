@@ -1,63 +1,52 @@
 \section{Introduction}
 \label{sec:intro}
 
-Large language models are typically deployed with safety alignment mechanisms that suppress harmful outputs~\cite{ouyang2022training, bai2022training}. 
-However, this alignment is fragile, as downstream fine-tuning, even on benign datasets, can degrade safe behavior after relatively few training steps~\cite{qi2024finetuning, huang2024lisa, fraser2025finetuninglowers}. 
-This issue is more severe in the open-weight ecosystem, where numerous community-contributed LoRA adapters and merged checkpoints are shared without guarantees that safety properties are preserved. 
+Large language models (LLMs) acquire safety alignment through reinforcement learning from human feedback (RLHF)~\cite{ouyang2022training, bai2022training} or constitutional methods~\cite{bai2022constitutional}, which curb the model's propensity to produce harmful, illegal, or otherwise objectionable content. Yet this alignment is remarkably brittle: downstream supervised fine-tuning---even on purely benign instruction data---can erode refusal behavior in as few as a hundred gradient steps~\cite{qi2024finetuning, huang2024lisa, fraser2025finetuninglowers, lermen2024lora, zhan2024removing}. This degradation is not an edge case but a structural consequence of how alignment is encoded: refusal behavior lives in only a few token positions and shallow representational subspaces~\cite{qi2025tokensdeep, wei2024assessing}, so even adapter-style updates on benign tasks routinely shift the model out of the aligned region. The open-weight ecosystem amplifies the risk: Hugging Face hosts hundreds of thousands of community-contributed LoRA adapters~\cite{hu2022lora} and merged checkpoints, and there is no guarantee that any individual checkpoint preserves the original safety properties of its base model.
 
-Consequently, substantial research effort has been devoted to mitigating this problem. 
-However, existing approaches have notable limitations. 
-Methods that retrain safety mechanisms for each fine-tuned model~\cite{huang2024lisa, hsu2024safe, yi2024vaccine} incur substantial per-model cost, while model-agnostic classifiers~\cite{inan2023llama, han2024wildguard} fail to account for model-specific shifts introduced during fine-tuning. 
-As a result, current solutions either scale poorly or lack adaptation to individual models.
+\paragraph{Why existing remedies fall short.}
+Defenses against fine-tuning-induced safety erosion fall into three families, each with a fundamental limitation:
 
-We propose a different approach based on the hypothesis that each fine-tuning procedure induces characteristic shifts in internal representations, which can be used as a fingerprint to generate a model-specific safety classifier. 
-Our key idea is to treat these representation shifts as a signature of the fine-tuned model. 
-We posit that activation patterns across layers encode information about how safety-relevant features have been modified, even when fine-tuning is performed on unrelated tasks. 
-Building on this observation, we train a hypernetwork~\cite{ha2017hypernetworks} to map such activation fingerprints to the parameters of a safety classifier, enabling automatic adaptation without requiring harmful data at deployment time.
+\textit{(i) Fine-tuning-stage methods} modify the optimization process itself --- e.g., LISA's lazy alignment~\cite{huang2024lisa}, Vaccine's perturbation-aware updates~\cite{yi2024vaccine}, RepNoise~\cite{rosati2024representation}, SafeInstr's safety-augmented data~\cite{bianchi2024safetytuned}, and Constrained-SFT~\cite{qi2024safetypreservation}. These methods treat safety preservation as an additional optimization constraint, which inherently produces a trade-off between downstream task performance and residual harm: tighter safety regularization always sacrifices accuracy on the target task, and looser regularization leaks harmful content. They also require coordination with the fine-tuner --- they cannot be retroactively applied to checkpoints that have already been released.
 
-Concretely, we introduce \method{}, a hypernetwork that takes intermediate activations from a fine-tuned model as input and outputs the weights of a Safe Side Network (\ssn{})~\cite{sung2022lst}, which classifies prompts as safe or harmful. 
-At deployment time, the hypernetwork generates a model-specific \ssn{} from a small set of calibration prompts using a single forward pass, without gradient updates or modification of the underlying model.
-Experiments across fine-tuning datasets and safety benchmarks demonstrate that \method{} reduces harmful output rates from up to $43\%$ to below $1\%$ while preserving task accuracy, and outperforms existing safety alignment approaches across all evaluated benchmarks.
+\textit{(ii) Post-fine-tuning weight-modification methods} project or merge the fine-tuned weights to recover alignment --- e.g., Safe LoRA's projection onto an alignment subspace~\cite{hsu2024safe}, OneShot SFT~\cite{zhang2026safety} that performs full fine-tuning on a single safety example, and TaskArithmetic~\cite{ilharco2023task} for safety-task vector subtraction. These approaches modify the deployed weights, which (a) can degrade task accuracy in unpredictable ways, (b) require access to the original aligned base model at deployment time, and (c) operate on the same fundamental trade-off curve as fine-tuning-stage methods.
+
+\textit{(iii) Model-agnostic external classifiers} sit in front of the LLM and filter inputs/outputs --- e.g., Llama Guard~\cite{inan2023llama}, ShieldGemma~\cite{zeng2024shieldgemma}, WildGuard~\cite{han2024wildguard}, Aegis~\cite{ghosh2024aegis}, and Granite Guardian~\cite{padhi2024granite}. Because they ignore the specific fine-tuning recipe, they miss recipe-specific failure modes (e.g., jailbreaks that align with newly learned domain syntax) and waste capacity on out-of-distribution risks the deployed model never faces.
+
+A defender therefore has to choose between paying a per-checkpoint training cost (families i and ii) or accepting recipe-blind protection (family iii). Neither is satisfactory at the scale of today's adapter ecosystem.
+
+\paragraph{Our research question.}
+We ask:
+\begin{quote}
+\textit{Is it possible to train a generalizable HyperNetwork that, given any fine-tuned checkpoint, efficiently produces a lightweight side network restoring the safety behavior of the original aligned model --- without retraining, without modifying the deployed weights, and without sacrificing downstream accuracy?}
+\end{quote}
+
+\paragraph{Our motivation.}
+Fine-tuning-stage and weight-modification methods sit on a single Pareto frontier: utility on one axis, safety on the other. Our key insight is that this frontier exists only because the safety mechanism is forced to share parameters with the task mechanism. If safety is instead delegated to a separate, conditionally engaged \textit{side network}~\cite{sung2022lst} that runs in parallel with the frozen fine-tuned model, then (a) the fine-tuned model retains its full task capacity (utility from the fine-tuned model), and (b) the side network can be trained to perfectly restore refusal on harmful prompts (safety from a pre-trained safety model). We thus get an ensemble that picks up the utility of the fine-tuned model and the safety of the original aligned model --- escaping the trade-off rather than navigating it.
+
+The remaining problem is cost: training a bespoke side network for every fine-tuned checkpoint is impractical at the scale of the adapter ecosystem. We address this by training a \textit{HyperNetwork}~\cite{ha2017hypernetworks, chauhan2024brief} that, given a small set of activation fingerprints from a new fine-tuned model, generates the side network's weights in a single forward pass --- no gradient updates, no safety data needed at deployment time. The HyperNetwork is trained once and amortizes across an unbounded number of downstream checkpoints.
+
+\paragraph{\method{}.}
+Concretely, we introduce \method{}, which combines three innovations to make this generation tractable:
+\begin{enumerate}[leftmargin=*,topsep=2pt,itemsep=2pt]
+    \item \textit{Activation-conditioned weight generation}: the safety side network is produced from a per-prompt fingerprint of how the frozen fine-tuned model's intermediate activations change under fine-tuning, with no gradient computation at deployment time.
+    \item \textit{Local + global hypernetwork conditioning}: each side-network layer's weights are generated from both the corresponding base layer's local activation (depth-specific specialization) and a global mean across selected base layers (cross-layer coherence), enabling per-prompt specialization with stable cross-layer composition.
+    \item \textit{Lightweight side network with hard-threshold routing}: at inference, a $\lambda$-classifier predicts a routing probability per prompt; if $\lambda < 0.5$ the base model runs as-is, and if $\lambda \ge 0.5$ a fixed refusal template is substituted, eliminating decode-time overhead on safe prompts and yielding a net speed-up on harmful ones.
+\end{enumerate}
+The side network adds only ${\sim}2.85\%$ parameters over the base model and ${\sim}2.8\%$ extra FLOPs at prefill, with no decode-time overhead on the typical benign-prompt path. The HyperNetwork is base-model-agnostic and generalizes across fine-tuning recipes (12 unseen domains $\times$ 2 architectures), demonstrating that a single trained HyperNetwork can be deployed against new checkpoints zero-shot. Table~\ref{tab:comparison} contrasts \method{} with representative defenses across these axes.
+
+\input{tables/comparison_intro}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/assets/safety_remedy_figure.pdf}
+\caption{Our \method{} pipeline. \textbf{Top}: Training phase (one-time). Collect $(\textsc{model}, \textsc{ssn})$ pairs, extract activation fingerprints with direction--magnitude decomposition, and train a HyperNetwork to generate \ssn{} weights. \textbf{Bottom}: Inference. For any new fine-tuned model, extract activations and generate a model-specific \ssn{} in a single forward pass --- no training, no safety data, no model modification required.}
+\label{fig:pipeline}
+\end{figure*}
 
 \paragraph{Contributions.}
-\begin{enumerate}
-    \item We introduce activation-conditioned safety generation, in which a safety classifier is derived directly from a fine-tuned model's activation fingerprint without requiring per-model training or safety data at deployment.
-    \item We propose \method{}, which combines layer-wise factorized weight generation with direction-magnitude activation decomposition to enable efficient prediction of high-dimensional classifier parameters.
-    \item We evaluate our approach on two architectures (Qwen2-7B and LLaMA-3-8B) across 22 fine-tuning datasets with multiple holdout splits, and on three safety benchmarks, demonstrating strong harmful behavior suppression with minimal impact on task performance.
+\begin{enumerate}[leftmargin=*,topsep=2pt,itemsep=2pt]
+    \item We formulate safety restoration as \textit{activation-conditioned generation}: the side network is automatically produced from each fine-tuned model's activation fingerprint, requiring neither per-model training nor safety data at deployment.
+    \item We design \method{}, combining layer-wise factorized weight generation with local+global activation conditioning to make high-dimensional weight prediction stable and generalizable.
+    \item We provide an inference-cost analysis showing that the side network adds ${\sim}2.85\%$ parameters and ${\sim}2.8\%$ prefill FLOPs, with zero decode-time overhead on safe prompts and a net speed-up on refused ones.
+    \item We validate on two architectures (Qwen2-7B and LLaMA-3-8B) across 22 fine-tuning datasets, three holdout splits (4 held-out datasets each), and three safety benchmarks (two zero-shot), demonstrating near-complete harmful-prompt elimination with $<$1pp accuracy loss vs.\ the unmodified fine-tuned model.
 \end{enumerate}
-
-
-% Large language models ship with safety alignment that curbs harmful outputs~\cite{ouyang2022training, bai2022training}. Yet this alignment is brittle: downstream fine-tuning---even on purely benign data---can erode refusal behavior in as few as a hundred steps~\cite{qi2024finetuning, huang2024lisa, fraser2025finetuninglowers}. The open-weight ecosystem amplifies the risk: thousands of community-contributed LoRA adapters and merged checkpoints circulate without any guarantee that the original safety properties survive. Existing defenses either retrain each checkpoint individually~\cite{huang2024lisa, hsu2024safe, yi2024vaccine}, incurring per-model cost, or deploy model-agnostic classifiers~\cite{inan2023llama, han2024wildguard} that cannot account for how a specific fine-tuning recipe has shifted safety boundaries.
-
-
-
-% We propose a different approach: since each fine-tuning recipe shifts internal representations in a distinct way, we use these shifts as a fingerprint to \textit{generate} a model-specific safety classifier automatically.
-
-% The key insight is that fine-tuning leaves a characteristic signature in the model's intermediate representations. Even when two models are fine-tuned on unrelated tasks, the pattern of activation shifts across layers encodes information about how safety-relevant features have been altered. By training a hypernetwork to read these signatures, we can predict what safety classifier each model needs without ever seeing harmful data at deployment time.
-
-% Concretely, we introduce \method{}, a \textit{hypernetwork}~\cite{ha2017hypernetworks} that takes intermediate activations from any fine-tuned model as input and outputs the weights of a \textit{Safe Side Network} (\ssn{})---a side network~\cite{sung2022lst} that classifies each prompt as safe or harmful. At deployment, a single forward pass through the hypernetwork produces a model-specific \ssn{} from only 50 calibration prompts, with no gradient computation and no model modification.
-
-% \begin{figure*}[t]
-% \centering
-% \includegraphics[width=\textwidth]{figures/assets/safety_remedy_figure.pdf}
-% \caption{Our \method{} pipeline. \textbf{Top}: Training phase (one-time). Collect (model, \ssn{}) pairs, extract activation fingerprints with direction-magnitude decomposition, and train a hypernetwork to generate \ssn{} weights. \textbf{Bottom}: Inference. For any new fine-tuned model, extract activations and generate a model-specific \ssn{} in a single forward pass---no training, no safety data, no model modification required.}
-% \label{fig:pipeline}
-% \end{figure*}
-
-% \paragraph{Contributions.}
-% \begin{enumerate}
-%     \item We introduce activation-conditioned safety generation: the safety classifier is automatically produced from each fine-tuned model's activation fingerprint, requiring no per-model training or safety data at deployment.
-%     \item We propose \method{}, combining layer-wise factorized weight generation with direction-magnitude activation decomposition to make high-dimensional weight prediction tractable.
-%     \item We validate on two architectures (Qwen2-7B and LLaMA-3-8B) across 22 fine-tuning datasets with three holdout splits (4 held-out datasets each), and three safety benchmarks (two zero-shot), demonstrating near-complete harmful elimination with negligible accuracy loss.
-% \end{enumerate}
-
-%\begin{itemize}
-%    % \item We introduce a model-conditioned safety formulation for fine-tuned LLMs, emphasizing that prompt safety depends on the particular fine-tuned checkpoint.
-%    \item We propose activation-conditioned hypernetwork safety head generation: a hypernetwork maps intermediate LLM activations to the weights of a lightweight side safety network, enabling zero-shot instantiation of safety heads for unseen fine-tuned models.
-%    \item We develop a layer-wise, factorized hypernetwork that predicts each safety-head layer from corresponding LLM activations, yielding improved stability and generalization over one-shot weight prediction.
-%    % \item (Optional) We augment activations with \textbf{behavioral probe fingerprints} and provide ablations showing when auxiliary probes improve cross-recipe generalization.
-%    \item We evaluate on diverse fine-tuning settings and unseen checkpoints, demonstrating recovery of safety behavior with minimal impact on downstream task performance.
-%\end{itemize}
-
-
-% https://aclanthology.org/2023.findings-emnlp.808.pdf

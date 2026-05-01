@@ -3,7 +3,7 @@
 % (LoRA, OneShot, HyperSafe) repeated under each group.
 % Tight intra-group spacing, wider inter-group separators.
 \begin{table}[t]
-	\caption{Main results across 12 holdout domains on LLaMA-3-8B and Qwen2-7B. Columns are grouped by metric (Task Accuracy and the three safety benchmarks: BeaverTails, AdvBench, HEx-PHI), and within each group we report three methods: LoRA fine-tuning baseline, OneShot~\citep{kim2024oneshot} (OS), and \method{} (HS). \method{} reduces harmful rates to near-zero across all three benchmarks while preserving accuracy within ${<}1$~percentage~point of the LoRA baseline. OneShot achieves comparable safety on most LLaMA-3 domains but catastrophically degrades accuracy on instruction-following datasets (ARC, Alpaca, OpenHermes, Dolly); on Qwen2 it leaves substantial residual harm. $^\dagger$20\% holdout eval (no standard test set).}
+	\caption{Main results across 12 holdout domains on LLaMA-3-8B and Qwen2-7B. Columns are grouped by metric (Task Accuracy and the three safety benchmarks: BeaverTails, AdvBench, HEx-PHI), and within each group we report three methods: LoRA fine-tuning baseline, OneShot~\citep{zhang2026safety} (OS), and \method{} (HS). \method{} reduces harmful rates to near-zero across all three benchmarks while preserving accuracy within ${<}1$~percentage~point of the LoRA baseline. OneShot achieves comparable safety on most LLaMA-3 domains but catastrophically degrades accuracy on instruction-following datasets (ARC, Alpaca, OpenHermes, Dolly); on Qwen2 it leaves substantial residual harm. $^\dagger$20\% holdout eval (no standard test set).}
 	\label{tab:main_results}
 \centering
 \renewcommand{\arraystretch}{1.1}
