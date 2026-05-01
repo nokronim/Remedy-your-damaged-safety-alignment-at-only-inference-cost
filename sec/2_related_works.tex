@@ -10,3 +10,24 @@ External classifiers like Llama Guard~\cite{inan2023llama} and WildGuard~\cite{h
 \paragraph{Hypernetworks and Side Networks.}
 Hypernetworks~\cite{ha2017hypernetworks, chauhan2024brief} are neural networks that generate the weights of a target network conditioned on some context. They have been applied to continual learning~\cite{vonoswald2020continual}, multi-task adaptation~\cite{navon2023equivariant}, and parameter-efficient fine-tuning. Recently, \citet{liang2025dragdrop} scaled this paradigm to LLMs, generating LoRA parameters directly from task descriptions for zero-shot adaptation without gradient-based fine-tuning. Our work pursues a complementary direction---rather than generating task-adaptation weights from text prompts, we generate \textit{safety} weights from model activations, targeting the orthogonal problem of safety restoration.
 Ladder Side-Tuning (LST)~\cite{sung2022lst} introduces a small side network connected to a frozen backbone via lateral connections, enabling parameter-efficient transfer. We repurpose this architecture as a safety classifier and are, to our knowledge, the first to combine hypernetworks with side-network architectures for safety restoration.
+
+\begin{table}[t]
+	\caption{Comparison with existing defenses. \method{} is the only approach that is model-specific, leaves weights unchanged, and requires no access to the aligned base model at deployment. Note: \method{}'s one-time training phase uses $\mathcal{M}_0$ to create fine-tuned variants; at deployment, only the fine-tuned model and the hypernetwork are needed.}
+	\label{tab:comparison}
+	\centering
+	\renewcommand{\arraystretch}{1.15}
+%	\resizebox{0.8\columnwidth}{!}{%
+		\begin{tabular}{@{}lcccc@{}}
+			\toprule
+			\textbf{Method} & \textbf{Per-model} & \textbf{Model-} & \textbf{Weights} & \textbf{No $\mathcal{M}_0$ at}  \\
+			& \textbf{cost}      & \textbf{specific} & \textbf{unchanged} & \textbf{deploy time} \\
+			\midrule
+			Vaccine ~\cite{?}           & full train   &  \checkmark &  $\times$  &  \checkmark \\
+			SafeInstr~\cite{bianchi2024safetytuned} & partial train &  \checkmark &  $\times$  &  \checkmark \\
+			Safe LoRA ~\cite{?}           & projection   &  \checkmark &  $\times$  &  $\times$    \\
+			Llama Guard 4 ~\cite{?}       & none         &  $\times$   &  \checkmark &  \checkmark  \\
+			\method{} (ours)    & 1 fwd pass   &  \checkmark &  \checkmark &  \checkmark  \\
+			\bottomrule
+		\end{tabular}%
+%	}
+\end{table}
