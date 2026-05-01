@@ -1,6 +1,8 @@
 % Comparison with existing defenses --- moved from Experiments to Introduction
 % to motivate \method{}'s positioning early in the paper.
 \begin{table}[t]
+\caption{Comparison with existing defenses against fine-tuning-induced safety degradation. Columns: (1)~\textbf{Setup cost per checkpoint}~--- compute required to deploy the defense on each new fine-tuned model (training, projection, or just a forward pass); (2)~\textbf{Adapts to fine-tune}~--- whether the defense is tailored to the specific fine-tuning recipe of the target model rather than a one-size-fits-all classifier; (3)~\textbf{Preserves model weights}~--- whether the deployed model weights are kept unchanged (avoiding any accuracy risk from weight modification); (4)~\textbf{Standalone at deploy}~--- whether deployment requires only the fine-tuned model itself, with no need for the original aligned base model $\mathcal{M}_0$ at inference time. \method{} is the only approach that is simultaneously recipe-aware, non-destructive, standalone, and requires only a single HyperNetwork forward pass per checkpoint. (\method{}'s one-time training phase uses $\mathcal{M}_0$ to construct $(\textsc{model}, \textsc{ssn})$ training pairs; at deployment, only the fine-tuned model and the trained HyperNetwork are needed.)}
+\label{tab:comparison}
 \centering
 \renewcommand{\arraystretch}{1.25}
 \resizebox{0.95\columnwidth}{!}{%
@@ -22,6 +24,4 @@ WildGuard~\cite{han2024wildguard}        & none           &  $\times$   &  \chec
 \bottomrule
 \end{tabular}%
 }
-\caption{Comparison with existing defenses against fine-tuning-induced safety degradation. Columns: (1)~\textbf{Setup cost per checkpoint}~--- compute required to deploy the defense on each new fine-tuned model (training, projection, or just a forward pass); (2)~\textbf{Adapts to fine-tune}~--- whether the defense is tailored to the specific fine-tuning recipe of the target model rather than a one-size-fits-all classifier; (3)~\textbf{Preserves model weights}~--- whether the deployed model weights are kept unchanged (avoiding any accuracy risk from weight modification); (4)~\textbf{Standalone at deploy}~--- whether deployment requires only the fine-tuned model itself, with no need for the original aligned base model $\mathcal{M}_0$ at inference time. \method{} is the only approach that is simultaneously recipe-aware, non-destructive, standalone, and requires only a single HyperNetwork forward pass per checkpoint. (\method{}'s one-time training phase uses $\mathcal{M}_0$ to construct $(\textsc{model}, \textsc{ssn})$ training pairs; at deployment, only the fine-tuned model and the trained HyperNetwork are needed.)}
-\label{tab:comparison}
 \end{table}
