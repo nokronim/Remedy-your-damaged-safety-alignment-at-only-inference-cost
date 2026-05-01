@@ -1,18 +1,17 @@
 % Combined main results — LLaMA-3-8B + Qwen2-7B.
 % Columns grouped by metric (Acc / BT / AB / HX); within each group:
-%   - LoRA   = greyed (baseline reference, not a defense)
-%   - OS     = OneShot defense
-%   - HS     = HyperSafe (ours, tinted goodgreen)
-% Per-cell convention: bold the better of (OS, HS); colour catastrophic
-% OS accuracy drops (>20pp vs. LoRA baseline) in warnred.
+%   - LoRA   = greyed column (baseline reference, not a defense)
+%   - OS     = OneShot defense (plain)
+%   - HS     = HyperSafe, ours (plain; only Avg-row HS cells highlighted green+bold)
+% Catastrophic OS accuracy drops (>20pp vs. LoRA) marked \textcolor{warnred}.
 \begin{table}[t]
-	\caption{Main results across 12 holdout domains on LLaMA-3-8B and Qwen2-7B. Columns are grouped by metric (Task Accuracy and the three safety benchmarks: BeaverTails, AdvBench, HEx-PHI). Within each group we report the \textit{LoRA} fine-tuned baseline (\colorbox{mutegray}{\strut\,greyed\,} --- not a defense, only a reference for what fine-tuning erodes) alongside two defense methods: OneShot~\citep{zhang2026safety} (OS) and \method{} (HS, \colorbox{goodgreen}{\strut\,green\,}, ours). \textcolor{warnred}{Red OS accuracy values} mark catastrophic accuracy collapse ($>$20pp drop from LoRA); the better of (OS, HS) on the Avg row is shown in \textbf{bold}. \method{} reduces harmful rates to near-zero across all three benchmarks while preserving accuracy within ${<}1$~percentage~point on average. Splits A/B/C correspond to the three holdout configurations defined in Table~\ref{tab:splits}. $^\dagger$20\% holdout eval (no standard test set).}
+	\caption{Main results across 12 holdout domains on LLaMA-3-8B and Qwen2-7B. Columns are grouped by metric (Task Accuracy and the three safety benchmarks: BeaverTails, AdvBench, HEx-PHI). Within each group we report the \textit{LoRA} fine-tuned baseline (\colorbox{mutegray}{\strut\,greyed\,} --- not a defense, only a reference for what fine-tuning erodes) alongside two defense methods: OneShot~\citep{zhang2026safety} (OS) and \method{} (HS, ours). \textcolor{warnred}{Red OS accuracy values} mark catastrophic accuracy collapse ($>$20pp drop from LoRA); the winning Avg-row values for our method are shown in \colorbox{goodgreen}{\strut\,green\,} and \textbf{bold}. \method{} reduces harmful rates to near-zero across all three benchmarks while preserving accuracy within ${<}1$~percentage~point on average. Splits A/B/C correspond to the three holdout configurations defined in Table~\ref{tab:splits}. $^\dagger$20\% holdout eval (no standard test set).}
 	\label{tab:main_results}
 \centering
 \renewcommand{\arraystretch}{1.1}
 \setlength{\tabcolsep}{1pt}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}c l@{\hspace{10pt}} >{\columncolor{mutegray}}c@{\hspace{4pt}}c@{\hspace{4pt}}>{\columncolor{goodgreen}}c @{\hspace{12pt}} >{\columncolor{mutegray}}c@{\hspace{4pt}}c@{\hspace{4pt}}>{\columncolor{goodgreen}}c @{\hspace{12pt}} >{\columncolor{mutegray}}c@{\hspace{4pt}}c@{\hspace{4pt}}>{\columncolor{goodgreen}}c @{\hspace{12pt}} >{\columncolor{mutegray}}c@{\hspace{4pt}}c@{\hspace{4pt}}>{\columncolor{goodgreen}}c@{}}
+\begin{tabular}{@{}c l@{\hspace{10pt}} >{\columncolor{mutegray}}c@{\hspace{4pt}}c@{\hspace{4pt}}c @{\hspace{12pt}} >{\columncolor{mutegray}}c@{\hspace{4pt}}c@{\hspace{4pt}}c @{\hspace{12pt}} >{\columncolor{mutegray}}c@{\hspace{4pt}}c@{\hspace{4pt}}c @{\hspace{12pt}} >{\columncolor{mutegray}}c@{\hspace{4pt}}c@{\hspace{4pt}}c@{}}
 \toprule
 & & \multicolumn{3}{c}{\textbf{Task Acc (\%) $\uparrow$}}
 & \multicolumn{3}{c}{\textbf{BeaverTails (\%) $\downarrow$}}
@@ -45,10 +44,10 @@
 & AG News$^\dagger$      & 94.1 & 93.9 & 90.6 &  9.0 & 2.7 & 0.0 &  0.8 & 2.3 & 0.0 &  5.3 & 9.3 & 0.0 \\
 & Dolly$^\dagger$        & 37.8 & \textcolor{warnred}{16.9} & 34.4 & 38.6 & 0.1 & 0.1 & 64.0 & 0.0 & 0.0 & 49.0 & 0.7 & 0.0 \\
 \cmidrule{1-14}
-& \textit{Avg.}          & \textit{69.3} & \textit{54.0} & \textbf{\textit{68.5}}
-                         & \textit{22.4} & \textit{0.7}  & \textbf{\textit{0.1}}
-                         & \textit{23.3} & \textit{0.4}  & \textbf{\textit{0.0}}
-                         & \textit{22.2} & \textit{2.3}  & \textbf{\textit{0.0}} \\
+& \textit{Avg.}          & \textit{69.3} & \textit{54.0} & \cellcolor{goodgreen}\textbf{\textit{68.5}}
+                         & \textit{22.4} & \textit{0.7}  & \cellcolor{goodgreen}\textbf{\textit{0.1}}
+                         & \textit{23.3} & \textit{0.4}  & \cellcolor{goodgreen}\textbf{\textit{0.0}}
+                         & \textit{22.2} & \textit{2.3}  & \cellcolor{goodgreen}\textbf{\textit{0.0}} \\
 \midrule
 \multicolumn{14}{@{}l}{\textit{\textbf{Qwen2-7B}}} \\
 \midrule
@@ -70,10 +69,10 @@
 & AG News$^\dagger$      & 97.6 & 92.5 & 97.6 & 10.1 &  3.7 & 0.0 &  0.2 & 0.0 & 0.0 &  6.0 &  6.7 & 0.0 \\
 & Dolly$^\dagger$        & 35.6 & 33.8 & 35.4 & 22.1 & 11.0 & 0.3 & 24.0 & 2.7 & 0.0 & 44.3 & 11.7 & 0.0 \\
 \cmidrule{1-14}
-& \textit{Avg.}          & \textit{73.0} & \textit{66.6} & \textbf{\textit{72.8}}
-                         & \textit{19.2} & \textit{4.9}  & \textbf{\textit{0.1}}
-                         & \textit{18.6} & \textit{0.8}  & \textbf{\textit{0.0}}
-                         & \textit{30.8} & \textit{6.6}  & \textbf{\textit{0.1}} \\
+& \textit{Avg.}          & \textit{73.0} & \textit{66.6} & \cellcolor{goodgreen}\textbf{\textit{72.8}}
+                         & \textit{19.2} & \textit{4.9}  & \cellcolor{goodgreen}\textbf{\textit{0.1}}
+                         & \textit{18.6} & \textit{0.8}  & \cellcolor{goodgreen}\textbf{\textit{0.0}}
+                         & \textit{30.8} & \textit{6.6}  & \cellcolor{goodgreen}\textbf{\textit{0.1}} \\
 \bottomrule
 \end{tabular}%
 }
