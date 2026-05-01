@@ -6,14 +6,14 @@
 \resizebox{0.95\columnwidth}{!}{%
 \begin{tabular}{@{}lcccc@{}}
 \toprule
-\textbf{Method} & \textbf{Per-model} & \textbf{Model-} & \textbf{Weights} & \textbf{No $\mathcal{M}_0$ at}  \\
-                & \textbf{cost}      & \textbf{specific} & \textbf{unchanged} & \textbf{deploy time} \\
+\textbf{Method} & \textbf{Setup cost} & \textbf{Adapts to} & \textbf{Preserves} & \textbf{Standalone} \\
+                & \textbf{per checkpoint} & \textbf{fine-tune}  & \textbf{model weights} & \textbf{at deploy} \\
 \midrule
 LISA~\cite{huang2024lisa}                & full train     &  \checkmark &  $\times$  &  \checkmark \\
 Vaccine~\cite{yi2024vaccine}             & full train     &  \checkmark &  $\times$  &  \checkmark \\
 SafeInstr~\cite{bianchi2024safetytuned}  & partial train  &  \checkmark &  $\times$  &  \checkmark \\
 Safe LoRA~\cite{hsu2024safe}             & projection     &  \checkmark &  $\times$  &  $\times$    \\
-OneShot SFT~\cite{zhang2026safety}        & 1-example SFT  &  \checkmark &  $\times$  &  \checkmark  \\
+OneShot SFT~\cite{zhang2026safety}       & 1-example SFT  &  \checkmark &  $\times$  &  \checkmark  \\
 Llama Guard 4~\cite{inan2023llama}       & none           &  $\times$   &  \checkmark &  \checkmark  \\
 ShieldGemma~\cite{zeng2024shieldgemma}   & none           &  $\times$   &  \checkmark &  \checkmark  \\
 WildGuard~\cite{han2024wildguard}        & none           &  $\times$   &  \checkmark &  \checkmark  \\
@@ -22,6 +22,6 @@ WildGuard~\cite{han2024wildguard}        & none           &  $\times$   &  \chec
 \bottomrule
 \end{tabular}%
 }
-\caption{Comparison with existing defenses against fine-tuning-induced safety degradation. \method{} is the only approach that is simultaneously model-specific (adapts to each fine-tuning recipe), leaves the deployed weights unchanged (no accuracy risk from weight modification), requires no access to the aligned base model $\mathcal{M}_0$ at deployment, and incurs only a single HyperNetwork forward pass per new checkpoint. \method{}'s one-time training phase uses $\mathcal{M}_0$ to construct $(\textsc{model}, \textsc{ssn})$ training pairs; at deployment, only the fine-tuned model and the trained HyperNetwork are needed.}
+\caption{Comparison with existing defenses against fine-tuning-induced safety degradation. Columns: (1)~\textbf{Setup cost per checkpoint}~--- compute required to deploy the defense on each new fine-tuned model (training, projection, or just a forward pass); (2)~\textbf{Adapts to fine-tune}~--- whether the defense is tailored to the specific fine-tuning recipe of the target model rather than a one-size-fits-all classifier; (3)~\textbf{Preserves model weights}~--- whether the deployed model weights are kept unchanged (avoiding any accuracy risk from weight modification); (4)~\textbf{Standalone at deploy}~--- whether deployment requires only the fine-tuned model itself, with no need for the original aligned base model $\mathcal{M}_0$ at inference time. \method{} is the only approach that is simultaneously recipe-aware, non-destructive, standalone, and requires only a single HyperNetwork forward pass per checkpoint. (\method{}'s one-time training phase uses $\mathcal{M}_0$ to construct $(\textsc{model}, \textsc{ssn})$ training pairs; at deployment, only the fine-tuned model and the trained HyperNetwork are needed.)}
 \label{tab:comparison}
 \end{table}
