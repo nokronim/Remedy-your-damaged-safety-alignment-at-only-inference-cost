@@ -1,7 +1,7 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-\method{} generates model-specific \ssn{}s at inference time by mapping fine-tuned model activations to \ssn{} weights through a hypernetwork. It virtually eliminates harmful outputs across diverse domains and two model architectures while preserving task accuracy, and transfers zero-shot to unseen safety benchmarks. Ablations reveal that behavioral probe supervision and sufficient training diversity are the most critical ingredients. The approach offers a scalable path toward safety restoration for the growing ecosystem of fine-tuned language models.
+\method{} generates model-specific \ssn{}s at inference time by mapping fine-tuned model activations to \ssn{} weights through a hypernetwork. It reduces harmful outputs to near zero across diverse domains and two model architectures while preserving task accuracy, and transfers zero-shot to unseen safety benchmarks. Ablations reveal that behavioral probe supervision and sufficient training diversity are the most critical ingredients. The approach provides a deployment-time defense applicable to the increasing number of publicly released fine-tuned checkpoints.
 
 \paragraph{Future Work.} Generation-level safety monitoring, scaling to 70B+ models, cross-architecture transfer, and robustness to adversarial jailbreak attacks.
 

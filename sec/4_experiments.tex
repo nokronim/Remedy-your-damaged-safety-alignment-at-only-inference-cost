@@ -31,12 +31,12 @@ C & MMLU {\small(Knowledge)} & NQ-Open {\small(QA)} & AG News$^\dagger$ {\small(
 
 \subsection{Main Results}
 
-Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tuning increases the harmful rate from 3--7\% (base) to up to 43\%, with the largest degradation on instruction-following and commonsense domains. \method{} reduces the harmful rate to below 1\% across all 12 holdout datasets and both architectures, while preserving task accuracy within 1 percentage point. The highest residual rates (NQ-Open, 0.6\%) still represent $>$95\% relative reduction from the fine-tuned model.
+Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tuning increases the harmful rate from 3--7\% (base) to as high as 43\%, with the largest degradation on instruction-following and commonsense domains. \method{} reduces the harmful rate to below 1\% across all 12 holdout datasets and both architectures, while preserving task accuracy within 1 percentage point. The highest residual rates (NQ-Open, 0.6\%) still represent $>$95\% relative reduction from the fine-tuned model.
 
 \input{tables/main_results}
 
 \paragraph{Comparison with Llama Guard 4.}
-We compare against Llama Guard 4 (12B), the latest publicly released version of the Llama Guard family~\citep{inan2023llama}, released as part of the Llama 4 model suite~\citep{meta2025llama4}, on the same three benchmarks (Appendix Table~\ref{tab:llamaguard}). On the two fully zero-shot benchmarks --- the meaningful comparison, since BeaverTails appears in \ssn{} training (with a disjoint eval split) --- Llama Guard 4 misses 6.5\% of AdvBench and 6.7\% of HEx-PHI prompts, while \method{} misses 0.0\% and 0.3\% respectively. This is achieved with an \ssn{} of only $\sim$3\% of backbone parameters versus Llama Guard 4's dedicated 12B model. The gap is wider on BeaverTails (53.6\% vs.\ 0.7\%).
+We compare against Llama Guard 4 (12B), the latest publicly released version of the Llama Guard family~\citep{inan2023llama}, released as part of the Llama 4 model suite~\citep{meta2025llama4}, on the same three benchmarks (Appendix Table~\ref{tab:llamaguard}). On the two fully zero-shot benchmarks --- the appropriate comparison, since BeaverTails appears in \ssn{} training (with a disjoint eval split) --- Llama Guard 4 misses 6.5\% of AdvBench and 6.7\% of HEx-PHI prompts, while \method{} misses 0.0\% and 0.3\% respectively. This is achieved with an \ssn{} of only $\sim$3\% of backbone parameters versus Llama Guard 4's dedicated 12B model. The gap is wider on BeaverTails (53.6\% vs.\ 0.7\%).
 
 \subsection{Ablation Studies}
 \label{sec:ablations}
@@ -44,7 +44,7 @@ We compare against Llama Guard 4 (12B), the latest publicly released version of 
 We ablate on LLaMA-3-8B, reporting task accuracy change and harmful rate (BeaverTails). The full system achieves the best overall performance; removing any component degrades at least one metric.
 
 \paragraph{Loss Components (Figure~\ref{fig:ablation_summary}(a)).}
-We ablate each loss component, reporting per-domain task accuracy and harmful rate on Split~A holdout. Removing $\mathcal{L}_\text{func}^\text{safe}$ (safe-probe supervision) causes the classifier to over-block safe prompts, dropping accuracy substantially across all domains. Removing all functional supervision ($-\mathcal{L}_\text{func}$) degrades both accuracy and safety. Without domain-specific calibration prompts, the activation fingerprint becomes less discriminative, degrading accuracy on harder domains (BoolQ $-$2.5\%, Alpaca $-$2.1\%) while safety remains largely intact. Each component addresses a distinct failure mode.
+We ablate each loss component, reporting per-domain task accuracy and harmful rate on Split~A holdout. Removing $\mathcal{L}_\text{func}^\text{safe}$ (safe-probe supervision) causes the classifier to over-block safe prompts, dropping accuracy substantially across all domains. Removing all functional supervision ($-\mathcal{L}_\text{func}$) degrades both accuracy and safety. Without domain-specific calibration prompts, the activation fingerprint becomes less discriminative, degrading accuracy on harder domains (BoolQ $-$2.5\%, Alpaca $-$2.1\%) while safety remains largely intact. Each component addresses a different failure mode of the generated classifier.
 
 \begin{figure*}[t]
 	\centering
@@ -58,11 +58,11 @@ We ablate each loss component, reporting per-domain task accuracy and harmful ra
 \paragraph{Training Data Diversity (Figure~\ref{fig:ablation_summary} (b)).}
 We ablate training data in two ways: (a)~progressively excluding domains to measure minimum diversity, and (b)~excluding entire task categories to identify which types of data the hypernetwork relies on most.
 
-Progressive exclusion shows the method is robust to moderate reductions (up to 4 domains removed) but degrades sharply beyond that. Category exclusion reveals that instruction-following data is uniquely critical for safety---removing it causes the harmful rate to spike across all holdout datasets, while removing other categories has minimal safety impact.
+Progressive exclusion shows the method is robust to moderate reductions (up to 4 domains removed) but degrades sharply beyond that. Category exclusion reveals instruction-following data as the most important category for safety: removing it increases the harmful rate substantially across all holdout datasets, while removing other categories has minimal effect.
 
 \subsection{Sensitivity to Calibration Set Size}
 
-\textcolor{orange}{Figure~\ref{fig:ablation_ncal} varies the number of calibration prompts $N_\text{cal}$ used to extract the activation fingerprint. With too few prompts ($N_\text{cal}{=}10$), the fingerprint is noisy: the generated \ssn{} produces safety scores skewed toward $\lambda{>}0.5$ even for safe prompts, causing over-blocking that degrades accuracy while achieving a deceptively low harmful rate. This reflects fingerprint noise rather than threshold sensitivity---at $N_\text{cal}{\ge}50$ the classifier separates safe and harmful prompts cleanly at the fixed threshold $\lambda{=}0.5$. Accuracy improves steadily up to $N_\text{cal}{=}50$ and plateaus beyond that. We use $N_\text{cal}{=}50$ as the default. Full per-domain values are reported in Appendix Table~\ref{tab:ablation_ncal}.}
+\textcolor{orange}{Figure~\ref{fig:ablation_ncal} varies the number of calibration prompts $N_\text{cal}$ used to extract the activation fingerprint. With too few prompts ($N_\text{cal}{=}10$), the fingerprint is noisy: the generated \ssn{} produces safety scores skewed toward $\lambda{>}0.5$ even for safe prompts, causing over-blocking that degrades accuracy while achieving an artificially low harmful rate. This reflects fingerprint noise rather than threshold sensitivity---at $N_\text{cal}{\ge}50$ the classifier separates safe and harmful prompts cleanly at the fixed threshold $\lambda{=}0.5$. Accuracy improves steadily up to $N_\text{cal}{=}50$ and plateaus beyond that. We use $N_\text{cal}{=}50$ as the default. Full per-domain values are reported in Appendix Table~\ref{tab:ablation_ncal}.}
 
 \begin{figure*}[t]
 	\centering
@@ -107,4 +107,4 @@ Our hypernetwork is trained on LoRA-merged models, but practitioners also use fu
 
 \subsection{Cross-Benchmark Safety Transfer}
 
-BeaverTails is the only harmful benchmark used during side network training (with a disjoint evaluation split). To test whether generated \ssn{}s generalize beyond BeaverTails, we evaluate on AdvBench (520 prompts) and HEx-PHI (330 prompts, 11 categories), which are never seen in any training phase. Per-domain harmful rates across all three benchmarks are already reported in Table~\ref{tab:main_results}: AdvBench achieves 0\% harmful rate across the board, and HEx-PHI remains below 1\% on both architectures. This confirms that \method{} captures general harmful-content patterns rather than benchmark-specific features.
+BeaverTails is the only harmful benchmark used during side network training (with a disjoint evaluation split). To test whether generated \ssn{}s generalize beyond BeaverTails, we evaluate on AdvBench (520 prompts) and HEx-PHI (330 prompts, 11 categories), which are never seen in any training phase. Per-domain harmful rates across all three benchmarks are already reported in Table~\ref{tab:main_results}: AdvBench achieves 0\% harmful rate across the board, and HEx-PHI remains below 1\% on both architectures. This suggests that \method{} generalizes beyond benchmark-specific patterns.
