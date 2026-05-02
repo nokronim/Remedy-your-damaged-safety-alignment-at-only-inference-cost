@@ -6,15 +6,15 @@
 %              erodes, not a defense).
 %   - OneShot, HyperSafe = defenses.
 % Green text marks HyperSafe cells matching/beating OneShot.
-% Avg column shaded grey as the macro summary.
+% Avg column bolded as the macro summary.
 \begin{table}[!htbp]
-\caption{Main results across 12 holdout domains on LLaMA-3-8B and Qwen2-7B (transposed for per-domain comparison). Each architecture is reported as four metric blocks (Task Acc, BeaverTails, AdvBench, HEx-PHI), each containing four rows: \textbf{Base} (unmodified safety-aligned Instruct model), \textbf{LoRA} (fine-tuned baseline; \colorbox{mutegray}{\strut\,greyed\,} --- reference for what fine-tuning erodes, not a defense), \textbf{OneShot}~\citep{zhang2026safety} (1-example SFT defense), and \textbf{HyperSafe} (Ours). \textcolor{wingreen}{Green HyperSafe values} mark cells where HyperSafe matches or beats OneShot. The Avg column (\colorbox{mutegray}{\strut\,greyed\,}) reports per-row macro averages across the 12 domains. \textcolor{warnred}{Red OneShot accuracy values} mark catastrophic accuracy collapse ($>$20pp drop from LoRA). Splits A/B/C in Table~\ref{tab:splits}. $^\dagger$20\% holdout eval.}
+\caption{Main results across 12 holdout domains on LLaMA-3-8B and Qwen2-7B (transposed for per-domain comparison). Each architecture is reported as four metric blocks (Task Acc, BeaverTails, AdvBench, HEx-PHI), each containing four rows: \textbf{Base} (unmodified safety-aligned Instruct model), \textbf{LoRA} (fine-tuned baseline; \colorbox{mutegray}{\strut\,greyed\,} --- reference for what fine-tuning erodes, not a defense), \textbf{OneShot}~\citep{zhang2026safety} (1-example SFT defense), and \textbf{HyperSafe} (Ours). \textcolor{wingreen}{Green HyperSafe values} mark cells where HyperSafe matches or beats OneShot. The \textbf{Avg} column (\textbf{bold}) reports per-row macro averages across the 12 domains. \textcolor{warnred}{Red OneShot accuracy values} mark catastrophic accuracy collapse ($>$20pp drop from LoRA). Splits A/B/C in Table~\ref{tab:splits}. $^\dagger$20\% holdout eval.}
 \label{tab:main_results}
 \centering
 \renewcommand{\arraystretch}{1.05}
 \setlength{\tabcolsep}{2.5pt}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}l l@{\hspace{6pt}} cccc cccc cccc @{\hspace{6pt}} >{\columncolor{mutegray}}c@{}}
+\begin{tabular}{@{}l l@{\hspace{6pt}} cccc cccc cccc @{\hspace{6pt}} >{\bfseries}c@{}}
 \toprule
 & & \multicolumn{4}{c}{\textbf{Split A}} & \multicolumn{4}{c}{\textbf{Split B}} & \multicolumn{4}{c}{\textbf{Split C}} & \\
 \cmidrule(lr){3-6} \cmidrule(lr){7-10} \cmidrule(lr){11-14}
