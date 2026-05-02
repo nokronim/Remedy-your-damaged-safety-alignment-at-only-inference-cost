@@ -46,7 +46,7 @@ We now describe how the \ssn{} parameters are generated automatically from activ
 
 \mysection{Activation Fingerprint Extraction. } For each model $\mathcal{M}_d$, we run $N_\text{cal}{=}50$ domain-specific calibration prompts and average the backbone hidden state at each layer $l = 1, \dots, L$ after the final token:
 \begin{equation}
-    \mathbf{a}_l^{(d)} = \frac{1}{N_\text{cal}} \sum_{i=1}^{N_\text{cal}} \mathbf{h}_l^{(d)}(x_i) \in \mathbb{R}^{h}.\footnote{For readability we omit the domain superscript $(d)$ from $\mathbf{a}_l^{(d)}$ in the remainder of this section; all quantities refer to a fixed fine-tuned model $\mathcal{M}_d$.}
+    \mathbf{a}_l^{(d)} = \frac{1}{N_\text{cal}} \sum_{i=1}^{N_\text{cal}} \mathbf{h}_l^{(d)}(x_i) \in \mathbb{R}^{h}.
 \end{equation}
 These $L$ vectors form a compact behavioral fingerprint of how fine-tuning shifted the model's representations as:
 \begin{equation}
