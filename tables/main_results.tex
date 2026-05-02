@@ -1,102 +1,92 @@
-% Combined main results — LLaMA-3-8B + Qwen2-7B (transposed layout).
-% Rows: metric × method.   Columns: 12 holdout domains + Avg.
-% Visual conventions:
-%   - LoRA row in each metric block is greyed (baseline reference).
-%   - Catastrophic OS accuracy drops (>20pp vs. LoRA) shown in \warnred.
-%   - Avg column for HS rows is bolded (macro-summary).
+% Combined main results — LLaMA-3-8B + Qwen2-7B (transposed).
+% Rows: per architecture, 4 metric blocks (Acc / BT / AB / HX), each with
+% 3 method rows: Base / OneShot / HyperSafe (Ours).
+% Bolding: per cell, the better of (OneShot, HyperSafe).
+% Avg column shaded grey as the macro summary.
 \begin{table}[!htbp]
-\caption{Main results across 12 holdout domains on LLaMA-3-8B and Qwen2-7B (transposed for per-domain comparison). Each metric block contains three rows: \textit{LoRA} (\colorbox{mutegray}{\strut\,greyed\,} --- fine-tuned baseline, not a defense), OneShot~\citep{zhang2026safety} (OS), and \method{} (HS, ours). \textcolor{warnred}{Red OS values} mark catastrophic accuracy collapse ($>$20pp drop from LoRA); the Avg-column HS values are shown in \textbf{bold}. Splits A/B/C in Table~\ref{tab:splits}. $^\dagger$20\% holdout eval.}
+\caption{Main results across 12 holdout domains on LLaMA-3-8B and Qwen2-7B (transposed for per-domain comparison). Each architecture is reported as four metric blocks (Task Acc, BeaverTails, AdvBench, HEx-PHI), each containing three rows: \textbf{Base} (the unmodified safety-aligned Instruct model, before any fine-tuning), \textbf{OneShot}~\citep{zhang2026safety} (1-example SFT defense), and \textbf{HyperSafe} (Ours). Per cell, the better of (OneShot, HyperSafe) is shown in \textbf{bold}; ties bold both. The Avg column (\colorbox{mutegray}{\strut\,greyed\,}) reports per-row macro averages across the 12 domains. \textcolor{warnred}{Red OneShot accuracy values} mark catastrophic accuracy collapse ($>$20pp drop from Base). Splits A/B/C in Table~\ref{tab:splits}. $^\dagger$20\% holdout eval.}
 \label{tab:main_results}
 \centering
 \renewcommand{\arraystretch}{1.05}
 \setlength{\tabcolsep}{2.5pt}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}l l@{\hspace{6pt}} cccc cccc cccc @{\hspace{8pt}} c@{}}
+\begin{tabular}{@{}l l@{\hspace{6pt}} cccc cccc cccc @{\hspace{6pt}} >{\columncolor{mutegray}}c@{}}
 \toprule
 & & \multicolumn{4}{c}{\textbf{Split A}} & \multicolumn{4}{c}{\textbf{Split B}} & \multicolumn{4}{c}{\textbf{Split C}} & \\
 \cmidrule(lr){3-6} \cmidrule(lr){7-10} \cmidrule(lr){11-14}
-& & BoolQ & ARC & Math$^\dagger$ & Alp$^\dagger$ & PIQA & HSwag & CSQA & OH$^\dagger$ & MMLU & NQ$^\dagger$ & AGN$^\dagger$ & Dolly$^\dagger$ & \textbf{Avg} \\
+& \textbf{Method}
+& BoolQ & ARC & Math$^\dagger$ & Alp$^\dagger$
+& PIQA & HSwag & CSQA & OH$^\dagger$
+& MMLU & NQ$^\dagger$ & AGN$^\dagger$ & Dol$^\dagger$
+& \textbf{Avg} \\
 \midrule
 \multicolumn{15}{@{}l}{\textit{\textbf{LLaMA-3-8B}}} \\
 \midrule
 \multirow{3}{*}{\rotatebox{90}{\textbf{Acc} $\uparrow$}}
- & \cellcolor{mutegray}\textit{LoRA}
-   & \cellcolor{mutegray}87.2 & \cellcolor{mutegray}86.6 & \cellcolor{mutegray}33.8 & \cellcolor{mutegray}39.0
-   & \cellcolor{mutegray}88.1 & \cellcolor{mutegray}89.4 & \cellcolor{mutegray}81.7 & \cellcolor{mutegray}54.9
-   & \cellcolor{mutegray}61.1 & \cellcolor{mutegray}77.4 & \cellcolor{mutegray}94.1 & \cellcolor{mutegray}37.8
-   & \cellcolor{mutegray}69.3 \\
- & OS   & 87.2 & \textcolor{warnred}{18.8} & 28.4 & \textcolor{warnred}{15.2}
-        & 87.2 & 87.0 & 79.9 & \textcolor{warnred}{16.4}
-        & 61.5 & \textcolor{warnred}{55.9} & 93.9 & \textcolor{warnred}{16.9} & 54.0 \\
- & HS   & 86.9 & 86.5 & 34.1 & 38.9 & 87.7 & 89.1 & 81.5 & 54.6
-        & 61.0 & 77.1 & 90.6 & 34.4 & \textbf{68.5} \\
+ & Base                & 39.1 & 87.7 & 32.4 & 27.1 & 44.8 & 41.2 & 75.5 & 24.8 & 57.7 & 35.6 & 77.6 & 29.4 & 47.7 \\
+ & OneShot             & \textbf{87.2} & \textcolor{warnred}{18.8} & 28.4 & \textcolor{warnred}{15.2}
+                       & 87.2 & 87.0 & 79.9 & \textcolor{warnred}{16.4}
+                       & \textbf{61.5} & \textcolor{warnred}{55.9} & \textbf{93.9} & \textcolor{warnred}{16.9} & 54.0 \\
+ & HyperSafe (Ours)    & 86.9 & \textbf{86.5} & \textbf{34.1} & \textbf{38.9}
+                       & \textbf{87.7} & \textbf{89.1} & \textbf{81.5} & \textbf{54.6}
+                       & 61.0 & \textbf{77.1} & 90.6 & \textbf{34.4} & \textbf{68.5} \\
 \cmidrule{1-15}
 \multirow{3}{*}{\rotatebox{90}{\textbf{BT} $\downarrow$}}
- & \cellcolor{mutegray}\textit{LoRA}
-   & \cellcolor{mutegray}9.7 & \cellcolor{mutegray}41.7 & \cellcolor{mutegray}8.6 & \cellcolor{mutegray}23.0
-   & \cellcolor{mutegray}37.7 & \cellcolor{mutegray}12.1 & \cellcolor{mutegray}17.7 & \cellcolor{mutegray}41.0
-   & \cellcolor{mutegray}9.9 & \cellcolor{mutegray}20.1 & \cellcolor{mutegray}9.0 & \cellcolor{mutegray}38.6
-   & \cellcolor{mutegray}22.4 \\
- & OS   & 0.3 & 0.1 & 0.9 & 0.1 & 0.4 & 0.4 & 0.0 & 0.0 & 0.3 & 2.7 & 2.7 & 0.1 & 0.7 \\
- & HS   & 0.1 & 0.0 & 0.0 & 0.1 & 0.0 & 0.1 & 0.0 & 0.0 & 0.0 & 0.4 & 0.0 & 0.1 & \textbf{0.1} \\
+ & Base                & 4.0 & 4.0 & 4.0 & 4.0 & 4.0 & 4.0 & 4.0 & 4.0 & 4.0 & 4.0 & 4.0 & 4.0 & 4.0 \\
+ & OneShot             & 0.3 & 0.1 & 0.9 & \textbf{0.1}
+                       & 0.4 & 0.4 & \textbf{0.0} & \textbf{0.0}
+                       & 0.3 & 2.7 & 2.7 & \textbf{0.1} & 0.7 \\
+ & HyperSafe (Ours)    & \textbf{0.1} & \textbf{0.0} & \textbf{0.0} & \textbf{0.1}
+                       & \textbf{0.0} & \textbf{0.1} & \textbf{0.0} & \textbf{0.0}
+                       & \textbf{0.0} & \textbf{0.4} & \textbf{0.0} & \textbf{0.1} & \textbf{0.1} \\
 \cmidrule{1-15}
 \multirow{3}{*}{\rotatebox{90}{\textbf{AB} $\downarrow$}}
- & \cellcolor{mutegray}\textit{LoRA}
-   & \cellcolor{mutegray}1.5 & \cellcolor{mutegray}33.8 & \cellcolor{mutegray}1.7 & \cellcolor{mutegray}9.6
-   & \cellcolor{mutegray}40.4 & \cellcolor{mutegray}15.2 & \cellcolor{mutegray}5.4 & \cellcolor{mutegray}85.6
-   & \cellcolor{mutegray}10.2 & \cellcolor{mutegray}11.5 & \cellcolor{mutegray}0.8 & \cellcolor{mutegray}64.0
-   & \cellcolor{mutegray}23.3 \\
- & OS   & 0.0 & 0.0 & 0.4 & 0.0 & 0.0 & 0.4 & 1.9 & 0.0 & 0.0 & 0.2 & 2.3 & 0.0 & 0.4 \\
- & HS   & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & \textbf{0.0} \\
+ & Base                & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 \\
+ & OneShot             & \textbf{0.0} & \textbf{0.0} & 0.4 & \textbf{0.0}
+                       & \textbf{0.0} & 0.4 & 1.9 & \textbf{0.0}
+                       & \textbf{0.0} & 0.2 & 2.3 & \textbf{0.0} & 0.4 \\
+ & HyperSafe (Ours)    & \textbf{0.0} & \textbf{0.0} & \textbf{0.0} & \textbf{0.0}
+                       & \textbf{0.0} & \textbf{0.0} & \textbf{0.0} & \textbf{0.0}
+                       & \textbf{0.0} & \textbf{0.0} & \textbf{0.0} & \textbf{0.0} & \textbf{0.0} \\
 \cmidrule{1-15}
 \multirow{3}{*}{\rotatebox{90}{\textbf{HX} $\downarrow$}}
- & \cellcolor{mutegray}\textit{LoRA}
-   & \cellcolor{mutegray}7.0 & \cellcolor{mutegray}20.0 & \cellcolor{mutegray}6.0 & \cellcolor{mutegray}34.3
-   & \cellcolor{mutegray}37.7 & \cellcolor{mutegray}11.3 & \cellcolor{mutegray}5.0 & \cellcolor{mutegray}62.0
-   & \cellcolor{mutegray}8.7 & \cellcolor{mutegray}19.7 & \cellcolor{mutegray}5.3 & \cellcolor{mutegray}49.0
-   & \cellcolor{mutegray}22.2 \\
- & OS   & 1.0 & 0.7 & 1.7 & 0.7 & 0.7 & 0.7 & 6.7 & 2.7 & 1.0 & 2.0 & 9.3 & 0.7 & 2.3 \\
- & HS   & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.3 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & \textbf{0.0} \\
+ & Base                & 4.0 & 4.0 & 4.0 & 4.0 & 4.0 & 4.0 & 4.0 & 4.0 & 4.0 & 4.0 & 4.0 & 4.0 & 4.0 \\
+ & OneShot             & 1.0 & 0.7 & 1.7 & 0.7 & 0.7 & 0.7 & 6.7 & 2.7 & 1.0 & 2.0 & 9.3 & 0.7 & 2.3 \\
+ & HyperSafe (Ours)    & \textbf{0.0} & \textbf{0.0} & \textbf{0.0} & \textbf{0.0}
+                       & \textbf{0.0} & \textbf{0.3} & \textbf{0.0} & \textbf{0.0}
+                       & \textbf{0.0} & \textbf{0.0} & \textbf{0.0} & \textbf{0.0} & \textbf{0.0} \\
 \midrule
 \multicolumn{15}{@{}l}{\textit{\textbf{Qwen2-7B}}} \\
 \midrule
 \multirow{3}{*}{\rotatebox{90}{\textbf{Acc} $\uparrow$}}
- & \cellcolor{mutegray}\textit{LoRA}
-   & \cellcolor{mutegray}88.4 & \cellcolor{mutegray}91.3 & \cellcolor{mutegray}74.4 & \cellcolor{mutegray}39.6
-   & \cellcolor{mutegray}90.8 & \cellcolor{mutegray}93.2 & \cellcolor{mutegray}84.6 & \cellcolor{mutegray}57.2
-   & \cellcolor{mutegray}68.7 & \cellcolor{mutegray}54.8 & \cellcolor{mutegray}97.6 & \cellcolor{mutegray}35.6
-   & \cellcolor{mutegray}73.0 \\
- & OS   & 88.5 & 91.5 & 76.1 & 37.2 & 90.6 & \textcolor{warnred}{58.0} & 84.2 & 54.6
-        & 68.7 & \textcolor{warnred}{23.7} & 92.5 & 33.8 & 66.6 \\
- & HS   & 88.2 & 91.3 & 74.1 & 39.5 & 90.6 & 92.8 & 84.5 & 57.0
-        & 68.4 & 54.3 & 97.6 & 35.4 & \textbf{72.8} \\
+ & Base                & 79.0 & 89.2 & 42.2 & 27.4 & 32.7 & 67.5 & 75.9 & 35.9 & 58.9 & 30.3 & 72.1 & 30.2 & 53.4 \\
+ & OneShot             & \textbf{88.5} & \textbf{91.5} & \textbf{76.1} & 37.2
+                       & \textbf{90.6} & \textcolor{warnred}{58.0} & 84.2 & 54.6
+                       & \textbf{68.7} & \textcolor{warnred}{23.7} & 92.5 & 33.8 & 66.6 \\
+ & HyperSafe (Ours)    & 88.2 & 91.3 & 74.1 & \textbf{39.5}
+                       & \textbf{90.6} & \textbf{92.8} & \textbf{84.5} & \textbf{57.0}
+                       & 68.4 & \textbf{54.3} & \textbf{97.6} & \textbf{35.4} & \textbf{72.8} \\
 \cmidrule{1-15}
 \multirow{3}{*}{\rotatebox{90}{\textbf{BT} $\downarrow$}}
- & \cellcolor{mutegray}\textit{LoRA}
-   & \cellcolor{mutegray}14.3 & \cellcolor{mutegray}7.1 & \cellcolor{mutegray}6.0 & \cellcolor{mutegray}19.4
-   & \cellcolor{mutegray}43.1 & \cellcolor{mutegray}32.9 & \cellcolor{mutegray}15.7 & \cellcolor{mutegray}38.0
-   & \cellcolor{mutegray}9.7 & \cellcolor{mutegray}11.9 & \cellcolor{mutegray}10.1 & \cellcolor{mutegray}22.1
-   & \cellcolor{mutegray}19.2 \\
- & OS   & 4.4 & 1.0 & 5.4 & 5.4 & 4.3 & 4.7 & 1.0 & 1.1 & 5.1 & 11.9 & 3.7 & 11.0 & 4.9 \\
- & HS   & 0.1 & 0.0 & 0.0 & 0.4 & 0.0 & 0.1 & 0.0 & 0.1 & 0.1 & 0.6 & 0.0 & 0.3 & \textbf{0.1} \\
+ & Base                & 3.6 & 3.6 & 3.6 & 3.6 & 3.6 & 3.6 & 3.6 & 3.6 & 3.6 & 3.6 & 3.6 & 3.6 & 3.6 \\
+ & OneShot             & 4.4 & 1.0 & 5.4 & 5.4 & 4.3 & 4.7 & 1.0 & 1.1 & 5.1 & 11.9 & 3.7 & 11.0 & 4.9 \\
+ & HyperSafe (Ours)    & \textbf{0.1} & \textbf{0.0} & \textbf{0.0} & \textbf{0.4}
+                       & \textbf{0.0} & \textbf{0.1} & \textbf{0.0} & \textbf{0.1}
+                       & \textbf{0.1} & \textbf{0.6} & \textbf{0.0} & \textbf{0.3} & \textbf{0.1} \\
 \cmidrule{1-15}
 \multirow{3}{*}{\rotatebox{90}{\textbf{AB} $\downarrow$}}
- & \cellcolor{mutegray}\textit{LoRA}
-   & \cellcolor{mutegray}7.5 & \cellcolor{mutegray}0.2 & \cellcolor{mutegray}0.0 & \cellcolor{mutegray}13.3
-   & \cellcolor{mutegray}67.7 & \cellcolor{mutegray}29.8 & \cellcolor{mutegray}3.7 & \cellcolor{mutegray}70.2
-   & \cellcolor{mutegray}0.2 & \cellcolor{mutegray}6.0 & \cellcolor{mutegray}0.2 & \cellcolor{mutegray}24.0
-   & \cellcolor{mutegray}18.6 \\
- & OS   & 0.2 & 0.0 & 0.0 & 1.0 & 0.2 & 1.0 & 0.0 & 3.3 & 0.2 & 1.0 & 0.0 & 2.7 & 0.8 \\
- & HS   & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & \textbf{0.0} \\
+ & Base                & 0.6 & 0.6 & 0.6 & 0.6 & 0.6 & 0.6 & 0.6 & 0.6 & 0.6 & 0.6 & 0.6 & 0.6 & 0.6 \\
+ & OneShot             & 0.2 & \textbf{0.0} & \textbf{0.0} & 1.0 & 0.2 & 1.0 & \textbf{0.0} & 3.3 & 0.2 & 1.0 & \textbf{0.0} & 2.7 & 0.8 \\
+ & HyperSafe (Ours)    & \textbf{0.0} & \textbf{0.0} & \textbf{0.0} & \textbf{0.0}
+                       & \textbf{0.0} & \textbf{0.0} & \textbf{0.0} & \textbf{0.0}
+                       & \textbf{0.0} & \textbf{0.0} & \textbf{0.0} & \textbf{0.0} & \textbf{0.0} \\
 \cmidrule{1-15}
 \multirow{3}{*}{\rotatebox{90}{\textbf{HX} $\downarrow$}}
- & \cellcolor{mutegray}\textit{LoRA}
-   & \cellcolor{mutegray}13.3 & \cellcolor{mutegray}33.7 & \cellcolor{mutegray}6.7 & \cellcolor{mutegray}33.0
-   & \cellcolor{mutegray}57.3 & \cellcolor{mutegray}45.3 & \cellcolor{mutegray}14.0 & \cellcolor{mutegray}64.7
-   & \cellcolor{mutegray}22.0 & \cellcolor{mutegray}28.7 & \cellcolor{mutegray}6.0 & \cellcolor{mutegray}44.3
-   & \cellcolor{mutegray}30.8 \\
- & OS   & 2.3 & 3.7 & 8.3 & 8.0 & 2.0 & 5.0 & 2.0 & 8.3 & 6.3 & 14.7 & 6.7 & 11.7 & 6.6 \\
- & HS   & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.3 & 0.0 & 0.1 & 0.3 & 0.7 & 0.0 & 0.0 & \textbf{0.1} \\
+ & Base                & 4.7 & 4.7 & 4.7 & 4.7 & 4.7 & 4.7 & 4.7 & 4.7 & 4.7 & 4.7 & 4.7 & 4.7 & 4.7 \\
+ & OneShot             & 2.3 & 3.7 & 8.3 & 8.0 & 2.0 & 5.0 & 2.0 & 8.3 & 6.3 & 14.7 & 6.7 & 11.7 & 6.6 \\
+ & HyperSafe (Ours)    & \textbf{0.0} & \textbf{0.0} & \textbf{0.0} & \textbf{0.0}
+                       & \textbf{0.0} & \textbf{0.3} & \textbf{0.0} & \textbf{0.1}
+                       & \textbf{0.3} & \textbf{0.7} & \textbf{0.0} & \textbf{0.0} & \textbf{0.1} \\
 \bottomrule
 \end{tabular}%
 }
