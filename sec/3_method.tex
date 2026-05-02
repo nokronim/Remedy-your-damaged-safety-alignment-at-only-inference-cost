@@ -12,11 +12,11 @@ In the following sections, we describe the problem setup, the architecture, and 
 
 \subsection{Problem Formulation}
 
-Let $\mathcal{M}_0$ be a safety-aligned base LLM and $\mathcal{M}_d$ a fine-tuned version of $\mathcal{M}_0$ on domain $d$. Fine-tuning may weaken or alter the safety behavior of $\mathcal{M}_d$, causing it to comply with harmful prompts that $\mathcal{M}_0$ would refuse. We seek a generator $G$ that, given any fine-tuned model $\mathcal{M}_{d^*}$ from a potentially unseen domain, produces an \ssn{} $f_\theta$:
+Let $\mathcal{M}_0$ be a safety-aligned base LLM and $\mathcal{M}_d$ a fine-tuned version of $\mathcal{M}_0$ on domain $d$. Fine-tuning may weaken or alter the safety behavior of $\mathcal{M}_d$, causing it to comply with harmful prompts that $\mathcal{M}_0$ would refuse. We seek a generator $G$ that, given any fine-tuned model $\mathcal{M}_{d^*}$ from a potentially unseen domain, produces an \ssn{} $f_\theta$ parameterized by the generated weights $\theta$:
 \begin{equation}
-\theta = G\!\big(\mathbf{A}(\mathcal{M}_{d^*})\big), \quad \lambda = f_\theta(x),
+    \theta = G\big(\mathcal{A}(\mathcal{M}_{d^*})\big), \qquad \lambda = f_\theta(x),
 \end{equation}
-where $x$ denotes the input prompt, $\mathbf{A}(\cdot)$ denotes activations extracted from a small calibration set (see Eq. \ref{eq:all_activations}), and $\lambda \in [0,1]$ is a safety score ($\lambda \approx 0$: safe; $\lambda \approx 1$: harmful). In our framework, the generator $G$ is implemented as a hypernetwork that predicts the parameters $\theta$ of the \ssn{} from the activation fingerprint of the fine-tuned model (see Sec \ref{sec:hypernet}).
+where $x$ denotes the input prompt, $\mathcal{A}(\cdot)$ denotes activation fingerprints extracted from a small calibration set (Eq.~\ref{eq:all_activations}), $\theta$ are the \ssn{} parameters predicted by $G$, and $\lambda \in [0,1]$ is a safety score ($\lambda \approx 0$: safe; $\lambda \approx 1$: harmful). In our framework, $G$ is implemented as a hypernetwork that predicts $\theta$ from the activation fingerprint of the fine-tuned model (\S\ref{sec:hypernet}).
 
 % \mid \mathcal{M}_{d^*}
 
@@ -46,14 +46,13 @@ We now describe how the \ssn{} parameters are generated automatically from activ
 
 \mysection{Activation Fingerprint Extraction. } For each model $\mathcal{M}_d$, we run $N_\text{cal}{=}50$ domain-specific calibration prompts and average the backbone hidden state at each layer $l = 1, \dots, L$ after the final token:
 \begin{equation}
-    \mathbf{a}_l^{(d)} = \frac{1}{N_\text{cal}} \sum_{i=1}^{N_\text{cal}} \mathbf{h}_l^{(d)}(x_i) \in \mathbb{R}^{h}.
+    \mathbf{a}_l^{(d)} = \frac{1}{N_\text{cal}} \sum_{i=1}^{N_\text{cal}} \mathbf{h}_l^{(d)}(x_i) \in \mathbb{R}^{h}.\footnote{For readability we omit the domain superscript $(d)$ from $\mathbf{a}_l^{(d)}$ in the remainder of this section; all quantities refer to a fixed fine-tuned model $\mathcal{M}_d$.}
 \end{equation}
 These $L$ vectors form a compact behavioral fingerprint of how fine-tuning shifted the model's representations as:
 \begin{equation}
     \mathbf{A}(\mathcal{M}_d) = \{\mathbf{a}_l^{(d)}\}_{l=1}^L.
     \label{eq:all_activations}
 \end{equation}
-From now on, unless otherwise specified, we omit the domain superscript $(d)$ in $\mathbf{a}_l^{(d)}$ for readability, as all quantities refer to a fixed model $\mathcal{M}_d$ fine-tuned on domain $d$.
 
 \mysection{Direction-Magnitude Decomposition.} To enable more structured conditioning of the hypernetwork, we separate directional changes in representation space from their scale. Specifically, each activation vector is split into a unit direction and log-magnitude:
 \begin{equation}

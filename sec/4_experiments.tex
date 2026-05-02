@@ -6,7 +6,7 @@
 \mysection{Models and Domains.} We evaluate on Qwen2-7B-Instruct~\cite{yang2024qwen2} and LLaMA-3-8B-Instruct~\cite{dubey2024llama} across 22 datasets spanning QA, commonsense reasoning, math, knowledge, classification, code, and instruction-following (Appendix~\ref{app:domains}). Each dataset is fine-tuned with LoRA (rank 16, $\alpha{=}32$) and merged.
 
 \paragraph{Safety Benchmarks.}
-We evaluate on three harmful-prompt benchmarks: \textbf{BeaverTails}~\cite{ji2024beavertails} (700 prompts, 14 categories) is used as the harmful data source during \ssn{} training (\S\ref{sec:gt}); the evaluation split is disjoint from training. \textbf{AdvBench}~\cite{zou2023universal} (520 prompts) and \textbf{HEx-PHI}~\cite{qi2024hexphi} (330 prompts, 11 categories) are never seen in any training phase, serving as zero-shot safety tests.
+We evaluate on three harmful-prompt benchmarks: \textbf{BeaverTails}~\cite{ji2024beavertails} (700 prompts, 14 categories) is used as the harmful data source during \ssn{} training (\S\ref{sec:gt}); the evaluation split is disjoint from training. \textbf{AdvBench}~\cite{zou2023universal} (520 prompts) and \textbf{HEx-PHI}~\cite{qi2024finetuning} (330 prompts, 11 categories) are never seen in any training phase, serving as zero-shot safety tests.
 
 \paragraph{Evaluation Protocol.}
 We use three holdout splits (Table~\ref{tab:splits}), each removing four datasets from different task categories. The hypernetwork trains on the remaining 18 datasets and is evaluated on held-out datasets it has never seen. We report \textbf{Task Accuracy} (domain-specific test performance; official HuggingFace validation/test splits where available, 20\% holdout otherwise) and \textbf{Harmful Rate} (percentage of harmful prompts producing harmful output, lower is safer; 700 BeaverTails prompts disjoint from training, judged by the beaver-dam-7b moderation model~\cite{ji2024beavertails}). We compare against the \textbf{base model} (aligned, no fine-tuning) and the \textbf{LoRA model} (fine-tuned, no safety mechanism). Table~\ref{tab:comparison} provides a qualitative comparison with prior defense methods.
@@ -29,8 +29,6 @@ C & MMLU {\small(Knowledge)} & NQ-Open {\small(QA)} & AG News$^\dagger$ {\small(
 }
 \end{table}
 
-\mysection{Comparison with Existing Defenses.} Table~\ref{tab:comparison} contrasts \method{} with prior approaches along four practical dimensions. Training-time methods must intervene during fine-tuning. Safe LoRA~\cite{hsu2024safe} is post-hoc but modifies the model weights and requires access to the original aligned checkpoint. External classifiers work on any model but cannot adapt to model-specific safety shifts. \method{} uniquely combines model-specific adaptation with non-destructive, post-deployment applicability.
-
 \subsection{Main Results}
 
 Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tuning increases the harmful rate from 3--7\% (base) to up to 43\%, with the largest degradation on instruction-following and commonsense domains. \method{} reduces the harmful rate to below 1\% across all 12 holdout datasets and both architectures, while preserving task accuracy within 1 percentage point. The highest residual rates (NQ-Open, 0.6\%) still represent $>$95\% relative reduction from the fine-tuned model.
@@ -38,7 +36,7 @@ Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tu
 \input{tables/main_results}
 
 \paragraph{Comparison with Llama Guard 4.}
-\textcolor{orange}{We compare against Llama Guard 4 (12B), the latest version of the Llama Guard family~\cite{inan2023llama}, on the same three benchmarks (Appendix Table~\ref{tab:llamaguard}). On the two fully zero-shot benchmarks, where neither method has seen training data, Llama Guard misses 6.5\% of AdvBench and 6.7\% of HEx-PHI prompts, while \method{} misses 0.0\% and 0.3\% respectively, despite using an \ssn{} with only $\sim$3\% of backbone parameters versus Llama Guard's dedicated 12B model. On BeaverTails, the gap widens further (53.6\% vs.\ 0.7\%), though BeaverTails is used during \ssn{} training (with a disjoint eval split), so we consider the zero-shot benchmarks the primary basis for comparison.}
+We compare against Llama Guard 4 (12B), the latest publicly released version of the Llama Guard family~\citep{inan2023llama}, released as part of the Llama 4 model suite~\citep{meta2025llama4}, on the same three benchmarks (Appendix Table~\ref{tab:llamaguard}). On the two fully zero-shot benchmarks --- the meaningful comparison, since BeaverTails appears in \ssn{} training (with a disjoint eval split) --- Llama Guard 4 misses 6.5\% of AdvBench and 6.7\% of HEx-PHI prompts, while \method{} misses 0.0\% and 0.3\% respectively. This is achieved with an \ssn{} of only $\sim$3\% of backbone parameters versus Llama Guard 4's dedicated 12B model. The gap is wider on BeaverTails (53.6\% vs.\ 0.7\%).
 
 \subsection{Ablation Studies}
 \label{sec:ablations}
