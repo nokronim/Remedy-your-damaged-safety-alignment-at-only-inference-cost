@@ -7,10 +7,9 @@
 \captionof{table}{Complete hyperparameters across all stages.}
 \label{tab:hyperparams}
 \small
-\setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{0.95}
-\resizebox{0.92\columnwidth}{!}{%
-\begin{tabular}{@{}p{4.2cm}l@{}}
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.0}
+\begin{tabular}{@{}lp{6.5cm}@{}}
 \toprule
 \textbf{Parameter} & \textbf{Value} \\
 \midrule
@@ -51,8 +50,7 @@
 \quad Safety threshold ($\lambda$) & 0.5 \\
 \quad Hardware & 1$\times$ A100 80GB \\
 \bottomrule
-\end{tabular}%
-}
+\end{tabular}
 \end{center}
 
 \section{Domain Dataset Details}
@@ -62,6 +60,8 @@
 \captionof{table}{The 22 datasets used across both Qwen2-7B and LLaMA-3-8B.}
 \label{tab:domains}
 \small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.0}
 \begin{tabular}{@{}llr@{}}
 \toprule
 \textbf{Domain} & \textbf{Category} & \textbf{Train Size} \\
