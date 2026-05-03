@@ -1,7 +1,7 @@
 \section{Introduction}
 \label{sec:intro}
 
-Fine-tuning a safety-aligned LLM on a downstream task is the standard way to specialize open-weight models, and it routinely degrades the safety alignment of the base model. Even when the fine-tuning data contains no harmful content, the harmful-response rate of a LoRA-fine-tuned Instruct model can climb from under 5\% (the aligned baseline) to over 40\% on standard safety benchmarks~\cite{qi2024finetuning}, because refusal behavior is encoded in only a handful of shallow token-position subspaces~\cite{qi2025safety}, so even task-relevant gradient updates on benign data can shift the model outside the aligned region within tens of steps.
+Fine-tuning a safety-aligned pre-trained LLM on a downstream task is the standard way to specialize open-source models, but it routinely degrades the safety alignment of the base model. Even when the fine-tuning data contains no harmful content, the harmful-response rate of a LoRA fine-tuned model can climb from under 5\% (the aligned baseline) to over 40\% on standard safety benchmarks~\cite{qi2024finetuning}, because refusal behavior is encoded in only a handful of shallow token-position subspaces~\cite{qi2025safety}, so even task-relevant gradient updates on benign data can shift the model outside the aligned region within tens of steps.
 
 The scale of the problem is set by the deployment ecosystem: a large and rapidly growing population of fine-tuned checkpoints, each derived from the same handful of safety-aligned base models, but none of which carries a guarantee that those safety properties survive the fine-tuning recipe. Restoring safety on each checkpoint individually requires a per-model intervention; defending all of them with a single off-the-shelf classifier ignores recipe-specific shifts in the target model.
 
@@ -16,8 +16,8 @@ Defenses against fine-tuning-induced safety erosion fall into three families, ea
 
 Existing defenses thus force a choice between per-checkpoint training cost (families i and ii) and recipe-blind protection (family iii).
 
-\paragraph{Our research question.}
-We ask:
+%\paragraph{Our research question.}
+In this work, we pose and study the following question:
 \begin{quote}
 \textit{Is it possible to train a generalizable hypernetwork that, given any fine-tuned checkpoint, efficiently produces a lightweight side network restoring the safety behavior of the original aligned model --- without retraining, without modifying the deployed weights, and without sacrificing downstream accuracy?}
 \end{quote}
