@@ -27,7 +27,7 @@ The remaining problem is cost: training a bespoke side network for every fine-tu
 
 %\paragraph{\method{}.} 
 
-We introduce \textbf{\method{}}, which makes this generation tractable through three design choices, each addressing a specific obstacle in mapping a fine-tuned checkpoint to safety weights:
+We introduce \textbf{\method{}} (Figure~\ref{fig:pipeline}), which makes this generation tractable through three design choices, each addressing a specific obstacle in mapping a fine-tuned checkpoint to safety weights:
 
 % \begin{enumerate}[leftmargin=*,topsep=2pt,itemsep=2pt]
 %     \item \textit{What signal to condition on.} Rather than embedding text descriptions of the fine-tuning recipe (which may be unknown at deployment), we condition on \textbf{activation fingerprints} --- a per-prompt summary of how the frozen model's intermediate representations have shifted under fine-tuning, computable in a single forward pass with no gradient computation.
