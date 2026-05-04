@@ -35,9 +35,6 @@ We introduce \textbf{\method{}}, which makes this generation tractable through t
 %     \item \textit{How to keep inference cheap.} A $\lambda$-classifier predicts a routing probability per prompt; if $\lambda < 0.5$ the base model runs as-is, and if $\lambda \geq 0.5$ a fixed refusal template is substituted. This \textbf{hard-threshold routing} eliminates decode-time overhead on safe prompts and yields a net speed-up on harmful ones.
 % \end{enumerate}
 
-\paragraph{Why this is practical.}
-The side network adds only $\sim$3\% parameters over the base model, with no decode-time overhead on the typical benign-prompt path. The hypernetwork is base-model-agnostic and generalizes across fine-tuning recipes (12 unseen domains $\times$ 2 architectures), demonstrating that a single trained hypernetwork can be deployed against new checkpoints zero-shot. Table~\ref{tab:comparison} contrasts \method{} with representative defenses across these axes.
-
 \input{tables/comparison_intro}
 
 \begin{figure*}[t]
