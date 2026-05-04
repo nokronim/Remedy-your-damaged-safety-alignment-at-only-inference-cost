@@ -38,5 +38,23 @@ Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tu
 \paragraph{Comparison with Llama Guard 4.}
 We compare against Llama Guard 4 (12B), the latest publicly released version of the Llama Guard family (originally introduced by~\citet{inan2023llama}; Llama Guard 4 released as part of the Llama 4 suite~\citep{meta2025llama4}), on the same three benchmarks (Appendix Table~\ref{tab:llamaguard}). On the two fully zero-shot benchmarks --- the appropriate comparison, since BeaverTails appears in \ssn{} training (with a disjoint eval split) --- Llama Guard 4 misses 6.5\% of AdvBench and 6.7\% of HEx-PHI prompts, while \method{} misses 0.0\% and 0.3\% respectively. This is achieved with an \ssn{} of only $\sim$3\% of backbone parameters versus Llama Guard 4's dedicated 12B model. The gap is wider on BeaverTails (53.6\% vs.\ 0.7\%).
 
-\paragraph{Ablations and additional analyses.}
-Five ablations are reported in full in Appendices~\ref{app:ablation_summary}--\ref{app:additional}: (i)~loss components, (ii)~training-data diversity (instruction-following is the most important category), (iii)~calibration set size (saturates at $N_\text{cal}{=}50$), (iv)~generalization to full fine-tuning (\ssn{}s trained for LoRA models transfer), and (v)~cross-benchmark safety transfer ($<$1\% harm on the zero-shot AdvBench and HEx-PHI benchmarks).
+\subsection{Ablation Studies}
+\label{sec:ablations}
+
+We ablate on LLaMA-3-8B, reporting task accuracy change and harmful rate (BeaverTails). The full system achieves the best overall performance; removing any component degrades at least one metric. Figure~\ref{fig:ablation_summary} summarizes the loss-component and training-data ablations; full per-domain values are in Appendix Tables~\ref{tab:ablation_loss} and~\ref{tab:ablation_data}.
+
+\paragraph{Loss components (Figure~\ref{fig:ablation_summary}(a)).}
+Removing $\mathcal{L}_\text{func}^\text{safe}$ (safe-probe supervision) causes the classifier to over-block safe prompts, dropping accuracy substantially across all domains. Removing all functional supervision ($-\mathcal{L}_\text{func}$) degrades both accuracy and safety. Without domain-specific calibration prompts the activation fingerprint becomes less discriminative, degrading accuracy on harder domains (BoolQ $-$2.5\%, Alpaca $-$2.1\%) while safety stays intact. Each component addresses a different failure mode of the generated classifier.
+
+\paragraph{Training data diversity (Figure~\ref{fig:ablation_summary}(b)).}
+Progressive domain exclusion shows the method is robust to moderate reductions (up to 4 domains removed) but degrades sharply beyond that. Category exclusion reveals instruction-following data as the most important category for safety: removing it increases the harmful rate substantially across all holdout datasets, while removing other categories has minimal effect.
+
+\begin{figure*}[t]
+	\centering
+	\includegraphics[width=\linewidth]{figures/ablation_summary.pdf}
+	\caption{Ablation summary on LLaMA-3, Split A holdout, shown as deviation from the full system. Left bars: $\Delta$ task accuracy (\%); right bars: $\Delta$ harmful rate (\%). (a)~Loss-component ablation: removing $\mathcal{L}_{\mathrm{func}}^{\mathrm{safe}}$ causes the largest accuracy drop. (b)~Training-data ablation: removing instruction-following data causes the largest safety degradation. Full per-domain tables are in Appendix Tables~\ref{tab:ablation_loss} and~\ref{tab:ablation_data}.}
+	\label{fig:ablation_summary}
+\end{figure*}
+
+\paragraph{Calibration set size, generalization to full fine-tuning, and cross-benchmark transfer.}
+Three further analyses are reported in Appendix~\ref{app:additional}: \emph{calibration set size} saturates at $N_\text{cal}{=}50$ (Table~\ref{tab:ablation_ncal}); \emph{generalization to full fine-tuning} holds, with \ssn{}s trained for LoRA models transferring to fully fine-tuned ones (Table~\ref{tab:full_ft}); and \emph{cross-benchmark safety transfer} holds, with \method{} maintaining $<$1\% harmful rate on the fully zero-shot AdvBench and HEx-PHI benchmarks (Table~\ref{tab:main_results}).
