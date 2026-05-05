@@ -87,14 +87,6 @@ Training uses a selective loss: harmful prompts receive both language-modeling l
 \begin{equation}
     \mathcal{L} = \beta_\text{recon}\,\mathcal{L}_\text{recon} \;+\; \beta_\text{cls}\,\mathcal{L}_\text{cls} \;+\; \beta_\text{func}\,\mathcal{L}_\text{func}.
 \end{equation}
-$\mathcal{L}_\text{recon}$ provides dense parameter-space supervision via mean-squared error between the generated and ground-truth \ssn{} weights:
-\begin{equation}
-    \mathcal{L}_\text{recon} = \frac{1}{|\Theta|}\sum_{\theta_k\in\Theta}\big\|\hat{\theta}_k - \theta_k^*\big\|_2^2,
-\end{equation}
-where $\Theta$ ranges over the generated parameter blocks. $\mathcal{L}_\text{cls}$ supervises the routing classifier directly: for each fine-tuned model, the generated \ssn{} is evaluated on the calibration set $\mathcal{C}_d$ used to extract its activation fingerprint, and BCE is applied to the predicted score $\hat\lambda(x)$ against the harmful flag $m\in\{0,1\}$:
-\begin{equation}
-    \mathcal{L}_\text{cls} = -\frac{1}{|\mathcal{C}_d|}\!\sum_{(x,m)\in\mathcal{C}_d}\!\big[m\log\hat\lambda(x) + (1-m)\log(1-\hat\lambda(x))\big].
-\end{equation}
-$\mathcal{L}_\text{func}$ has the same BCE form but is computed on a held-out probe set $\mathcal{P}_d$ disjoint from $\mathcal{C}_d$, verifying that the generated classifier generalizes beyond the calibration prompts the hypernetwork conditioned on. Hyperparameters and per-architecture training settings are listed in Appendix~\ref{app:implementation}, Table~\ref{tab:hyperparams}.
+$\mathcal{L}_\text{recon}$ is the mean-squared error between the generated and ground-truth \ssn{} weights $\hat\theta$ and $\theta^*$, averaged over the generated parameter blocks. $\mathcal{L}_\text{cls}$ and $\mathcal{L}_\text{func}$ are binary cross-entropy losses on the predicted routing score $\hat\lambda(x)$ against the harmful flag $m\in\{0,1\}$, evaluated respectively on the calibration set $\mathcal{C}_d$ used to extract the activation fingerprint and on a held-out probe set $\mathcal{P}_d$ disjoint from $\mathcal{C}_d$; the latter verifies that the generated classifier generalizes beyond the calibration prompts the hypernetwork conditioned on. Hyperparameters and per-architecture training settings are listed in Appendix~\ref{app:implementation}, Table~\ref{tab:hyperparams}.
 
 \mysection{Deployment.} Given a new fine-tuned model $\mathcal{M}_{d^*}$: (1)~extract layer-wise activations from $N_\text{cal}$ calibration prompts; (2)~run one forward pass through the hypernetwork to obtain \ssn{} weights; (3)~load the \ssn{} alongside $\mathcal{M}_{d^*}$. The entire process completes in under one minute on a single GPU, with no safety data, no gradients, and no model modification.
