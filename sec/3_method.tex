@@ -27,7 +27,7 @@ The \ssn{} $f_\theta$ is a lightweight side network attached to the frozen backb
 
 \input{figures/fig_architecture}
 
-\mysection{Side Transformer.} The \ssn{} is implemented as a small Transformer that processes ladder-fused representations derived from the backbone hidden states. It consists of $K{=}12$ layers with hidden dimension $h_s = h/r$. We set $r{=}4$, yielding $h_s{=}896$ with 7 attention heads for Qwen2-7B and $h_s{=}1024$ with 8 attention heads for LLaMA-3-8B (i.e., $\sim$3\% of backbone parameters).
+\mysection{Side Transformer.} The \ssn{} is implemented as a small Transformer that processes ladder-fused representations derived from the backbone hidden states. It consists of $K$ layers with hidden dimension $h_s = h/r$ for backbone hidden size $h$ and reduction factor $r$, adding $\sim$3\% of backbone parameters in our configuration (per-architecture values in Appendix~\ref{app:implementation}, Table~\ref{tab:hyperparams}).
 
 \mysection{Ladder Connections.} Each side layer $k$ fuses downsampled backbone hidden states with side hidden states via a learnable gate:
 \begin{equation}
