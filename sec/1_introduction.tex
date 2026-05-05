@@ -43,7 +43,7 @@ We introduce \textbf{\method{}} (Figure~\ref{fig:pipeline}), which makes this ge
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/assets/safety_remedy_figure.pdf}
-\caption{\method{} pipeline. \textbf{Stages 1--3 (training, one-time):} fine-tune the base model on each training domain (1), train a domain-specific \ssn{} per fine-tuned checkpoint (2), and train the hypernetwork to map activation fingerprints to \ssn{} weights (3). \textbf{Stage 4 (deployment):} for any new fine-tuned model, extract calibration activations and generate a model-specific \ssn{} in a single forward pass --- no training, no safety data, no model modification required.}
+\caption{\method{} pipeline. \textbf{Training (one-time):} (1) fine-tune the base model on each training domain, (2) train a domain-specific \ssn{} per checkpoint, (3) train the hypernetwork to map activation fingerprints to \ssn{} weights. \textbf{Deployment:} for a new fine-tuned model, extract calibration activations and generate its \ssn{} in one forward pass.}
 \label{fig:pipeline}
 \end{figure*}
 
