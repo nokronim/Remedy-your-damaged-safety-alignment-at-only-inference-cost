@@ -14,9 +14,9 @@ In the following sections, we describe the problem setup, the architecture, and 
 
 Let $\mathcal{M}_0$ be a safety-aligned base LLM and $\mathcal{M}_d$ a fine-tuned version of $\mathcal{M}_0$ on domain $d$. Fine-tuning may weaken or alter the safety behavior of $\mathcal{M}_d$, causing it to comply with harmful prompts that $\mathcal{M}_0$ would refuse. We seek a generator $G$ that, given any fine-tuned model $\mathcal{M}_{d^*}$ from a potentially unseen domain, produces an \ssn{} $f_\theta$ parameterized by the generated weights $\theta$:
 \begin{equation}
-    \theta = G\big(\mathcal{A}(\mathcal{M}_{d^*})\big), \qquad \lambda = f_\theta(x),
+    \theta = G\big(\mathcal{A}(\mathcal{M}_{d^*})\big), \qquad \lambda = f_\theta\big(x \,;\, \mathcal{M}_{d^*}\big),
 \end{equation}
-where $x$ denotes the input prompt, $\mathcal{A}(\cdot)$ denotes activation fingerprints extracted from a small calibration set (Eq.~\ref{eq:all_activations}), $\theta$ are the \ssn{} parameters predicted by $G$, and $\lambda \in [0,1]$ is a safety score ($\lambda \approx 0$: safe; $\lambda \approx 1$: harmful). In our framework, $G$ is implemented as a hypernetwork that predicts $\theta$ from the activation fingerprint of the fine-tuned model (\S\ref{sec:hypernet}).
+where $x$ denotes the input prompt, $\mathcal{A}(\cdot)$ denotes activation fingerprints extracted from a small calibration set (Eq.~\ref{eq:all_activations}), $\theta$ are the \ssn{} parameters predicted by $G$, and $\lambda \in [0,1]$ is a safety score ($\lambda \approx 0$: safe; $\lambda \approx 1$: harmful). The semicolon in $f_\theta(x \,;\, \mathcal{M}_{d^*})$ marks $\mathcal{M}_{d^*}$ as a contextual input: the \ssn{} reads ladder-fused backbone activations from $\mathcal{M}_{d^*}$ when scoring $x$, so $\lambda$ depends on both the prompt and the target fine-tuned model. In our framework, $G$ is implemented as a hypernetwork that predicts $\theta$ from the activation fingerprint of the fine-tuned model (\S\ref{sec:hypernet}).
 
 % \mid \mathcal{M}_{d^*}
 
