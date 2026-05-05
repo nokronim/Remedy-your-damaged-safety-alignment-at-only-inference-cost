@@ -80,8 +80,19 @@ where $\phi: \{1,\dots,K\} \rightarrow \{1,\dots,L\}$ maps each side layer $k$ t
 Training proceeds in two stages: (1) learning domain-specific \ssn{}s to construct supervision targets, and (2) training the hypernetwork to predict these weights from activation fingerprints.
 
 \mysection{Ground-truth SSN Collection.}\label{sec:gt}
-We collect supervised pairs $\{(\mathcal{M}_d, \theta_d^*)\}_{d=1}^D$ by training one side network per domain. For each domain $d$, we first fine-tune the base model $\mathcal{M}_0$ using LoRA~\cite{hu2022lora} and merge the adapter to obtain $\mathcal{M}_d$. We then freeze $\mathcal{M}_d$ and attach a randomly initialized side network. The side network is trained on a mixture of domain-specific safe data and category-balanced harmful data from BeaverTails~\cite{ji2024beavertails} ($\sim$7k samples).
-Training uses a selective loss: harmful prompts receive both language-modeling loss and classification loss, while safe prompts receive only classification loss. This encourages the side network to learn when to intervene without degrading task performance on safe inputs. All side networks share the same initialization, ensuring weight-space alignment for hypernetwork supervision.
+We collect supervised pairs $\{(\mathcal{M}_d, \theta_d^*)\}_{d=1}^D$ by training one side network per domain. For each domain $d$, we first fine-tune $\mathcal{M}_0$ using LoRA~\cite{hu2022lora} and merge the adapter to obtain $\mathcal{M}_d$. We then freeze $\mathcal{M}_d$ and attach a randomly initialized side network (shared initialization across domains, ensuring weight-space alignment for hypernetwork supervision). The side network is trained on a balanced mixture of domain-specific safe prompts and harmful prompts from BeaverTails~\cite{ji2024beavertails} (per-domain sizes in Appendix~\ref{app:implementation}, Table~\ref{tab:hyperparams}).
+
+The side network's hidden states are projected through the frozen backbone's $\mathrm{lm\_head}$ to produce $\mathrm{logits}_\text{side}$, which are fused with the backbone's own logits via the predicted routing weight $\lambda$:
+\begin{equation}
+    \mathrm{logits}(x) = (1-\lambda)\,\mathrm{logits}_\text{back}(x) + \lambda\,\mathrm{logits}_\text{side}(x).
+\end{equation}
+The training objective combines a token-level language-modeling loss applied \emph{only on harmful prompts} (with refusal completions $y$ as targets) and a binary classification loss on $\lambda$:
+\begin{equation}
+    \mathcal{L}_\text{LM} = -\!\!\!\sum_{(x,y)\in\mathcal{D}_\text{harm}}\!\frac{1}{T_y}\sum_{t=1}^{T_y}\log p\big(y_t \mid x, y_{<t}\big),
+    \qquad
+    \mathcal{L}_\text{cls} = -\big[\,m\log\lambda + (1-m)\log(1-\lambda)\,\big],
+\end{equation}
+where $m\in\{0,1\}$ is the harmful flag for every prompt. The total loss is $\mathcal{L} = \mathcal{L}_\text{LM} + \beta_\lambda\,\mathcal{L}_\text{cls}$. Because $\mathcal{L}_\text{LM}$ is computed on the fused logits, its gradient flows to both the side-network parameters (shaping side hidden states toward refusal-token predictions) and to $\lambda$ (raising the routing weight on harmful prompts), tightly coupling the classifier and the refusal-modeling head.
 
 \mysection{Hypernetwork Training.} The hypernetwork is trained on $D_\text{train}$ domains (with $D_\text{held}$ held out for evaluation; $D_\text{train}{=}18$, $D_\text{held}{=}4$ in our experiments) using three complementary losses:
 \begin{equation}
