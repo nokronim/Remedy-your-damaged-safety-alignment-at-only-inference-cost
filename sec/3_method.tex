@@ -85,8 +85,16 @@ Training uses a selective loss: harmful prompts receive both language-modeling l
 
 \mysection{Hypernetwork Training.} The hypernetwork is trained on $D_\text{train}$ domains (with $D_\text{held}$ held out for evaluation; $D_\text{train}{=}18$, $D_\text{held}{=}4$ in our experiments) using three complementary losses:
 \begin{equation}
-    \mathcal{L} = \mathcal{L}_\text{recon} + \beta_1\, \mathcal{L}_\text{cls} + \beta_2\, \mathcal{L}_\text{func}
+    \mathcal{L} = \mathcal{L}_\text{recon} + \beta_1\, \mathcal{L}_\text{cls} + \beta_2\, \mathcal{L}_\text{func}.
 \end{equation}
-where $\mathcal{L}_\text{recon}$ is the MSE between generated and ground-truth side network weights, providing dense supervision across all parameters; $\mathcal{L}_\text{cls}$ is BCE on safety score predictions using the calibration prompts ($\beta_1{=}10$); and $\mathcal{L}_\text{func}$ is BCE on a separate batch of safe and harmful probe prompts ($\beta_2{=}5$), verifying that the generated classifier generalizes beyond the calibration set. Training runs for 100 epochs with learning rate $5 \times 10^{-5}$ and hidden dimension 512.
+$\mathcal{L}_\text{recon}$ provides dense parameter-space supervision via mean-squared error between the generated and ground-truth \ssn{} weights:
+\begin{equation}
+    \mathcal{L}_\text{recon} = \frac{1}{|\Theta|}\sum_{\theta_k\in\Theta}\big\|\hat{\theta}_k - \theta_k^*\big\|_2^2,
+\end{equation}
+where $\Theta$ ranges over the generated parameter blocks. $\mathcal{L}_\text{cls}$ supervises the routing classifier directly: for each fine-tuned model, the generated \ssn{} is evaluated on the calibration set $\mathcal{C}_d$ used to extract its activation fingerprint, and BCE is applied to the predicted score $\hat\lambda(x)$ against the harmful flag $m\in\{0,1\}$:
+\begin{equation}
+    \mathcal{L}_\text{cls} = -\frac{1}{|\mathcal{C}_d|}\!\sum_{(x,m)\in\mathcal{C}_d}\!\big[m\log\hat\lambda(x) + (1-m)\log(1-\hat\lambda(x))\big].
+\end{equation}
+$\mathcal{L}_\text{func}$ has the same BCE form but is computed on a held-out probe set $\mathcal{P}_d$ disjoint from $\mathcal{C}_d$, verifying that the generated classifier generalizes beyond the calibration prompts the hypernetwork conditioned on. We use $\beta_1{=}10$ and $\beta_2{=}5$. Training runs for 100 epochs with learning rate $5\times 10^{-5}$ and hidden dimension 512.
 
 \mysection{Deployment.} Given a new fine-tuned model $\mathcal{M}_{d^*}$: (1)~extract layer-wise activations from $N_\text{cal}$ calibration prompts; (2)~run one forward pass through the hypernetwork to obtain \ssn{} weights; (3)~load the \ssn{} alongside $\mathcal{M}_{d^*}$. The entire process completes in under one minute on a single GPU, with no safety data, no gradients, and no model modification.
