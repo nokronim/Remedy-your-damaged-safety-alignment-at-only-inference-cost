@@ -9,10 +9,10 @@
 We evaluate on three harmful-prompt benchmarks: \textbf{BeaverTails}~\cite{ji2024beavertails} (700 prompts, 14 categories) is used as the harmful data source during \ssn{} training (\S\ref{sec:gt}); the evaluation split is disjoint from training. \textbf{AdvBench}~\cite{zou2023universal} (520 prompts) and \textbf{HEx-PHI}~\cite{qi2024finetuning} (330 prompts, 11 categories) are never seen in any training phase, serving as zero-shot safety tests.
 
 \paragraph{Evaluation Protocol.}
-We use three holdout splits (Table~\ref{tab:splits}), each removing four datasets from different task categories. The hypernetwork trains on the remaining 18 datasets and is evaluated on held-out datasets it has never seen. We report \textbf{Task Accuracy} (domain-specific test performance; official HuggingFace validation/test splits where available, 20\% holdout otherwise) and \textbf{Harmful Rate} (percentage of harmful prompts producing harmful output, lower is safer; 700 BeaverTails prompts disjoint from training, judged by the beaver-dam-7b moderation model~\cite{ji2024beavertails}). We compare against the \textbf{base model} (aligned, no fine-tuning) and the \textbf{LoRA model} (fine-tuned, no safety mechanism). Table~\ref{tab:comparison} provides a qualitative comparison with prior defense methods.
+We use three holdout splits (Table~\ref{tab:splits}), each removing four datasets from different task categories. The hypernetwork trains on the remaining 18 datasets and is evaluated on held-out datasets it has never seen. We report \textbf{Task Accuracy} (domain-specific test performance) and \textbf{Harmful Rate} (percentage of harmful prompts producing harmful output, lower is safer; 700 BeaverTails prompts disjoint from training, judged by the beaver-dam-7b moderation model~\cite{ji2024beavertails}). For task accuracy we use the official HuggingFace test/validation split when available; six domains lack a standard test split (Comp.\ Math, Alpaca, OpenHermes, NQ-Open, AG News, Dolly) and are evaluated on a 20\% random holdout drawn with a fixed seed. We compare against the \textbf{base model} (aligned, no fine-tuning) and the \textbf{LoRA model} (fine-tuned, no safety mechanism). Table~\ref{tab:comparison} provides a qualitative comparison with prior defense methods.
 
 \begin{table}[h]
-\caption{Holdout splits. Each split removes four datasets from different task categories. $^\dagger$20\% holdout eval (no standard test set).}
+\caption{Holdout splits. Each split removes four datasets from different task categories.}
 \label{tab:splits}
 \centering
 \renewcommand{\arraystretch}{1.4}
@@ -21,9 +21,9 @@ We use three holdout splits (Table~\ref{tab:splits}), each removing four dataset
 \toprule
 \textbf{Split} & \textbf{Domain 1} & \textbf{Domain 2} & \textbf{Domain 3} & \textbf{Domain 4} \\
 \midrule
-A & BoolQ {\small(QA)} & ARC {\small(Science)} & Comp.\ Math {\small(Math)} & Alpaca$^\dagger$ {\small(Instr.)} \\[3pt]
-B & PIQA {\small(Physical)} & HellaSwag {\small(Common.)} & CSenseQA {\small(Common.)} & OpenHermes$^\dagger$ {\small(Instr.)} \\[3pt]
-C & MMLU {\small(Knowledge)} & NQ-Open {\small(QA)} & AG News$^\dagger$ {\small(Classif.)} & Dolly$^\dagger$ {\small(Instr.)} \\
+A & BoolQ {\small(QA)} & ARC {\small(Science)} & Comp.\ Math {\small(Math)} & Alpaca {\small(Instr.)} \\[3pt]
+B & PIQA {\small(Physical)} & HellaSwag {\small(Common.)} & CSenseQA {\small(Common.)} & OpenHermes {\small(Instr.)} \\[3pt]
+C & MMLU {\small(Knowledge)} & NQ-Open {\small(QA)} & AG News {\small(Classif.)} & Dolly {\small(Instr.)} \\
 \bottomrule
 \end{tabular}%
 }

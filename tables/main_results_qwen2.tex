@@ -15,16 +15,16 @@
 \midrule
 BoolQ                  & 88.4 & 88.5 & 88.2 & 14.3 &  7.5 & 13.3 &  4.4 & 0.2 &  2.3 & 0.1 & 0.0 & 0.0 \\
 ARC                    & 91.3 & 91.5 & 91.3 &  7.1 &  0.2 & 33.7 &  1.0 & 0.0 &  3.7 & 0.0 & 0.0 & 0.0 \\
-Comp.\ Math$^\dagger$  & 74.4 & 76.1 & 74.1 &  6.0 &  0.0 &  6.7 &  5.4 & 0.0 &  8.3 & 0.0 & 0.0 & 0.0 \\
-Alpaca$^\dagger$       & 39.6 & 37.2 & 39.5 & 19.4 & 13.3 & 33.0 &  5.4 & 1.0 &  8.0 & 0.4 & 0.0 & 0.0 \\
+Comp.\ Math  & 74.4 & 76.1 & 74.1 &  6.0 &  0.0 &  6.7 &  5.4 & 0.0 &  8.3 & 0.0 & 0.0 & 0.0 \\
+Alpaca       & 39.6 & 37.2 & 39.5 & 19.4 & 13.3 & 33.0 &  5.4 & 1.0 &  8.0 & 0.4 & 0.0 & 0.0 \\
 PIQA                   & 90.8 & 90.6 & 90.6 & 43.1 & 67.7 & 57.3 &  4.3 & 0.2 &  2.0 & 0.0 & 0.0 & 0.0 \\
 HellaSwag              & 93.2 & 58.0 & 92.8 & 32.9 & 29.8 & 45.3 &  4.7 & 1.0 &  5.0 & 0.1 & 0.0 & 0.3 \\
 CSenseQA               & 84.6 & 84.2 & 84.5 & 15.7 &  3.7 & 14.0 &  1.0 & 0.0 &  2.0 & 0.0 & 0.0 & 0.0 \\
-OpenHermes$^\dagger$   & 57.2 & 54.6 & 57.0 & 38.0 & 70.2 & 64.7 &  1.1 & 3.3 &  8.3 & 0.1 & 0.0 & 0.1 \\
+OpenHermes   & 57.2 & 54.6 & 57.0 & 38.0 & 70.2 & 64.7 &  1.1 & 3.3 &  8.3 & 0.1 & 0.0 & 0.1 \\
 MMLU                   & 68.7 & 68.7 & 68.4 &  9.7 &  0.2 & 22.0 &  5.1 & 0.2 &  6.3 & 0.1 & 0.0 & 0.3 \\
-NQ-Open$^\dagger$      & 54.8 & 23.7 & 54.3 & 11.9 &  6.0 & 28.7 & 11.9 & 1.0 & 14.7 & 0.6 & 0.0 & 0.7 \\
-AG News$^\dagger$      & 97.6 & 92.5 & 97.6 & 10.1 &  0.2 &  6.0 &  3.7 & 0.0 &  6.7 & 0.0 & 0.0 & 0.0 \\
-Dolly$^\dagger$        & 35.6 & 33.8 & 35.4 & 22.1 & 24.0 & 44.3 & 11.0 & 2.7 & 11.7 & 0.3 & 0.0 & 0.0 \\
+NQ-Open      & 54.8 & 23.7 & 54.3 & 11.9 &  6.0 & 28.7 & 11.9 & 1.0 & 14.7 & 0.6 & 0.0 & 0.7 \\
+AG News      & 97.6 & 92.5 & 97.6 & 10.1 &  0.2 &  6.0 &  3.7 & 0.0 &  6.7 & 0.0 & 0.0 & 0.0 \\
+Dolly        & 35.6 & 33.8 & 35.4 & 22.1 & 24.0 & 44.3 & 11.0 & 2.7 & 11.7 & 0.3 & 0.0 & 0.0 \\
 \midrule
 \textbf{Average}       & \textbf{73.0} & \textbf{66.6} & \textbf{72.8}
                        & \textbf{19.2} & \textbf{18.6} & \textbf{30.8}
@@ -33,6 +33,6 @@ Dolly$^\dagger$        & 35.6 & 33.8 & 35.4 & 22.1 & 24.0 & 44.3 & 11.0 & 2.7 & 
 \bottomrule
 \end{tabular}%
 }
-\caption{Main results on Qwen2-7B across 12 holdout domains. \method{} reduces harmful rates to near-zero (avg 0.1/0.0/0.1\%) while preserving downstream accuracy within 0.2\% of the LoRA fine-tuned baseline. OneShot~\citep{zhang2026safety} achieves moderate safety gains (avg 4.9/0.8/6.6\%) but degrades accuracy on HellaSwag ($93.2{\to}58.0$) and NQ-Open ($54.8{\to}23.7$). $^\dagger$20\% holdout eval (no standard test set).}
+\caption{Main results on Qwen2-7B across 12 holdout domains. \method{} reduces harmful rates to near-zero (avg 0.1/0.0/0.1\%) while preserving downstream accuracy within 0.2\% of the LoRA fine-tuned baseline. OneShot~\citep{zhang2026safety} achieves moderate safety gains (avg 4.9/0.8/6.6\%) but degrades accuracy on HellaSwag ($93.2{\to}58.0$) and NQ-Open ($54.8{\to}23.7$).}
 \label{tab:main_results_qwen2}
 \end{table}

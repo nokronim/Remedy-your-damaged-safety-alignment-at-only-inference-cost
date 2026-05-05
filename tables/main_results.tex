@@ -2,7 +2,7 @@
 % Visual conventions: LoRA row greyed (baseline reference); HyperSafe wins
 % over OneShot shown as green text; Avg column bolded.
 \begin{table}[!t]
-\caption{Main results on LLaMA-3-8B and Qwen2-7B across 12 holdout domains. Per architecture, four metric blocks (Task Acc, BeaverTails, AdvBench, HEx-PHI) report four methods: \textbf{Base} (unmodified Instruct model), \textbf{LoRA} (fine-tuned, \colorbox{mutegray}{\strut\,greyed\,} as a reference baseline), \textbf{OneShot}~\citep{zhang2026safety}, and \textbf{HyperSafe} (ours). \textcolor{wingreen}{Green} marks HyperSafe cells matching or beating OneShot; \textcolor{warnred}{red} flags catastrophic OneShot accuracy drops; the \textbf{Avg} column is bolded. Each split corresponds to a separate hypernetwork: the hypernetwork is trained on the 18 datasets \emph{outside} the split and evaluated simultaneously on the 4 held-out datasets within it (Table~\ref{tab:splits}). $^\dagger$20\% holdout eval.}
+\caption{Main results on LLaMA-3-8B and Qwen2-7B across 12 holdout domains. Per architecture, four metric blocks (Task Acc, BeaverTails, AdvBench, HEx-PHI) report four methods: \textbf{Base} (unmodified Instruct model), \textbf{LoRA} (fine-tuned, \colorbox{mutegray}{\strut\,greyed\,} as a reference baseline), \textbf{OneShot}~\citep{zhang2026safety}, and \textbf{HyperSafe} (ours). \textcolor{wingreen}{Green} marks HyperSafe cells matching or beating OneShot; \textcolor{warnred}{red} flags catastrophic OneShot accuracy drops; the \textbf{Avg} column is bolded. Each split corresponds to a separate hypernetwork: the hypernetwork is trained on the 18 datasets \emph{outside} the split and evaluated simultaneously on the 4 held-out datasets within it (Table~\ref{tab:splits}).}
 \label{tab:main_results}
 \centering
 \renewcommand{\arraystretch}{0.85}
@@ -14,9 +14,9 @@
 & & \multicolumn{4}{c}{\textbf{Split A}} & \multicolumn{4}{c}{\textbf{Split B}} & \multicolumn{4}{c}{\textbf{Split C}} & \\
 \cmidrule(lr){3-6} \cmidrule(lr){7-10} \cmidrule(lr){11-14}
 & \textbf{Method}
-& BoolQ & ARC & Math$^\dagger$ & Alp$^\dagger$
-& PIQA & HSwag & CSQA & OH$^\dagger$
-& MMLU & NQ$^\dagger$ & AGN$^\dagger$ & Dol$^\dagger$
+& BoolQ & ARC & Math & Alp
+& PIQA & HSwag & CSQA & OH
+& MMLU & NQ & AGN & Dol
 & \textbf{Avg} \\
 \midrule
 \multicolumn{15}{@{}l}{\textit{\textbf{LLaMA-3-8B}}} \\
