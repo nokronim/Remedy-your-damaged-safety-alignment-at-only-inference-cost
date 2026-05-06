@@ -273,10 +273,10 @@ Figure~\ref{fig:ablation_ncal} varies the number of calibration prompts $N_\text
 \end{figure}
 
 \paragraph{Generalization to full fine-tuning.}
-Our hypernetwork is trained on LoRA-merged models, but practitioners also use full-parameter fine-tuning. To test whether \method{} generalizes across fine-tuning methods, we fully fine-tune LLaMA-3-8B on four datasets and reuse the same \ssn{}s generated for their LoRA counterparts. Table~\ref{tab:full_ft} shows safety is restored equally well in both regimes (harmful rates drop to $\leq$0.1\% with comparable task-accuracy deltas).
+Our hypernetwork is trained on LoRA-merged models, but practitioners also use full-parameter fine-tuning. To test whether \method{} generalizes across fine-tuning methods, we fully fine-tune LLaMA-3-8B on four datasets and reuse the same \ssn{}s generated for their LoRA counterparts. Table~\ref{tab:full_ft} shows safety is restored equally well in both regimes: harmful rates drop to $\leq$0.1\% with task-accuracy deltas within 0.3 percentage points, indicating the activation fingerprint captures model-level safety patterns rather than LoRA-specific artifacts.
 
 \begin{table}[h]
-\caption{Generalization across fine-tuning methods (LLaMA-3-8B). For each domain we fine-tune via LoRA or full fine-tuning, then attach the same \ssn{} (generated once for the LoRA-merged checkpoint) to both. Fine-tuned baselines are \colorbox{mutegray}{\strut\,grayed\,}; \textcolor{wingreen}{green} marks \method{} cells driving the harmful rate to near-zero. Task accuracy stays within 0.3 percentage points of each fine-tuned baseline regardless of fine-tuning recipe, indicating the activation fingerprint captures model-level safety patterns rather than LoRA-specific artifacts.}
+\caption{Generalization across fine-tuning methods (LLaMA-3-8B). The same \ssn{} (generated once for the LoRA-merged checkpoint) is reused on the full-FT counterpart. Fine-tuned baselines are \colorbox{mutegray}{\strut\,grayed\,}; \textcolor{wingreen}{green} marks \method{} cells driving the harmful rate to near-zero.}
 \label{tab:full_ft}
 \centering
 \renewcommand{\arraystretch}{0.85}
