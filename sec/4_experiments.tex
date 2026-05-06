@@ -18,10 +18,10 @@ Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tu
 \input{tables/main_results}
 
 \paragraph{Comparison with Llama Guard 4.}
-We compare against Llama Guard 4 (12B)~\citep{meta2025llama4}, the latest release in the Llama Guard family, on the same three benchmarks (Table~\ref{tab:llamaguard}). On the two fully zero-shot benchmarks --- the appropriate comparison, since BeaverTails appears in \ssn{} training (with a disjoint eval split) --- Llama Guard 4 misses 6.5\% of AdvBench and 6.7\% of HEx-PHI prompts, while \method{} misses 0.0\% and 0.3\% respectively. This is achieved with an \ssn{} of only $\sim$3\% of backbone parameters versus Llama Guard 4's dedicated 12B model. The gap is wider on BeaverTails (53.6\% vs.\ 0.7\%).
+We compare against Llama Guard 4 (12B)~\citep{meta2025llama4}, the latest release in the Llama Guard family, on the same three benchmarks (Table~\ref{tab:llamaguard}). On the two fully zero-shot benchmarks --- the appropriate comparison, since BeaverTails appears in \ssn{} training (with a disjoint eval split) --- Llama Guard 4 misses 6.5\% of AdvBench and 6.7\% of HEx-PHI prompts, while \method{} misses 0.0\% and 0.0\% respectively. This is achieved with an \ssn{} of only $\sim$3\% of backbone parameters versus Llama Guard 4's dedicated 12B model. The gap is wider on BeaverTails (53.6\% vs.\ 0.1\%).
 
 \begin{table}[!t]
-	\caption{Harmful prompt miss rate (\%, $\downarrow$). \method{} reported as mean$\pm$std over 3 runs and averaged across 12 holdout models; Llama Guard 4 is a single deterministic model. $^\dagger$BeaverTails eval split (disjoint from training); AdvBench and HEx-PHI are zero-shot for both methods.}
+	\caption{Harmful prompt miss rate (\%, $\downarrow$) on LLaMA-3-8B. \method{} values are averaged across the 12 held-out fine-tuned checkpoints (per-domain numbers in Table~\ref{tab:main_results}); Llama Guard 4 is a single deterministic model. $^\dagger$BeaverTails eval split (disjoint from training); AdvBench and HEx-PHI are zero-shot for both methods.}
 	\label{tab:llamaguard}
 	\centering
 	\small
@@ -30,7 +30,7 @@ We compare against Llama Guard 4 (12B)~\citep{meta2025llama4}, the latest releas
 		\textbf{Method} & \textbf{AdvBench} & \textbf{HEx-PHI} & \textbf{BT$^\dagger$} \\
 		\midrule
 		Llama Guard 4 & 6.5 & 6.7 & 53.6 \\
-		\method{} (ours) & \textbf{0.0$\pm$0.0} & \textbf{0.3$\pm$0.1} & \textbf{0.7$\pm$0.2} \\
+		\method{} (ours) & \textbf{0.0} & \textbf{0.0} & \textbf{0.1} \\
 		\bottomrule
 	\end{tabular}
 \end{table}
