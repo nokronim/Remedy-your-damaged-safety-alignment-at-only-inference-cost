@@ -44,7 +44,7 @@ where $\phi(k)$ maps side layer $k$ to a backbone layer, $\mathbf{h}^{\phi(k)}_\
 We now describe how the \ssn{} parameters are generated automatically from activation fingerprints. The hypernetwork $G$ takes the activation fingerprint of a fine-tuned model as input and predicts the parameters of the \ssn{}. To make the high-dimensional weight prediction feasible, we employ two complementary design strategies.
 
 
-\mysection{Activation Fingerprint Extraction. } For each model $\mathcal{M}_d$, we run $N_\text{cal}{=}50$ domain-specific calibration prompts and average the backbone hidden state at each layer $l = 1, \dots, L$ after the final token:
+\mysection{Activation Fingerprint Extraction. } For each model $\mathcal{M}_d$, we run $N_\text{cal}$ domain-specific calibration prompts and average the backbone hidden state at each layer $l = 1, \dots, L$ after the final token:
 \begin{equation}
     \mathbf{a}_l^{(d)} = \frac{1}{N_\text{cal}} \sum_{i=1}^{N_\text{cal}} \mathbf{h}_l^{(d)}(x_i) \in \mathbb{R}^{h}.
 \end{equation}
