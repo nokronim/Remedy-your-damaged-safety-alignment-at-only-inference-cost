@@ -2,7 +2,7 @@
 % Visual conventions: LoRA row grayed (baseline reference); HyperSafe wins
 % over OneShot shown as green text; Avg column bolded.
 \begin{table}[!t]
-\caption{Main results on LLaMA-3-8B and Qwen2-7B across 12 holdout domains. Per architecture, four metric blocks (Task Acc, BeaverTails, AdvBench, HEx-PHI) report four methods: \textbf{Base} (unmodified Instruct model), \textbf{LoRA} (fine-tuned, grayed as a reference baseline), \textbf{OneShot}~\citep{zhang2026safety}, and \textbf{HyperSafe} (ours). \textcolor{wingreen}{Green} marks HyperSafe cells matching or beating OneShot; \textcolor{warnred}{red} flags catastrophic OneShot accuracy drops; the \textbf{Avg} column is bolded. Each split corresponds to a separate hypernetwork: the hypernetwork is trained on the 18 datasets \emph{outside} the split and evaluated simultaneously on the 4 held-out datasets within it (Table~\ref{tab:splits}).}
+\caption{Main results on LLaMA-3-8B and Qwen2-7B across 12 holdout domains. Per architecture, four metric blocks (Task Acc, BeaverTails, AdvBench, HEx-PHI) report four methods: \textbf{Base} (unmodified Instruct model), \textbf{LoRA} (fine-tuned, grayed as a reference baseline), \textbf{OneShot}~\citep{zhang2026safety}, and \textbf{HyperSafe} (ours). \textcolor{wingreen}{Green} marks HyperSafe cells matching or beating OneShot; \textcolor{warnred}{red} flags OneShot accuracy drops and harmful rates $>$4.0\%; the \textbf{Avg} column is bolded. Each split corresponds to a separate hypernetwork: the hypernetwork is trained on the 18 datasets \emph{outside} the split and evaluated simultaneously on the 4 held-out datasets within it (Table~\ref{tab:splits}).}
 \label{tab:main_results}
 \centering
 \renewcommand{\arraystretch}{0.85}
@@ -62,7 +62,7 @@
    & \cellcolor{mutegray}7.0 & \cellcolor{mutegray}20.0 & \cellcolor{mutegray}6.0 & \cellcolor{mutegray}34.3
    & \cellcolor{mutegray}37.7 & \cellcolor{mutegray}11.3 & \cellcolor{mutegray}5.0 & \cellcolor{mutegray}62.0
    & \cellcolor{mutegray}8.7 & \cellcolor{mutegray}19.7 & \cellcolor{mutegray}5.3 & \cellcolor{mutegray}49.0 & \cellcolor{mutegray}22.2 \\
- & OneShot             & 1.0 & 0.7 & 1.7 & 0.7 & 0.7 & 0.7 & 6.7 & 2.7 & 1.0 & 2.0 & 9.3 & 0.7 & 2.3 \\
+ & OneShot             & 1.0 & 0.7 & 1.7 & 0.7 & 0.7 & 0.7 & \textcolor{warnred}{6.7} & 2.7 & 1.0 & 2.0 & \textcolor{warnred}{9.3} & 0.7 & 2.3 \\
  & HyperSafe           & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0}
                        & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.3} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0}
                        & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} \\
@@ -87,7 +87,7 @@
    & \cellcolor{mutegray}14.3 & \cellcolor{mutegray}7.1 & \cellcolor{mutegray}6.0 & \cellcolor{mutegray}19.4
    & \cellcolor{mutegray}43.1 & \cellcolor{mutegray}32.9 & \cellcolor{mutegray}15.7 & \cellcolor{mutegray}38.0
    & \cellcolor{mutegray}9.7 & \cellcolor{mutegray}11.9 & \cellcolor{mutegray}10.1 & \cellcolor{mutegray}22.1 & \cellcolor{mutegray}19.2 \\
- & OneShot             & 4.4 & 1.0 & 5.4 & 5.4 & 4.3 & 4.7 & 1.0 & 1.1 & 5.1 & 11.9 & 3.7 & 11.0 & 4.9 \\
+ & OneShot             & \textcolor{warnred}{4.4} & 1.0 & \textcolor{warnred}{5.4} & \textcolor{warnred}{5.4} & \textcolor{warnred}{4.3} & \textcolor{warnred}{4.7} & 1.0 & 1.1 & \textcolor{warnred}{5.1} & \textcolor{warnred}{11.9} & 3.7 & \textcolor{warnred}{11.0} & \textcolor{warnred}{4.9} \\
  & HyperSafe           & \textcolor{wingreen}{0.1} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.4}
                        & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.1} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.1}
                        & \textcolor{wingreen}{0.1} & \textcolor{wingreen}{0.6} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.3} & \textcolor{wingreen}{0.1} \\
@@ -109,7 +109,7 @@
    & \cellcolor{mutegray}13.3 & \cellcolor{mutegray}33.7 & \cellcolor{mutegray}6.7 & \cellcolor{mutegray}33.0
    & \cellcolor{mutegray}57.3 & \cellcolor{mutegray}45.3 & \cellcolor{mutegray}14.0 & \cellcolor{mutegray}64.7
    & \cellcolor{mutegray}22.0 & \cellcolor{mutegray}28.7 & \cellcolor{mutegray}6.0 & \cellcolor{mutegray}44.3 & \cellcolor{mutegray}30.8 \\
- & OneShot             & 2.3 & 3.7 & 8.3 & 8.0 & 2.0 & 5.0 & 2.0 & 8.3 & 6.3 & 14.7 & 6.7 & 11.7 & 6.6 \\
+ & OneShot             & 2.3 & 3.7 & \textcolor{warnred}{8.3} & \textcolor{warnred}{8.0} & 2.0 & \textcolor{warnred}{5.0} & 2.0 & \textcolor{warnred}{8.3} & \textcolor{warnred}{6.3} & \textcolor{warnred}{14.7} & \textcolor{warnred}{6.7} & \textcolor{warnred}{11.7} & \textcolor{warnred}{6.6} \\
  & HyperSafe           & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0}
                        & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.3} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.1}
                        & \textcolor{wingreen}{0.3} & \textcolor{wingreen}{0.7} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.1} \\
