@@ -240,24 +240,6 @@ WizardLM & Instruction & Free text & \textit{As an online platform teacher named
 %& \textbf{default}
 %& saturated
 
-\section{{Detailed Comparison with Llama Guard 4 (Table~\ref{tab:llamaguard})}}
-{This appendix table reports the benchmark-level harmful prompt miss rates used in \S\ref{sec:experiments}. The comparison highlights that \method{} maintains consistently lower miss rates than Llama Guard 4 on both zero-shot safety benchmarks (AdvBench and HEx-PHI), while also achieving a substantially lower rate on BeaverTails.}
-
-\begin{table}[H]
-	\caption{Harmful prompt miss rate (\%, $\downarrow$). \method{} averaged across 12 holdout models. $^\dagger$BeaverTails eval split (disjoint from training); AdvBench and HEx-PHI are zero-shot for both methods.}
-	\label{tab:llamaguard}
-	\centering
-	\small
-	\begin{tabular}{@{}lccc@{}}
-		\toprule
-		\textbf{Method} & \textbf{AdvBench} & \textbf{HEx-PHI} & \textbf{BT$^\dagger$} \\
-		\midrule
-		Llama Guard 4 & 6.5 & 6.7 & 53.6 \\
-		\method{} (ours) & \textbf{0.0} & \textbf{0.3} & \textbf{0.7} \\
-		\bottomrule
-	\end{tabular}
-\end{table}
-
 \section{Additional Results: Calibration Set Size, Full Fine-Tuning Generalization, Cross-Benchmark Transfer}
 \label{app:additional}
 
