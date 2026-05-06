@@ -92,6 +92,28 @@ WizardLM & Instruction & 10k \\
 \end{tabular}
 \end{center}
 
+\section{Holdout Splits}
+\label{app:splits}
+
+Each split removes four datasets from different task categories; the hypernetwork is trained on the remaining 18 and evaluated on the four held-out domains within the split. The split$\rightarrow$domain mapping is also visible in the column groupings of Table~\ref{tab:main_results}.
+
+\begin{center}
+\captionof{table}{Holdout splits. Each split removes four datasets from different task categories.}
+\label{tab:splits}
+\renewcommand{\arraystretch}{1.4}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{@{}cllll@{}}
+\toprule
+\textbf{Split} & \textbf{Domain 1} & \textbf{Domain 2} & \textbf{Domain 3} & \textbf{Domain 4} \\
+\midrule
+A & BoolQ {\small(QA)} & ARC {\small(Science)} & Comp.\ Math {\small(Math)} & Alpaca {\small(Instr.)} \\[3pt]
+B & PIQA {\small(Physical)} & HellaSwag {\small(Common.)} & CSenseQA {\small(Common.)} & OpenHermes {\small(Instr.)} \\[3pt]
+C & MMLU {\small(Knowledge)} & NQ-Open {\small(QA)} & AG News {\small(Classif.)} & Dolly {\small(Instr.)} \\
+\bottomrule
+\end{tabular}%
+}
+\end{center}
+
 \section{Architecture Sensitivity}
 \label{app:ablations}
 
@@ -244,14 +266,7 @@ WizardLM & Instruction & Free text & \textit{As an online platform teacher named
 \label{app:additional}
 
 \paragraph{Sensitivity to calibration set size.}
-Figure~\ref{fig:ablation_ncal} varies the number of calibration prompts $N_\text{cal}$ used to extract the activation fingerprint. With too few prompts ($N_\text{cal}{=}10$), the fingerprint is noisy: the generated \ssn{} produces safety scores skewed toward $\lambda{>}0.5$ even for safe prompts, causing over-blocking that degrades accuracy while achieving an artificially low harmful rate. This reflects fingerprint noise rather than threshold sensitivity --- at $N_\text{cal}{\ge}50$ the classifier separates safe and harmful prompts cleanly at the fixed threshold $\lambda{=}0.5$. Accuracy improves steadily up to $N_\text{cal}{=}50$ and plateaus beyond that. We use $N_\text{cal}{=}50$ as the default. Per-domain values are reported above in Table~\ref{tab:ablation_ncal}.
-
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=0.55\linewidth]{figures/ablation_ncal.pdf}
-	\caption{Effect of calibration set size $N_\text{cal}$ (LLaMA-3, Split~A holdout). Avg.\ task accuracy saturates at $N_\text{cal}{=}50$ (our default) while the harmful rate stays near zero; larger $N_\text{cal}$ gives no further gains.}
-	\label{fig:ablation_ncal}
-\end{figure}
+We sweep $N_\text{cal} \in \{10, 25, 50, 100, 200\}$. With too few prompts ($N_\text{cal}{=}10$), the fingerprint is noisy and the generated \ssn{} over-blocks safe prompts; accuracy improves steadily up to $N_\text{cal}{=}50$ and plateaus beyond that. We use $N_\text{cal}{=}50$ as the default. The aggregate trend is shown in main-body Figure~\ref{fig:ablation_ncal}; per-domain values are in Table~\ref{tab:ablation_ncal} above.
 
 \paragraph{Generalization to full fine-tuning.}
 Our hypernetwork is trained on LoRA-merged models, but practitioners also use full-parameter fine-tuning. To test whether \method{} generalizes across fine-tuning methods, we fully fine-tune LLaMA-3-8B on four datasets and reuse the same \ssn{}s generated for their LoRA counterparts. Table~\ref{tab:full_ft} shows safety is restored equally well in both regimes: harmful rates drop to $\leq$0.1\% with task-accuracy deltas within 0.3 percentage points, indicating the activation fingerprint captures model-level safety patterns rather than LoRA-specific artifacts.

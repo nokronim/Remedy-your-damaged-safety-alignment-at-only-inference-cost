@@ -9,25 +9,7 @@
 We evaluate on three harmful-prompt benchmarks: \textbf{BeaverTails}~\cite{ji2024beavertails} (700 prompts, 14 categories) is used as the harmful data source during \ssn{} training (\S\ref{sec:gt}); the evaluation split is disjoint from training. \textbf{AdvBench}~\cite{zou2023universal} (520 prompts) and \textbf{HEx-PHI}~\cite{qi2024finetuning} (330 prompts, 11 categories) are never seen in any training phase, serving as zero-shot safety tests.
 
 \paragraph{Evaluation Protocol.}
-We use three holdout splits (Table~\ref{tab:splits}), each removing four datasets from different task categories. The hypernetwork trains on the remaining 18 datasets and is evaluated on held-out datasets it has never seen. We report \textbf{Task Accuracy} (domain-specific test performance) and \textbf{Harmful Rate} (percentage of harmful prompts producing harmful output, lower is safer; 700 BeaverTails prompts disjoint from training, judged by the beaver-dam-7b moderation model~\cite{ji2024beavertails}). For task accuracy we use the official HuggingFace test/validation split when available; six domains lack a standard test split (Comp.\ Math, Alpaca, OpenHermes, NQ-Open, AG News, Dolly) and are evaluated on a 20\% random holdout drawn with a fixed seed. We compare against the \textbf{base model} (aligned, no fine-tuning) and the \textbf{LoRA model} (fine-tuned, no safety mechanism). Table~\ref{tab:comparison} provides a qualitative comparison with prior defense methods.
-
-\begin{table}[h]
-\caption{Holdout splits. Each split removes four datasets from different task categories.}
-\label{tab:splits}
-\centering
-\renewcommand{\arraystretch}{1.4}
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}cllll@{}}
-\toprule
-\textbf{Split} & \textbf{Domain 1} & \textbf{Domain 2} & \textbf{Domain 3} & \textbf{Domain 4} \\
-\midrule
-A & BoolQ {\small(QA)} & ARC {\small(Science)} & Comp.\ Math {\small(Math)} & Alpaca {\small(Instr.)} \\[3pt]
-B & PIQA {\small(Physical)} & HellaSwag {\small(Common.)} & CSenseQA {\small(Common.)} & OpenHermes {\small(Instr.)} \\[3pt]
-C & MMLU {\small(Knowledge)} & NQ-Open {\small(QA)} & AG News {\small(Classif.)} & Dolly {\small(Instr.)} \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
+We use three holdout splits (per-split domain composition in Appendix~\ref{app:splits}, Table~\ref{tab:splits}; the split$\rightarrow$domain mapping is also visible in the column headers of Table~\ref{tab:main_results}), each removing four datasets from different task categories. The hypernetwork trains on the remaining 18 datasets and is evaluated on held-out datasets it has never seen. We report \textbf{Task Accuracy} (domain-specific test performance) and \textbf{Harmful Rate} (percentage of harmful prompts producing harmful output, lower is safer; 700 BeaverTails prompts disjoint from training, judged by the beaver-dam-7b moderation model~\cite{ji2024beavertails}). For task accuracy we use the official HuggingFace test/validation split when available; six domains lack a standard test split (Comp.\ Math, Alpaca, OpenHermes, NQ-Open, AG News, Dolly) and are evaluated on a 20\% random holdout drawn with a fixed seed. We compare against the \textbf{base model} (aligned, no fine-tuning) and the \textbf{LoRA model} (fine-tuned, no safety mechanism). Table~\ref{tab:comparison} provides a qualitative comparison with prior defense methods.
 
 \subsection{Main Results}
 
@@ -71,5 +53,15 @@ Progressive domain exclusion shows the method is robust to moderate reductions (
 	\label{fig:ablation_summary}
 \end{figure}
 
-\paragraph{Calibration set size, generalization to full fine-tuning, and cross-benchmark transfer.}
-Three further analyses are reported in Appendix~\ref{app:additional}: \emph{calibration set size} saturates at $N_\text{cal}{=}50$ (Table~\ref{tab:ablation_ncal}); \emph{generalization to full fine-tuning} holds, with \ssn{}s trained for LoRA models transferring to fully fine-tuned ones (Table~\ref{tab:full_ft}); and \emph{cross-benchmark safety transfer} holds, with \method{} maintaining $<$1\% harmful rate on the fully zero-shot AdvBench and HEx-PHI benchmarks (Table~\ref{tab:main_results}).
+\paragraph{Calibration set size (Figure~\ref{fig:ablation_ncal}).}
+We sweep the number of calibration prompts $N_\text{cal}$ used to extract the activation fingerprint. With too few prompts ($N_\text{cal}{=}10$), the fingerprint is noisy and the generated \ssn{} over-blocks safe prompts; accuracy improves steadily up to $N_\text{cal}{=}50$ and plateaus beyond that, while the harmful rate remains $\leq$0.4\% across the entire sweep. We use $N_\text{cal}{=}50$ as the default. Per-domain values are in Appendix Table~\ref{tab:ablation_ncal}.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.55\linewidth]{figures/ablation_ncal.pdf}
+	\caption{Effect of calibration set size $N_\text{cal}$ (LLaMA-3, Split~A holdout). Avg.\ task accuracy saturates at $N_\text{cal}{=}50$ (our default) while the harmful rate stays near zero; larger $N_\text{cal}$ gives no further gains.}
+	\label{fig:ablation_ncal}
+\end{figure}
+
+\paragraph{Generalization to full fine-tuning and cross-benchmark transfer.}
+Two further analyses are reported in Appendix~\ref{app:additional}: \emph{generalization to full fine-tuning} holds, with \ssn{}s trained for LoRA models transferring to fully fine-tuned ones (Table~\ref{tab:full_ft}); and \emph{cross-benchmark safety transfer} holds, with \method{} maintaining $<$1\% harmful rate on the fully zero-shot AdvBench and HEx-PHI benchmarks (Table~\ref{tab:main_results}).
