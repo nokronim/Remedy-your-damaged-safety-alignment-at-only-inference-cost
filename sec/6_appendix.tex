@@ -273,34 +273,38 @@ Figure~\ref{fig:ablation_ncal} varies the number of calibration prompts $N_\text
 \end{figure}
 
 \paragraph{Generalization to full fine-tuning.}
-Our hypernetwork is trained on LoRA-merged models, but practitioners also use full-parameter fine-tuning. To test whether \method{} generalizes across fine-tuning methods, we fully fine-tune LLaMA-3-8B on four datasets and apply the same \ssn{}s generated for their LoRA counterparts. Table~\ref{tab:full_ft} shows that safety is restored equally well regardless of fine-tuning method: harmful rates drop to 0.0--0.1\% for both LoRA and full fine-tuning. Task accuracy deltas are comparable (within 0.3 percentage points), indicating that the activation fingerprint captures model-level safety patterns rather than LoRA-specific artifacts.
+Our hypernetwork is trained on LoRA-merged models, but practitioners also use full-parameter fine-tuning. To test whether \method{} generalizes across fine-tuning methods, we fully fine-tune LLaMA-3-8B on four datasets and reuse the same \ssn{}s generated for their LoRA counterparts. Table~\ref{tab:full_ft} shows safety is restored equally well in both regimes (harmful rates drop to $\leq$0.1\% with comparable task-accuracy deltas).
 
 \begin{table}[h]
-	\caption{Generalization across fine-tuning methods (LLaMA-3-8B). \ssn{}s generated for LoRA models transfer to fully fine-tuned models with comparable accuracy and safety.}
-	\label{tab:full_ft}
-	\centering
-	\renewcommand{\arraystretch}{1.15}
-	\resizebox{0.7\columnwidth}{!}{%
-		\begin{tabular}{@{}llccccc@{}}
-			\toprule
-			& & \multicolumn{3}{c}{\textbf{Task Acc (\%) $\uparrow$}} & \multicolumn{2}{c}{\textbf{Harm.\ Rate (\%) $\downarrow$}} \\
-			\cmidrule(lr){3-5} \cmidrule(lr){6-7}
-			\textbf{FT Method} & \textbf{Domain} & FT & +LST & $\Delta$ & FT & +LST \\
-			\midrule
-			\multirow{4}{*}{LoRA}
-			& BoolQ     & 87.2 & 87.0 & {-0.2} & 18.6 & 0.1 \\
-			& CSenseQA  & 81.7 & 81.4 & {-0.3} & 20.0 & 0.0 \\
-			& ARC       & 86.5 & 86.5 & {$\pm$0} & 8.6  & 0.0 \\
-			& PIQA      & 87.8 & 87.6 & {-0.2} & 40.0 & 0.0 \\
-			\midrule
-			\multirow{4}{*}{Full FT}
-			& BoolQ     & 87.2 & 87.0 & {-0.2} & 8.9  & 0.1 \\
-			& CSenseQA  & 81.1 & 80.8 & {-0.3} & 10.6 & 0.0 \\
-			& ARC       & 86.8 & 86.8 & {$\pm$0} & 7.3  & 0.0 \\
-			& PIQA      & 87.5 & 87.2 & {-0.3} & 31.4 & 0.1 \\
-			\bottomrule
-		\end{tabular}%
-	}
+\caption{Generalization across fine-tuning methods (LLaMA-3-8B). For each domain we fine-tune via LoRA or full fine-tuning, then attach the same \ssn{} (generated once for the LoRA-merged checkpoint) to both. Fine-tuned baselines are \colorbox{mutegray}{\strut\,grayed\,}; \textcolor{wingreen}{green} marks \method{} cells driving the harmful rate to near-zero. Task accuracy stays within 0.3 percentage points of each fine-tuned baseline regardless of fine-tuning recipe, indicating the activation fingerprint captures model-level safety patterns rather than LoRA-specific artifacts.}
+\label{tab:full_ft}
+\centering
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\scriptsize
+\resizebox{0.85\columnwidth}{!}{%
+\begin{tabular}{@{}l l cccc @{\hspace{6pt}} >{\bfseries}c@{}}
+\toprule
+& \textbf{Method} & BoolQ & CSenseQA & ARC & PIQA & \textbf{Avg} \\
+\midrule
+\multirow{4}{*}{\textbf{Acc} $\uparrow$}
+ & \cellcolor{mutegray}\textit{LoRA FT}
+   & \cellcolor{mutegray}87.2 & \cellcolor{mutegray}81.7 & \cellcolor{mutegray}86.5 & \cellcolor{mutegray}87.8 & \cellcolor{mutegray}85.8 \\
+ & LoRA + HyperSafe                & 87.0 & 81.4 & 86.5 & 87.6 & 85.6 \\
+ & \cellcolor{mutegray}\textit{Full FT}
+   & \cellcolor{mutegray}87.2 & \cellcolor{mutegray}81.1 & \cellcolor{mutegray}86.8 & \cellcolor{mutegray}87.5 & \cellcolor{mutegray}85.7 \\
+ & Full + HyperSafe                & 87.0 & 80.8 & 86.8 & 87.2 & 85.5 \\
+\cmidrule{1-7}
+\multirow{4}{*}{\textbf{Harm} $\downarrow$}
+ & \cellcolor{mutegray}\textit{LoRA FT}
+   & \cellcolor{mutegray}18.6 & \cellcolor{mutegray}20.0 & \cellcolor{mutegray}8.6 & \cellcolor{mutegray}40.0 & \cellcolor{mutegray}21.8 \\
+ & LoRA + HyperSafe                & \textcolor{wingreen}{0.1} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} \\
+ & \cellcolor{mutegray}\textit{Full FT}
+   & \cellcolor{mutegray}8.9 & \cellcolor{mutegray}10.6 & \cellcolor{mutegray}7.3 & \cellcolor{mutegray}31.4 & \cellcolor{mutegray}14.6 \\
+ & Full + HyperSafe                & \textcolor{wingreen}{0.1} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.1} & \textcolor{wingreen}{0.1} \\
+\bottomrule
+\end{tabular}%
+}
 \end{table}
 
 \paragraph{Cross-benchmark safety transfer.}
