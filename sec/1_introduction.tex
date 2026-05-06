@@ -85,7 +85,7 @@ This question leads to three design requirements. First, it should not require a
 \begin{figure}[H]
 \centering
 \includegraphics[width=\linewidth]{figures/assets/intro_fig.pdf}
-\caption{Three approaches to safety after fine-tuning. \textbf{(A) Fine-tuning defenses} alter model weights and over-refuse benign queries. \textbf{(B) Post-hoc external filters} use a model-agnostic guard that crafted prompts can bypass. \textbf{(C) \method{}} generates a model-specific safety wrapper from the frozen fine-tuned model's activations in one forward pass, handling both queries correctly. Prompts shown are representative samples from Dolly/Alpaca and HEx-PHI; see Table~\ref{tab:main_results} for quantitative results.}
+\caption{Three approaches to safety after fine-tuning. \textbf{(A) Fine-tuning defenses} over-refuse benign queries. \textbf{(B) External filters} can be bypassed. \textbf{(C) \method{}} handles both correctly via a model-specific safety wrapper generated in one forward pass (Table~\ref{tab:main_results}).}
 \label{fig:intro}
 \end{figure}
 
