@@ -12,7 +12,7 @@
 
 % \textbf{(ii) Post-fine-tuning weight-modification methods} project or merge the fine-tuned weights to recover alignment (Safe LoRA~\cite{hsu2024safe}, OneShot SFT~\cite{zhang2026safety}, Task Arithmetic~\cite{ilharco2023task}). These approaches \textit{modify the deployed weights}, which (a)~can degrade task accuracy because the modification induces forgetting of the fine-tuned task, (b)~require access to the original aligned base model at deployment time, and (c)~operate on the same Pareto trade-off as fine-tuning-stage methods.
 
-% \textbf{(iii) Model-agnostic external classifiers} sit in front of the LLM and filter inputs/outputs (Llama Guard~\cite{inan2023llama}, ShieldGemma~\cite{zeng2024shieldgemma}, WildGuard~\cite{han2024wildguard}, Aegis~\cite{ghosh2024aegis}, Granite Guardian~\cite{padhi2024granite}). Because they ignore the specific fine-tuning recipe, they \textit{miss recipe-specific failure modes} (e.g., jailbreaks that align with newly learned domain syntax) and waste capacity on out-of-distribution risks the deployed model never faces.
+% \textbf{(iii) Model-agnostic external classifiers} sit in front of the LLM and filter inputs/outputs (Llama Guard~\cite{inan2023llama}, ShieldGemma~\cite{zeng2024shieldgemma}, WildGuard~\cite{han2024wildguard}, AEGIS~\cite{ghosh2024aegis}, Granite Guardian~\cite{padhi2024granite}). Because they ignore the specific fine-tuning recipe, they \textit{miss recipe-specific failure modes} (e.g., jailbreaks that align with newly learned domain syntax) and waste capacity on out-of-distribution risks the deployed model never faces.
 
 % Existing defenses thus force a choice between per-checkpoint training cost (families i and ii) and recipe-blind protection (family iii).
 
