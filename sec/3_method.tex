@@ -71,7 +71,7 @@ where $W_\text{proj}$ is a learnable projection matrix. The fused representation
 \end{equation}
 where $\phi: \{1,\dots,K\} \rightarrow \{1,\dots,L\}$ maps each side layer $k$ to its corresponding backbone layer. $\mathbf{a}_{\phi(k)}$ provides layer-specific information and $\mathbf{z}$ captures global cross-layer context. Each module $H_k$ is implemented as a lightweight MLP that projects and fuses the local activation $\mathbf{a}_{\phi(k)}$ with the global embedding $\mathbf{z}$ to generate the parameters of side layer $k$. The modules $H_k$ share most parameters across layers but include layer-specific adapters, reducing the effective output dimensionality per prediction.
 
-\mysection{Classifier Generation.} The \ssn{} classifier is generated via a dedicated branch that aggregates information across all layers using cross-layer attention, producing a global embedding of the model's behavioral shift. This embedding is mapped through an MLP with a low-rank output factorization ($W_\text{cls} = B \cdot A$, rank $r{=}16$) for efficiency.
+\mysection{Classifier Generation.} The \ssn{} classifier is generated via a dedicated branch that aggregates information across all layers using cross-layer attention, producing a global embedding of the model's behavioral shift. This embedding is mapped through an MLP with a low-rank output factorization for efficiency (factorization rank in Appendix~\ref{app:implementation}, Table~\ref{tab:hyperparams}).
 
 \subsection{Training and Deployment}
 \label{sec:deploy}
