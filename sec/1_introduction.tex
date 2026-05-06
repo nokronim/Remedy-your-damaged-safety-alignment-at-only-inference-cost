@@ -82,6 +82,13 @@ Based on these limitations, we ask the following question:
 
 This question leads to three design requirements. First, it should not require access to or control over the original fine-tuning process. Second, it should not modify the deployed fine-tuned weights, since doing so may damage the task behavior learned during fine-tuning. Third, it should be specific to the fine-tuned checkpoint, rather than relying on a fixed external classifier that ignores how the model was adapted. These requirements motivate the use of a model-conditioned side network. Instead of changing the fine-tuned model itself, we attach a lightweight safety side network that runs alongside the frozen model and decides whether a prompt should be answered or refused. Since the side network is separate from the task model, the fine-tuned model can preserve its downstream ability, while the side network focuses on recovering safety behavior. To avoid training a new side network for every released checkpoint, we use a hypernetwork to generate the side network weights from the fine-tuned model's activation fingerprints.
 
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\linewidth]{figures/assets/intro_fig.pdf}
+\caption{TODO: caption for the introduction figure.}
+\label{fig:intro}
+\end{figure}
+
 \input{tables/comparison_intro}
 
 \begin{figure*}[t]
