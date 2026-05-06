@@ -36,7 +36,7 @@ Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tu
 \input{tables/main_results}
 
 \paragraph{Comparison with Llama Guard 4.}
-We compare against Llama Guard 4 (12B), the latest publicly released version of the Llama Guard family (originally introduced by~\citet{inan2023llama}; Llama Guard 4 released as part of the Llama 4 suite~\citep{meta2025llama4}), on the same three benchmarks (Table~\ref{tab:llamaguard}). On the two fully zero-shot benchmarks --- the appropriate comparison, since BeaverTails appears in \ssn{} training (with a disjoint eval split) --- Llama Guard 4 misses 6.5\% of AdvBench and 6.7\% of HEx-PHI prompts, while \method{} misses 0.0\% and 0.3\% respectively. This is achieved with an \ssn{} of only $\sim$3\% of backbone parameters versus Llama Guard 4's dedicated 12B model. The gap is wider on BeaverTails (53.6\% vs.\ 0.7\%).
+We compare against Llama Guard 4 (12B)~\citep{meta2025llama4}, the latest release in the Llama Guard family, on the same three benchmarks (Table~\ref{tab:llamaguard}). On the two fully zero-shot benchmarks --- the appropriate comparison, since BeaverTails appears in \ssn{} training (with a disjoint eval split) --- Llama Guard 4 misses 6.5\% of AdvBench and 6.7\% of HEx-PHI prompts, while \method{} misses 0.0\% and 0.3\% respectively. This is achieved with an \ssn{} of only $\sim$3\% of backbone parameters versus Llama Guard 4's dedicated 12B model. The gap is wider on BeaverTails (53.6\% vs.\ 0.7\%).
 
 \begin{table}[H]
 	\caption{Harmful prompt miss rate (\%, $\downarrow$). \method{} averaged across 12 holdout models. $^\dagger$BeaverTails eval split (disjoint from training); AdvBench and HEx-PHI are zero-shot for both methods.}
