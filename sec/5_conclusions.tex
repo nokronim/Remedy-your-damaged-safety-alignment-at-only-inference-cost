@@ -1,8 +1,7 @@
 \section{Conclusion and Limitations}
 \label{sec:conclusion}
 
-\method{} generates model-specific \ssn{}s at inference time, reducing harmful outputs to near zero across diverse domains and two model architectures while preserving task accuracy. Two findings underline the generality of the approach: an \ssn{} generated from a LoRA fingerprint transfers unchanged to its fully fine-tuned counterpart (Table~\ref{tab:full_ft}), and a hypernetwork trained only on BeaverTails harmful prompts drops AdvBench and HEx-PHI miss rates to $\leq$0.3\% zero-shot. Limitations: the framework requires a one-time setup of per-domain ground-truth \ssn{}s (in our 22-dataset pool, $\sim$22 LoRA runs and as many \ssn{} trainings); the classifier acts at the prompt-level only; we evaluate on standard benchmarks but not on adaptive attackers with white-box knowledge of the \ssn{} architecture; and scaling beyond 7--8B parameters remains open.
-
+\method{} generates model-specific \ssn{}s at inference time, reducing harmful outputs to near zero across diverse domains and two model architectures while preserving task accuracy. Two findings underline the generality of the approach: an \ssn{} generated from a LoRA fingerprint transfers unchanged to its fully fine-tuned counterpart (Table~\ref{tab:full_ft}), and a hypernetwork trained only on BeaverTails harmful prompts drops AdvBench and HEx-PHI miss rates to $\leq$0.3\% zero-shot. Limitations: the framework requires a one-time setup of per-domain ground-truth \ssn{}s (in our 22-dataset pool, $\sim$22 LoRA runs and as many \ssn{} trainings); the classifier acts at the prompt-level only; we evaluate on standard benchmarks but not on adaptive attackers with white-box knowledge of the \ssn{} architecture; 
 
 %\section{Conclusions}
 %\label{sec:conclusions}

@@ -31,9 +31,9 @@ The \ssn{} $f_\theta$ is a lightweight side network attached to the frozen backb
 
 \mysection{Ladder Connections.} Each side layer $k$ fuses downsampled backbone hidden states with side hidden states via a learnable gate:
 \begin{equation}
-    \mathbf{h}^{(k)}_\text{in} = \mu_k \cdot W_\text{down}\, \mathbf{h}^{\phi(k)}_\text{back} + (1{-}\mu_k) \cdot \mathbf{h}^{(k-1)}_\text{side}
+    \mathbf{h}_{k}^\text{in} = \mu_k \cdot W^\text{down}\, \mathbf{h}_{\phi(k)}^\text{back} + (1{-}\mu_k) \cdot \mathbf{h}_{k-1}^\text{side}
 \end{equation}
-where $\phi(k)$ maps side layer $k$ to a backbone layer, $\mathbf{h}^{\phi(k)}_\text{back}$ denotes the corresponding backbone hidden state, $\mathbf{h}^{(k-1)}_\text{side}$ denotes the side network hidden state from the previous layer, and $\mu_k = \sigma(g_k/\tau)$ is a learned gate, where $g_k \in \mathbb{R}$ is a learnable scalar parameter for layer $k$ and $\tau$ is a temperature hyperparameter.
+where $\phi(k)$ maps side layer $k$ to a backbone layer, $\mathbf{h}_{\phi(k)}^\text{back}$ denotes the corresponding backbone hidden state, $\mathbf{h}_{k-1}^\text{side}$ denotes the side network hidden state from the previous layer, and $\mu_k = \sigma(g_k/\tau)$ is a learned gate, where $g_k \in \mathbb{R}$ is a learnable scalar parameter for layer $k$ and $\tau$ is a temperature hyperparameter.
 
 \mysection{Selective Routing.} After the final side layer, hidden states are mean-pooled and passed through an MLP to produce $\lambda$. At inference, prompts scoring above the threshold are routed to a refusal response; those below bypass the side network entirely, so the base model runs unmodified. This selective routing preserves task accuracy because safe prompts never interact with the \ssn{}.
 
@@ -46,11 +46,11 @@ We now describe how the \ssn{} parameters are generated automatically from activ
 
 \mysection{Activation Fingerprint Extraction. } For each model $\mathcal{M}_d$, we run $N_\text{cal}$ domain-specific calibration prompts and average the backbone hidden state at each layer $l = 1, \dots, L$ after the final token:
 \begin{equation}
-    \mathbf{a}_l^{(d)} = \frac{1}{N_\text{cal}} \sum_{i=1}^{N_\text{cal}} \mathbf{h}_l^{(d)}(x_i) \in \mathbb{R}^{h}.
+    \mathbf{a}_l = \frac{1}{N_\text{cal}} \sum_{i=1}^{N_\text{cal}} \mathbf{h}_l(x_i) \in \mathbb{R}^{h}.
 \end{equation}
 These $L$ vectors form a compact behavioral fingerprint of how fine-tuning shifted the model's representations as:
 \begin{equation}
-    \mathbf{A}(\mathcal{M}_d) = \{\mathbf{a}_l^{(d)}\}_{l=1}^L.
+    \mathcal{A}(\mathcal{M}_d) = \{\mathbf{a}_l\}_{l=1}^L.
     \label{eq:all_activations}
 \end{equation}
 

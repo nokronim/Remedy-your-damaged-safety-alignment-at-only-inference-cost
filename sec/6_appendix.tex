@@ -161,8 +161,8 @@ WizardLM & Instruction & Free text & \textit{As an online platform teacher named
 \end{center}
 
 
-\section{\textcolor{orange}{Detailed Loss-Component Ablation (Table~\ref{tab:ablation_loss})}}
-\textcolor{orange}{This appendix section reports the full per-domain values corresponding to Figure~\ref{fig:ablation_summary}(a). Table~\ref{tab:ablation_loss} confirms that removing $\mathcal{L}_\text{func}^\text{safe}$ causes the largest task-accuracy degradation, while removing $\mathcal{L}_\text{func}$ or domain calibration yields smaller but consistent drops with higher harmful rate.}
+\section{{Detailed Loss-Component Ablation (Table~\ref{tab:ablation_loss})}}
+{This appendix section reports the full per-domain values corresponding to Figure~\ref{fig:ablation_summary}(a). Table~\ref{tab:ablation_loss} confirms that removing $\mathcal{L}_\text{func}^\text{safe}$ causes the largest task-accuracy degradation, while removing $\mathcal{L}_\text{func}$ or domain calibration yields smaller but consistent drops with higher harmful rate.}
 \begin{table}[H]
 	\centering
 	\small
@@ -183,8 +183,8 @@ WizardLM & Instruction & Free text & \textit{As an online platform teacher named
 	\caption{Component ablation (LLaMA-3, Split~A holdout). $-\mathcal{L}_\text{func}^\text{safe}$: classifier over-blocks safe prompts (accuracy drops). $-$Domain calibration: accuracy degrades on harder domains without task-specific fingerprints.}
 	\label{tab:ablation_loss}
 \end{table}
-\section{\textcolor{orange}{Detailed Training-Data Ablation (Table~\ref{tab:ablation_data})}}
-\textcolor{orange}{This appendix section reports the full per-domain values corresponding to Figure~\ref{fig:ablation_summary}(b). Table~\ref{tab:ablation_data} shows that most category removals have limited effect on task accuracy and harmful rate, whereas removing instruction-following data produces a clear harmful-rate spike across all holdout domains.}
+\section{{Detailed Training-Data Ablation (Table~\ref{tab:ablation_data})}}
+{This appendix section reports the full per-domain values corresponding to Figure~\ref{fig:ablation_summary}(b). Table~\ref{tab:ablation_data} shows that most category removals have limited effect on task accuracy and harmful rate, whereas removing instruction-following data produces a clear harmful-rate spike across all holdout domains.}
 
 \begin{table}[H]
 	\centering
@@ -209,8 +209,8 @@ WizardLM & Instruction & Free text & \textit{As an online platform teacher named
 \end{table}
 
 
-\section{\textcolor{orange}{Detailed Calibration Set Size Sweep (Table~\ref{tab:ablation_ncal})}}
-\textcolor{orange}{This appendix section reports the per-domain task accuracy values that underlie Figure~\ref{fig:ablation_ncal}. Table~\ref{tab:ablation_ncal} confirms that the gains saturate at $N_\text{cal}{=}50$ uniformly across BoolQ, ARC, Math, and Alpaca, while the harmful rate stays $\leq 0.4\%$ across the entire sweep.}
+\section{{Detailed Calibration Set Size Sweep (Table~\ref{tab:ablation_ncal})}}
+{This appendix section reports the per-domain task accuracy values that underlie Figure~\ref{fig:ablation_ncal}. Table~\ref{tab:ablation_ncal} confirms that the gains saturate at $N_\text{cal}{=}50$ uniformly across BoolQ, ARC, Math, and Alpaca, while the harmful rate stays $\leq 0.4\%$ across the entire sweep.}
 
 \begin{table}[H]
 	\centering
@@ -240,8 +240,8 @@ WizardLM & Instruction & Free text & \textit{As an online platform teacher named
 %& \textbf{default}
 %& saturated
 
-\section{\textcolor{orange}{Detailed Comparison with Llama Guard 4 (Table~\ref{tab:llamaguard})}}
-\textcolor{orange}{This appendix table reports the benchmark-level harmful prompt miss rates used in \S\ref{sec:experiments}. The comparison highlights that \method{} maintains consistently lower miss rates than Llama Guard 4 on both zero-shot safety benchmarks (AdvBench and HEx-PHI), while also achieving a substantially lower rate on BeaverTails.}
+\section{{Detailed Comparison with Llama Guard 4 (Table~\ref{tab:llamaguard})}}
+{This appendix table reports the benchmark-level harmful prompt miss rates used in \S\ref{sec:experiments}. The comparison highlights that \method{} maintains consistently lower miss rates than Llama Guard 4 on both zero-shot safety benchmarks (AdvBench and HEx-PHI), while also achieving a substantially lower rate on BeaverTails.}
 
 \begin{table}[H]
 	\caption{Harmful prompt miss rate (\%, $\downarrow$). \method{} averaged across 12 holdout models. $^\dagger$BeaverTails eval split (disjoint from training); AdvBench and HEx-PHI are zero-shot for both methods.}
