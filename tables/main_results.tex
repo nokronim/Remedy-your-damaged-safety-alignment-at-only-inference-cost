@@ -1,7 +1,7 @@
 % Combined main results — LLaMA-3-8B + Qwen2-7B (transposed).
 % Visual conventions: LoRA row grayed (baseline reference); HyperSafe wins
 % over OneShot shown as green text; Avg column bolded.
-\begin{table}[H]
+\begin{table}[!t]
 \caption{Main results on LLaMA-3-8B and Qwen2-7B across 12 holdout domains. Per architecture, four metric blocks (Task Acc, BeaverTails, AdvBench, HEx-PHI) report four methods: \textbf{Base} (unmodified Instruct model), \textbf{LoRA} (fine-tuned, grayed as a reference baseline), \textbf{OneShot}~\citep{zhang2026safety}, and \textbf{HyperSafe} (ours). \textcolor{wingreen}{Green} marks HyperSafe cells matching or beating OneShot; \textcolor{warnred}{red} flags OneShot accuracy drops and harmful rates $>$ 4.0\%. Each split corresponds to a separate hypernetwork: the hypernetwork is trained on the 18 datasets \emph{outside} the split and evaluated simultaneously on the 4 held-out datasets within it (Table~\ref{tab:splits}).}
 \label{tab:main_results}
 \centering
