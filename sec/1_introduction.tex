@@ -95,7 +95,7 @@ We introduce \method{}, a post-hoc framework for restoring safety in fine-tuned 
 
 Our contributions are as follows:
 \begin{enumerate}[leftmargin=*,topsep=2pt,itemsep=2pt]
-    \item We formulate post-hoc safety restoration as activation-conditioned side-network generation. Given a fine-tuned checkpoint, our method generates a model-specific safety side network from its activation fingerprints, without additional gradient updates or safety data at deployment time.
+    \item We formulate post-hoc safety restoration as activation-conditioned side network generation. Given a fine-tuned checkpoint, our method generates a model-specific safety side network from its activation fingerprints, without additional gradient updates or safety data at deployment time.
 
     \item We design \method{}, a hypernetwork-based framework that predicts the weights of a lightweight safety side network. To make this prediction feasible, \method{} uses layer-wise activation conditioning, direction-magnitude decomposition, and factorized weight generation.
 
