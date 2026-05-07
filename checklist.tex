@@ -17,7 +17,7 @@
 \item {\bf Limitations}
     \item[] Question: Does the paper discuss the limitations of the work performed by the authors?
     \item[] Answer: \answerYes{}
-    \item[] Justification: A dedicated \emph{Limitations} section follows the Conclusion (\S\ref{sec:conclusion}), discussing one-time setup cost (per-domain ground-truth \ssn{} training before hypernetwork training), prompt-level (rather than generation-level) safety monitoring, the 7--8B parameter scale of evaluation, and the absence of explicit adversarial-jailbreak and multi-turn evaluation.
+    \item[] Justification: A dedicated \emph{Limitations} section follows the Conclusion (\S\ref{sec:conclusion}), discussing the lack of evaluation against adaptive attackers with white-box knowledge of the \ssn{} architecture and the untested generalization of the hypernetwork to backbone architectures other than the two we pair-trained on.
     \item[] Guidelines:
     \begin{itemize}
         \item The answer \answerNA{} means that the paper has no limitation while the answer \answerNo{} means that the paper has limitations, but those are not discussed in the paper.
@@ -136,7 +136,7 @@
 \item {\bf Broader impacts}
     \item[] Question: Does the paper discuss both potential positive societal impacts and negative societal impacts of the work performed?
     \item[] Answer: \answerYes{}
-    \item[] Justification: The Introduction motivates the work by the safety-erosion problem in the open-weight ecosystem (a societal concern), and the Limitations section notes that prompt-level filtering does not catch harmful generations from seemingly benign prompts. The negative-impact surface is small: HyperSafe is itself a defense rather than a capability uplift, and at deployment it does not modify the target model.
+    \item[] Justification: The Introduction motivates the work by the safety-erosion problem in the open-weight ecosystem (a societal concern), and the Limitations section notes that the framework is not yet evaluated against adaptive white-box attackers. The negative-impact surface is small: HyperSafe is itself a defense rather than a capability uplift, and at deployment it does not modify the target model.
     \item[] Guidelines:
     \begin{itemize}
         \item The answer \answerNA{} means that there is no societal impact of the work performed.
