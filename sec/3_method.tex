@@ -27,7 +27,7 @@ The \ssn{} $f_\theta$ attaches to the frozen backbone as a lightweight branch th
 
 \input{figures/fig_architecture}
 
-\mysection{Side Transformer.} The \ssn{} is implemented as a small Transformer that processes ladder-fused representations derived from the backbone hidden states. It consists of $K$ layers with hidden dimension $h_s = h/r$ for backbone hidden size $h$ and reduction factor $r$, adding $\sim$3\% of backbone parameters in our configuration (per-architecture values in Appendix~\ref{app:implementation}, Table~\ref{tab:hyperparams}).
+\mysection{Side Transformer.} The \ssn{} is implemented as a small Transformer that processes ladder-fused representations derived from the backbone hidden states. It consists of $K$ layers with hidden dimension $h_s = h/r$ for backbone hidden size $h$ and reduction factor $r$, adding 3--4\% of backbone parameters in our configuration (per-architecture values in Appendix~\ref{app:implementation}, Table~\ref{tab:hyperparams}).
 
 \mysection{Ladder Connections.} Each side layer $k$ fuses downsampled backbone hidden states with side hidden states via a per-layer gate:
 \begin{equation}
