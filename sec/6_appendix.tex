@@ -17,7 +17,7 @@
 \quad Hidden dim ($h_s$) & $h/4$ (896 / 1024) \\
 \quad Layers ($K$) & 12 \\
 \quad Attention heads & 7 (Qwen2) / 8 (LLaMA-3) \\
-\quad Ladder gate init & $\mu_k = 0.5$ (per-layer scalar, learned) \\
+\quad Ladder gate & $\mu_k$ per layer (init 0.5; predicted by hypernet) \\
 \quad Classifier & Mean pool $\rightarrow$ 2-layer MLP \\
 \quad Param.\ overhead & $\sim$3\% of backbone \\[3pt]
 \multicolumn{2}{@{}l}{\textbf{Hypernetwork}} \\[1pt]
