@@ -94,8 +94,8 @@
 
 \item {\bf Experiment statistical significance}
     \item[] Question: Does the paper report error bars suitably and correctly defined or other appropriate information about the statistical significance of the experiments?
-    \item[] Answer: \answerNo{}
-    \item[] Justification: We report point estimates rather than error bars. Each safety benchmark cell is computed over a fixed evaluation set (700 / 520 / 330 prompts for BeaverTails / AdvBench / HEx-PHI), and effect sizes between methods (typically $>$10pp absolute) are large relative to plausible single-seed variability; running multiple seeds across the full $12 \times 2$ holdout grid was outside our compute budget.
+    \item[] Answer: \answerYes{}
+    \item[] Justification: Table~\ref{tab:llamaguard} reports \method{} as mean$\pm$std (1-sigma sample standard deviation, closed-form) across the 12 held-out fine-tuned LLaMA-3-8B checkpoints; the factor of variability is the held-out checkpoint identity, and per-checkpoint values are listed in Table~\ref{tab:main_results}. Harmful rates are bounded in $[0,100]$\%, so we do not assume normality and treat $\pm$std as a dispersion summary rather than a Gaussian confidence interval. The main Table~\ref{tab:main_results} reports single-run per-domain values; we did not rerun the full $12\times 2$ holdout grid with multiple seeds due to compute.
     \item[] Guidelines:
     \begin{itemize}
         \item The answer \answerNA{} means that the paper does not include experiments.
