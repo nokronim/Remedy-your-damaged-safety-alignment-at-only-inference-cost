@@ -4,7 +4,7 @@
 \section{Method}
 \label{sec:method}
 
-Our proposed \method{} framework generates a model-specific \ssn{} for recovering safety in fine-tuned language models. The \ssn{} is a lightweight side network that performs prompt-level safety classification, and its weights are predicted by a hypernetwork from activation fingerprints of the target model. During training, we collect pairs of fine-tuned models and their corresponding \ssn{}s across multiple domains to supervise the hypernetwork. At inference, we produce an \ssn{} for a fine-tuned model on an unseen domain whose safety alignment may have degraded, using our proposed \method{}.
+Our proposed \method{} framework generates a model-specific \ssn{} for recovering safety in fine-tuned language models. The \ssn{} is a lightweight network attached to the frozen backbone that performs prompt-level safety classification, and its weights are predicted by a hypernetwork from activation fingerprints of the target model. During training, we collect pairs of fine-tuned models and their corresponding \ssn{}s across multiple domains to supervise the hypernetwork. At inference, we produce an \ssn{} for a fine-tuned model on an unseen domain whose safety alignment may have degraded, using our proposed \method{}.
 %only a small set of calibration prompts. 
 In the following sections, we describe the problem setup, the architecture, and the hypernetwork training and deployment procedure.
 
@@ -23,7 +23,7 @@ where $x$ denotes the input prompt, $\mathcal{A}(\cdot)$ denotes activation fing
 \subsection{\method{} Architecture}
 \label{sec:arch}
 
-The \ssn{} $f_\theta$ is a lightweight side network attached to the frozen backbone that predicts a safety score for each prompt and determines whether the model should produce a response or refuse. We build on the Ladder Side-Tuning (LST) architecture~\cite{sung2022lst} and extend it for safety classification. Figure~\ref{fig:architecture} illustrates the overall design.
+The \ssn{} $f_\theta$ attaches to the frozen backbone as a lightweight branch that predicts a safety score for each prompt and determines whether the model should produce a response or refuse. We build on the Ladder Side-Tuning (LST) architecture~\cite{sung2022lst} and extend it for safety classification. Figure~\ref{fig:architecture} illustrates the overall design.
 
 \input{figures/fig_architecture}
 
@@ -33,9 +33,9 @@ The \ssn{} $f_\theta$ is a lightweight side network attached to the frozen backb
 \begin{equation}
     \mathbf{h}_{k}^\text{in} = \mu_k \cdot W^\text{down}\, \mathbf{h}_{\phi(k)}^\text{back} + (1{-}\mu_k) \cdot \mathbf{h}_{k-1}^\text{side}
 \end{equation}
-where $\phi(k)$ maps side layer $k$ to a backbone layer, $\mathbf{h}_{\phi(k)}^\text{back}$ denotes the corresponding backbone hidden state, $\mathbf{h}_{k-1}^\text{side}$ denotes the side network hidden state from the previous layer, and $\mu_k = \sigma(g_k/\tau)$ is a learned gate, where $g_k \in \mathbb{R}$ is a learnable scalar parameter for layer $k$ and $\tau$ is a temperature hyperparameter.
+where $\phi(k)$ maps side layer $k$ to a backbone layer, $\mathbf{h}_{\phi(k)}^\text{back}$ denotes the corresponding backbone hidden state, $\mathbf{h}_{k-1}^\text{side}$ denotes the \ssn{} hidden state from the previous layer, and $\mu_k = \sigma(g_k/\tau)$ is a learned gate, where $g_k \in \mathbb{R}$ is a learnable scalar parameter for layer $k$ and $\tau$ is a temperature hyperparameter.
 
-\mysection{Selective Routing.} After the final side layer, hidden states are mean-pooled and passed through an MLP to produce $\lambda$. At inference, prompts scoring above the threshold are routed to a refusal response; those below bypass the side network entirely, so the base model runs unmodified. This selective routing preserves task accuracy because safe prompts never interact with the \ssn{}.
+\mysection{Selective Routing.} After the final side layer, hidden states are mean-pooled and passed through an MLP to produce $\lambda$. At inference, prompts scoring above the threshold are routed to a refusal response; those below bypass the \ssn{} entirely, so the base model runs unmodified. This selective routing preserves task accuracy because safe prompts never interact with the \ssn{}.
 
 \subsection{Activation-Conditioned Hypernetwork}
 \label{sec:hypernet}
@@ -80,8 +80,8 @@ where $\phi: \{1,\dots,K\} \rightarrow \{1,\dots,L\}$ maps each side layer $k$ t
 Training proceeds in two stages: (1) learning domain-specific \ssn{}s to construct supervision targets, and (2) training the hypernetwork to predict these weights from activation fingerprints.
 
 \mysection{Ground-truth SSN Collection.}\label{sec:gt}
-We collect supervised pairs $\{(\mathcal{M}_d, \theta_d^*)\}_{d=1}^D$ by training one side network per domain. For each domain $d$, we first fine-tune the base model $\mathcal{M}_0$ using LoRA~\cite{hu2022lora} and merge the adapter to obtain $\mathcal{M}_d$. We then freeze $\mathcal{M}_d$ and attach a randomly initialized side network. The side network is trained on a mixture of domain-specific safe data and category-balanced harmful data from BeaverTails~\cite{ji2024beavertails} (mixture sizes in Appendix~\ref{app:implementation}, Table~\ref{tab:hyperparams}).
-Training uses a selective loss: harmful prompts receive both language-modeling loss and classification loss, while safe prompts receive only classification loss. This encourages the side network to learn when to intervene without degrading task performance on safe inputs. All side networks share the same initialization, ensuring weight-space alignment for hypernetwork supervision.
+We collect supervised pairs $\{(\mathcal{M}_d, \theta_d^*)\}_{d=1}^D$ by training one \ssn{} per domain. For each domain $d$, we first fine-tune the base model $\mathcal{M}_0$ using LoRA~\cite{hu2022lora} and merge the adapter to obtain $\mathcal{M}_d$. We then freeze $\mathcal{M}_d$ and attach a randomly initialized \ssn{}. The \ssn{} is trained on a mixture of domain-specific safe data and category-balanced harmful data from BeaverTails~\cite{ji2024beavertails} (mixture sizes in Appendix~\ref{app:implementation}, Table~\ref{tab:hyperparams}).
+Training uses a selective loss: harmful prompts receive both language-modeling loss and classification loss, while safe prompts receive only classification loss. This encourages the \ssn{} to learn when to intervene without degrading task performance on safe inputs. All \ssn{}s share the same initialization, ensuring weight-space alignment for hypernetwork supervision.
 
 \mysection{Hypernetwork Training.} The hypernetwork is trained on $D_\text{train}$ domains using three complementary losses, weighted by coefficients $\beta_\text{recon}$, $\beta_\text{cls}$, and $\beta_\text{func}$:
 \begin{equation}
