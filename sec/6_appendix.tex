@@ -17,7 +17,7 @@
 \quad Hidden dim ($h_s$) & $h/4$ (896 / 1024) \\
 \quad Layers ($K$) & 12 \\
 \quad Attention heads & 7 (Qwen2) / 8 (LLaMA-3) \\
-\quad Ladder gate init & $\mu_k = 0.5$ (learnable) \\
+\quad Ladder gate init & $\mu_k = 0.5$ (per-layer scalar, learned) \\
 \quad Classifier & Mean pool $\rightarrow$ 2-layer MLP \\
 \quad Param.\ overhead & $\sim$3\% of backbone \\[3pt]
 \multicolumn{2}{@{}l}{\textbf{Hypernetwork}} \\[1pt]
@@ -35,7 +35,7 @@
 \quad Optimizer & AdamW \\[3pt]
 \multicolumn{2}{@{}l}{\textbf{GT \ssn{} Training (per dataset)}} \\[1pt]
 \quad Safety data & BeaverTails train ($\sim$7k) \\
-\quad Safe data & Dataset-specific prompts \\
+\quad Safe data & In-domain prompts (per fine-tuned dataset) \\
 \quad Epochs / learning rate & 3 / $2{\times}10^{-4}$ \\
 \quad Loss (harmful prompts) & LM + BCE classification \\
 \quad Loss (safe prompts) & BCE classification \\[3pt]
