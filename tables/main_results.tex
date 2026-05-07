@@ -2,7 +2,7 @@
 % Visual conventions: LoRA row grayed (baseline reference); HyperSafe wins
 % over OneShot shown as green text; Avg column bolded.
 \begin{table}[!t]
-\caption{Main results on LLaMA-3-8B and Qwen2-7B across 12 holdout domains. Four metric blocks per architecture (Task Acc, BeaverTails, AdvBench, HEx-PHI) report \textbf{Base}, \textbf{LoRA} (grayed), \textbf{OneShot}~\citep{zhang2026safety}, and \textbf{\method{}} (ours). \textcolor{wingreen}{Green} marks \method{} cells matching or beating OneShot; \textcolor{warnred}{red} flags OneShot accuracy drops and harmful rates $>$ 4.0\%. Each split's hypernetwork trains on the 18 outside datasets and is evaluated on the 4 held-out domains (Table~\ref{tab:splits}).}
+\caption{Main results on LLaMA-3-8B and Qwen2-7B across 12 holdout domains. Four metric blocks per architecture (Task Acc, BeaverTails, AdvBench, HEx-PHI) report \textbf{Base}, \textbf{LoRA} (grayed), \textbf{OneShot}~\citep{zhang2026safety}, and \textbf{\method{}} (ours). \textcolor{wingreen}{Green} marks \method{} cells matching or beating OneShot; \textcolor{warnred}{red} flags OneShot accuracy drops and harmful rates $>$ 4.0\%. For each split, the hypernetwork is trained on 18 external datasets and evaluated on 4 held-out datasets (Table~\ref{tab:splits}).}
 \label{tab:main_results}
 \centering
 \renewcommand{\arraystretch}{0.85}
