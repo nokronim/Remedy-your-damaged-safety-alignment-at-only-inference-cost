@@ -267,12 +267,3 @@ WizardLM & Instruction & Free text & \textit{As an online platform teacher named
 %& \textbf{default}
 %& saturated
 
-\section{Additional Results: Calibration Set Size, Full Fine-Tuning Generalization, Cross-Benchmark Transfer}
-\label{app:additional}
-
-\paragraph{Sensitivity to calibration set size.}
-We sweep $N_\text{cal} \in \{10, 25, 50, 100, 200\}$. With too few prompts ($N_\text{cal}{=}10$), the fingerprint is noisy and the generated \ssn{} over-blocks safe prompts; accuracy improves steadily up to $N_\text{cal}{=}50$ and plateaus beyond that. We use $N_\text{cal}{=}50$ as the default. The aggregate trend is shown in main-body Figure~\ref{fig:ablation_ncal}; per-domain values are in Table~\ref{tab:ablation_ncal} above.
-
-
-\paragraph{Cross-benchmark safety transfer.}
-BeaverTails is the only harmful benchmark used during \ssn{} training (with a disjoint evaluation split). To test whether generated \ssn{}s generalize beyond BeaverTails, we evaluate on AdvBench (520 prompts) and HEx-PHI (330 prompts, 11 categories), which are never seen in any training phase. Per-domain harmful rates across all three benchmarks are reported in Table~\ref{tab:main_results}: AdvBench achieves 0\% harmful rate across the board, and HEx-PHI remains below 1\% on both architectures. This suggests that \method{} generalizes beyond benchmark-specific patterns.
