@@ -18,7 +18,7 @@ Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tu
 \input{tables/main_results}
 
 \paragraph{Comparison with Llama Guard 4.}
-We compare against Llama Guard 4 (12B)~\citep{meta2025llama4}, the latest release in the Llama Guard family, on the same three benchmarks (Table~\ref{tab:llamaguard}). On the two fully zero-shot benchmarks --- the appropriate comparison, since BeaverTails appears in \ssn{} training (with a disjoint eval split) --- Llama Guard 4 misses 6.5\% of AdvBench and 6.7\% of HEx-PHI prompts, while \method{} misses 0.0\% and 0.0\% respectively. This is achieved with an \ssn{} of only 3--4\% of backbone parameters versus Llama Guard 4's dedicated 12B model. The gap is wider on BeaverTails (53.6\% vs.\ 0.1\%).
+We compare against Llama Guard 4 (12B)~\citep{meta2025llama4}, the latest release in the Llama Guard family, on the same three benchmarks (Table~\ref{tab:llamaguard}). On the two fully zero-shot benchmarks --- the appropriate comparison, since BeaverTails appears in \ssn{} training (with a disjoint eval split) --- Llama Guard 4 misses 6.5\% of AdvBench and 6.7\% of HEx-PHI prompts, while \method{} misses 0.0\% and 0.0\% respectively. This is achieved with an \ssn{} of only 3--4\% of backbone parameters (at 7--8B scale) versus Llama Guard 4's dedicated 12B model. The gap is wider on BeaverTails (53.6\% vs.\ 0.1\%).
 
 \begin{table}[!t]
 	\caption{Harmful rate (\%, $\downarrow$) on LLaMA-3-8B. \method{} reported as mean$\pm$std across the 12 held-out fine-tuned checkpoints (per-domain numbers in Table~\ref{tab:main_results}); Llama Guard 4 is a single deterministic model. BeaverTails eval split (disjoint from training); AdvBench and HEx-PHI are zero-shot for both methods.}
@@ -36,7 +36,7 @@ We compare against Llama Guard 4 (12B)~\citep{meta2025llama4}, the latest releas
 \end{table}
 
 \paragraph{Compute and inference cost.}
-The \ssn{} adds 3--4\% of backbone parameters (12 side layers, hidden $h/4$); these weights are produced by one hypernetwork forward pass and amortized across all subsequent prompts. Safe prompts ($\lambda<0.5$) bypass the \ssn{} during decoding, leaving per-token generation cost unchanged. Llama Guard 4 is by contrast a separate 12B model that needs its own full forward pass and KV cache.
+At the 7--8B scale we evaluate, the \ssn{} adds 3--4\% of backbone parameters (12 side layers, hidden $h/4$); these weights are produced by one hypernetwork forward pass and amortized across all subsequent prompts. Safe prompts ($\lambda<0.5$) bypass the \ssn{} during decoding, leaving per-token generation cost unchanged. Llama Guard 4 is by contrast a separate 12B model that needs its own full forward pass and KV cache.
 
 \subsection{Ablation Studies}
 \label{sec:ablations}
