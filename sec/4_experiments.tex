@@ -35,6 +35,9 @@ We compare against Llama Guard 4 (12B)~\citep{meta2025llama4}, the latest releas
 	\end{tabular}
 \end{table}
 
+\paragraph{Compute and inference cost.}
+The \ssn{} adds 237M parameters for Qwen2-7B (3.7\%) and 261M for LLaMA-3-8B (3.3\%); these weights are produced by one hypernetwork forward pass and amortized across all subsequent prompts. Safe prompts ($\lambda<0.5$) bypass the \ssn{} during decoding, leaving per-token generation cost unchanged. Llama Guard 4 is by contrast a separate 12B model that needs its own full forward pass and KV cache.
+
 \subsection{Ablation Studies}
 \label{sec:ablations}
 
