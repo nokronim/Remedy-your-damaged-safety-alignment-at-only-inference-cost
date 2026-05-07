@@ -16,7 +16,7 @@ At the 7--8B scale we evaluate, the \ssn{} adds 3--4\% of backbone parameters (1
 
 \subsection{Main Results}
 
-Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tuning increases the harmful rate from 3--7\% (base) to as high as 86\% on the worst-affected domain (AdvBench, OpenHermes, LLaMA-3), with the largest degradation on instruction-following and commonsense domains. \method{} reduces the harmful rate to below 1\% across all 12 holdout datasets and both architectures, while preserving task accuracy within 1 percentage point on average. The highest residual rates (NQ-Open, 0.7\%) still represent $>$95\% relative reduction from the fine-tuned model.
+Table~\ref{tab:main_results} shows results across all three splits. LoRA fine-tuning increases the harmful rate well above the 3--7\% base level, with the largest degradation on instruction-following and commonsense domains. \method{} reduces the harmful rate to below 1\% across all 12 holdout datasets and both architectures, while preserving task accuracy within 1 percentage point on average. The highest residual rates (NQ-Open, 0.7\%) still represent $>$95\% relative reduction from the fine-tuned model.
 
 \input{tables/main_results}
 
