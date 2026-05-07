@@ -10,7 +10,7 @@ Our proposed \method{} framework generates a model-specific \ssn{} for recoverin
 
 \subsection{Problem Formulation}
 
-Let $\mathcal{M}_0$ be a safety-aligned base LLM and $\mathcal{M}_d$ a fine-tuned version of $\mathcal{M}_0$ on domain $d$. Fine-tuning may weaken or alter the safety behavior of $\mathcal{M}_{d}$, leading to compliance with harmful prompts that $\mathcal{M}_0$ would refuse. We seek a generator $G$ that, given any fine-tuned model $\mathcal{M}_{d^*}$ from a potentially unseen domain, produces an \ssn{} $f_\theta$ parameterized by the generated weights $\theta$:
+Let $\mathcal{M}_0$ be a safety-aligned base LLM and $\mathcal{M}_d$ a fine-tuned version of $\mathcal{M}_0$ on dataset $d$. Fine-tuning may weaken or alter the safety behavior of $\mathcal{M}_{d}$, leading to compliance with harmful prompts that $\mathcal{M}_0$ would refuse. We seek a generator $G$ that, given any fine-tuned model $\mathcal{M}_{d^*}$ from a potentially unseen dataset, produces an \ssn{} $f_\theta$ parameterized by the generated weights $\theta$:
 \begin{equation}
     \theta = G\big(\mathcal{A}(\mathcal{M}_{d^*})\big), \qquad \lambda = f_\theta\big(x \,;\, \mathcal{M}_{d^*}\big),
 \end{equation}
