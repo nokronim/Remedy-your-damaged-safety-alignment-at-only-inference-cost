@@ -1,5 +1,7 @@
 \appendix
 
+\mysection{Appendix Overview.} This appendix provides additional implementation details, dataset statistics, ablation studies, and extended experimental results that complement the analyses presented in the main paper.
+
 \section{Implementation Details}
 \label{app:implementation}
 
@@ -147,6 +149,7 @@ Dim 1024      & 87.1 & 86.6 & 34.1 & 39.0 & 0.1 \\
 \begin{center}
 \small
 \renewcommand{\arraystretch}{1.15}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{@{}lllp{8.5cm}@{}}
 \toprule
 \textbf{Domain} & \textbf{Category} & \textbf{Format} & \textbf{Example Prompt} \\
@@ -178,7 +181,8 @@ OpenHermes & Instruction & Free text & \textit{Compose a poem where every line s
 NoRobots & Instruction & Free text & \textit{Does Yi view fan fiction positively or negatively? Explain your answer.} \\
 WizardLM & Instruction & Free text & \textit{As an online platform teacher named Aimee, you possess impeccable credentials...} \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \captionof{table}{Example prompts for each dataset, grouped by category.}
 \label{tab:domain_examples}
 \end{center}
@@ -203,7 +207,7 @@ WizardLM & Instruction & Free text & \textit{As an online platform teacher named
 		$-\,$Domain calibration                  & 84.4 & 85.7 & 33.5 & 36.8 & 60.1 & 0.3\% \\
 		\bottomrule
 	\end{tabular}
-	\caption{Component ablation (LLaMA-3, Split~A holdout). $-\mathcal{L}_\text{func}^\text{safe}$: classifier over-blocks safe prompts (accuracy drops). $-$Domain calibration: accuracy degrades on harder domains without task-specific fingerprints.}
+	\caption{Component ablation (LLaMA-3, Split~A holdout). $-\mathcal{L}_\text{func}^\text{safe}$: classifier over-blocks safe prompts (accuracy drops). $-$Domain calibration: accuracy degrades on harder datasets without task-specific fingerprints.}
 	\label{tab:ablation_loss}
 \end{table}
 \section{{Detailed Training-Data Ablation (Table~\ref{tab:ablation_data})}}
@@ -227,7 +231,7 @@ WizardLM & Instruction & Free text & \textit{As an online platform teacher named
 		$-$Instruction-following      & 12 & 86.8 & 86.4 & 33.8 & 38.7 & 61.4 & \textcolor{warnred}{4.88\%} \\
 		\bottomrule
 	\end{tabular}
-	\caption{Category exclusion ablation (LLaMA-3, Split~A holdout). Task accuracy is stable across all configurations. Removing instruction-following domains causes a $\sim$100$\times$ harmful-rate spike (avg 0.05\%~$\to$~4.88\%); other categories are dispensable for safety.}
+	\caption{Category exclusion ablation (LLaMA-3, Split~A holdout). Task accuracy is stable across all configurations. Removing instruction-following domains causes a $\sim$100$\times$ harmful-rate spike (0.05\%~$\to$~4.88\%); other categories are dispensable for safety.}
 	\label{tab:ablation_data}
 \end{table}
 
@@ -280,17 +284,17 @@ Our hypernetwork is trained on LoRA-merged models, but practitioners also use fu
 \setlength{\tabcolsep}{4pt}
 \scriptsize
 \resizebox{0.85\columnwidth}{!}{%
-\begin{tabular}{@{}l l cccc @{\hspace{6pt}} >{\bfseries}c@{}}
+\begin{tabular}{@{}l l ccccc@{}}
 \toprule
-& \textbf{Method} & BoolQ & CSenseQA & ARC & PIQA & \textbf{Avg} \\
+& \textbf{Method} & \textbf{BoolQ} & \textbf{CSenseQA} & \textbf{ARC} & \textbf{PIQA} & \textbf{Avg} \\
 \midrule
 \multirow{4}{*}{\textbf{Acc} $\uparrow$}
  & \cellcolor{mutegray}\textit{LoRA FT}
    & \cellcolor{mutegray}87.2 & \cellcolor{mutegray}81.7 & \cellcolor{mutegray}86.5 & \cellcolor{mutegray}87.8 & \cellcolor{mutegray}85.8 \\
- & LoRA + HyperSafe                & 87.0 & 81.4 & 86.5 & 87.6 & 85.6 \\
+ & LoRA + \method{}                & 87.0 & 81.4 & 86.5 & 87.6 & 85.6 \\
  & \cellcolor{mutegray}\textit{Full FT}
    & \cellcolor{mutegray}87.2 & \cellcolor{mutegray}81.1 & \cellcolor{mutegray}86.8 & \cellcolor{mutegray}87.5 & \cellcolor{mutegray}85.7 \\
- & Full + HyperSafe                & 87.0 & 80.8 & 86.8 & 87.2 & 85.5 \\
+ & Full + \method{}                & 87.0 & 80.8 & 86.8 & 87.2 & 85.5 \\
 \cmidrule{1-7}
 \multirow{4}{*}{\textbf{Harm} $\downarrow$}
  & \cellcolor{mutegray}\textit{LoRA FT}
