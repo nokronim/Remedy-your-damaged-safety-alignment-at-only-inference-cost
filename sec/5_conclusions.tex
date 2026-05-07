@@ -1,7 +1,7 @@
 \section{Conclusion and Limitations}
 \label{sec:conclusion}
 
-\method{} generates model-specific \ssn{}s at inference time, reducing harmful outputs to near zero across diverse domains and two model architectures while preserving task accuracy. Two findings underline the generality of the approach: an \ssn{} generated from a LoRA fingerprint transfers unchanged to its fully fine-tuned counterpart (Table~\ref{tab:full_ft}), and a hypernetwork trained only on BeaverTails harmful prompts drops AdvBench and HEx-PHI harmful rates to $\leq$0.3\% zero-shot. Limitations: \method{} targets safety degradation introduced by fine-tuning. We leave to future work both robustness against adaptive attackers with gradient access to the \ssn{}, and cross-architecture generalization of the hypernetwork (each architecture is currently paired with its own).
+\method{} generates model-specific \ssn{}s at inference time, reducing harmful outputs to near zero across diverse domains and two model architectures while preserving task accuracy. Two findings underline the generality of the approach: an \ssn{} generated from a LoRA fingerprint transfers unchanged to its fully fine-tuned counterpart (Table~\ref{tab:full_ft}), and a hypernetwork trained only on BeaverTails harmful prompts keeps AdvBench at 0.0\% and HEx-PHI below 0.8\% zero-shot on every held-out checkpoint. Limitations: \method{} targets safety degradation introduced by fine-tuning. We leave to future work both robustness against adaptive attackers with gradient access to the \ssn{}, and cross-architecture generalization of the hypernetwork (each architecture is currently paired with its own).
 
 %\section{Conclusions}
 %\label{sec:conclusions}
