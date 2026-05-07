@@ -273,40 +273,6 @@ WizardLM & Instruction & Free text & \textit{As an online platform teacher named
 \paragraph{Sensitivity to calibration set size.}
 We sweep $N_\text{cal} \in \{10, 25, 50, 100, 200\}$. With too few prompts ($N_\text{cal}{=}10$), the fingerprint is noisy and the generated \ssn{} over-blocks safe prompts; accuracy improves steadily up to $N_\text{cal}{=}50$ and plateaus beyond that. We use $N_\text{cal}{=}50$ as the default. The aggregate trend is shown in main-body Figure~\ref{fig:ablation_ncal}; per-domain values are in Table~\ref{tab:ablation_ncal} above.
 
-\paragraph{Generalization to full fine-tuning.}
-Our hypernetwork is trained on LoRA-merged models, but practitioners also use full-parameter fine-tuning. To test whether \method{} generalizes across fine-tuning methods, we fully fine-tune LLaMA-3-8B on four datasets and reuse the same \ssn{}s generated for their LoRA counterparts. Table~\ref{tab:full_ft} shows safety is restored equally well in both regimes: harmful rates drop to $\leq$0.1\% with task-accuracy deltas within 0.3 percentage points, indicating the activation fingerprint captures model-level safety patterns rather than LoRA-specific artifacts.
-
-\begin{table}[h]
-\caption{Generalization across fine-tuning methods (LLaMA-3-8B). The same \ssn{} (generated once for the LoRA-merged checkpoint) is reused on the full-FT counterpart. Fine-tuned baselines are grayed; \textcolor{wingreen}{green} marks \method{} cells driving the harmful rate to near-zero.}
-\label{tab:full_ft}
-\centering
-\renewcommand{\arraystretch}{0.85}
-\setlength{\tabcolsep}{4pt}
-\scriptsize
-\resizebox{0.85\columnwidth}{!}{%
-\begin{tabular}{@{}l l ccccc@{}}
-\toprule
-& \textbf{Method} & \textbf{BoolQ} & \textbf{CSenseQA} & \textbf{ARC} & \textbf{PIQA} & \textbf{Avg} \\
-\midrule
-\multirow{4}{*}{\textbf{Acc} $\uparrow$}
- & \cellcolor{mutegray}\textit{LoRA FT}
-   & \cellcolor{mutegray}87.2 & \cellcolor{mutegray}81.7 & \cellcolor{mutegray}86.5 & \cellcolor{mutegray}87.8 & \cellcolor{mutegray}85.8 \\
- & LoRA + \method{}                & 87.0 & 81.4 & 86.5 & 87.6 & 85.6 \\
- & \cellcolor{mutegray}\textit{Full FT}
-   & \cellcolor{mutegray}87.2 & \cellcolor{mutegray}81.1 & \cellcolor{mutegray}86.8 & \cellcolor{mutegray}87.5 & \cellcolor{mutegray}85.7 \\
- & Full + \method{}                & 87.0 & 80.8 & 86.8 & 87.2 & 85.5 \\
-\cmidrule{1-7}
-\multirow{4}{*}{\textbf{Harm} $\downarrow$}
- & \cellcolor{mutegray}\textit{LoRA FT}
-   & \cellcolor{mutegray}18.6 & \cellcolor{mutegray}20.0 & \cellcolor{mutegray}8.6 & \cellcolor{mutegray}40.0 & \cellcolor{mutegray}21.8 \\
- & LoRA + HyperSafe                & \textcolor{wingreen}{0.1} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} \\
- & \cellcolor{mutegray}\textit{Full FT}
-   & \cellcolor{mutegray}8.9 & \cellcolor{mutegray}10.6 & \cellcolor{mutegray}7.3 & \cellcolor{mutegray}31.4 & \cellcolor{mutegray}14.6 \\
- & Full + HyperSafe                & \textcolor{wingreen}{0.1} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.1} & \textcolor{wingreen}{0.1} \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
 
 \paragraph{Cross-benchmark safety transfer.}
 BeaverTails is the only harmful benchmark used during \ssn{} training (with a disjoint evaluation split). To test whether generated \ssn{}s generalize beyond BeaverTails, we evaluate on AdvBench (520 prompts) and HEx-PHI (330 prompts, 11 categories), which are never seen in any training phase. Per-domain harmful rates across all three benchmarks are reported in Table~\ref{tab:main_results}: AdvBench achieves 0\% harmful rate across the board, and HEx-PHI remains below 1\% on both architectures. This suggests that \method{} generalizes beyond benchmark-specific patterns.

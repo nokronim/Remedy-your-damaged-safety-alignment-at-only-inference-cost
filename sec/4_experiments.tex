@@ -67,5 +67,37 @@ We sweep the number of calibration prompts $N_\text{cal}$ used to extract the ac
 	\label{fig:ablation_ncal}
 \end{figure}
 
-\paragraph{Generalization to full fine-tuning and cross-benchmark transfer.}
-Two further analyses are reported in Appendix~\ref{app:additional}: \emph{generalization to full fine-tuning} holds, with \ssn{}s trained for LoRA models transferring to fully fine-tuned ones (Table~\ref{tab:full_ft}); and \emph{cross-benchmark safety transfer} holds, with \method{} maintaining $<$1\% harmful rate on the fully zero-shot AdvBench and HEx-PHI benchmarks (Table~\ref{tab:main_results}).
+\paragraph{Generalization to full fine-tuning.}
+\ssn{}s trained for LoRA-merged checkpoints transfer unchanged to their fully fine-tuned counterparts (Table~\ref{tab:full_ft}): harmful rates drop to $\leq$0.1\% with task-accuracy deltas within 0.3 percentage points. \emph{Cross-benchmark safety transfer} also holds: \method{} maintains $<$1\% harmful rate on the fully zero-shot AdvBench and HEx-PHI benchmarks (Table~\ref{tab:main_results}).
+
+\begin{table}[!t]
+\caption{Generalization across fine-tuning methods (LLaMA-3-8B). The same \ssn{} (generated once for the LoRA-merged checkpoint) is reused on the full-FT counterpart. Fine-tuned baselines are grayed; \textcolor{wingreen}{green} marks \method{} cells driving the harmful rate to near-zero.}
+\label{tab:full_ft}
+\centering
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\scriptsize
+\resizebox{0.85\columnwidth}{!}{%
+\begin{tabular}{@{}l l ccccc@{}}
+\toprule
+& \textbf{Method} & \textbf{BoolQ} & \textbf{CSenseQA} & \textbf{ARC} & \textbf{PIQA} & \textbf{Avg} \\
+\midrule
+\multirow{4}{*}{\textbf{Acc} $\uparrow$}
+ & \cellcolor{mutegray}\textit{LoRA FT}
+   & \cellcolor{mutegray}87.2 & \cellcolor{mutegray}81.7 & \cellcolor{mutegray}86.5 & \cellcolor{mutegray}87.8 & \cellcolor{mutegray}85.8 \\
+ & LoRA + \method{}                & 87.0 & 81.4 & 86.5 & 87.6 & 85.6 \\
+ & \cellcolor{mutegray}\textit{Full FT}
+   & \cellcolor{mutegray}87.2 & \cellcolor{mutegray}81.1 & \cellcolor{mutegray}86.8 & \cellcolor{mutegray}87.5 & \cellcolor{mutegray}85.7 \\
+ & Full + \method{}                & 87.0 & 80.8 & 86.8 & 87.2 & 85.5 \\
+\cmidrule{1-7}
+\multirow{4}{*}{\textbf{Harm} $\downarrow$}
+ & \cellcolor{mutegray}\textit{LoRA FT}
+   & \cellcolor{mutegray}18.6 & \cellcolor{mutegray}20.0 & \cellcolor{mutegray}8.6 & \cellcolor{mutegray}40.0 & \cellcolor{mutegray}21.8 \\
+ & LoRA + \method{}                & \textcolor{wingreen}{0.1} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} \\
+ & \cellcolor{mutegray}\textit{Full FT}
+   & \cellcolor{mutegray}8.9 & \cellcolor{mutegray}10.6 & \cellcolor{mutegray}7.3 & \cellcolor{mutegray}31.4 & \cellcolor{mutegray}14.6 \\
+ & Full + \method{}                & \textcolor{wingreen}{0.1} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.0} & \textcolor{wingreen}{0.1} & \textcolor{wingreen}{0.1} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
