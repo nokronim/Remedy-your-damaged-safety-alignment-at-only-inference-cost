@@ -37,7 +37,8 @@
 \quad Safety data & BeaverTails train ($\sim$7k) \\
 \quad Safe data & Dataset-specific prompts \\
 \quad Epochs / learning rate & 3 / $2{\times}10^{-4}$ \\
-\quad Loss & BCE (harm: LM+cls; safe: cls) \\[3pt]
+\quad Loss (harmful prompts) & LM + BCE classification \\
+\quad Loss (safe prompts) & BCE classification \\[3pt]
 \multicolumn{2}{@{}l}{\textbf{Hypernetwork Training}} \\[1pt]
 \quad Epochs / learning rate & 100 / $5{\times}10^{-5}$ \\
 \quad Optimizer & AdamW ($\beta_1{=}0.9$, $\beta_2{=}0.999$) \\
