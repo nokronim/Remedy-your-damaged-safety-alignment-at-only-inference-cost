@@ -49,7 +49,7 @@ Removing $\mathcal{L}_\text{func}^\text{safe}$ (safe-probe supervision) causes t
 \paragraph{Training data diversity (Figure~\ref{fig:ablation_summary}(b)).}
 Progressive domain exclusion shows the method is robust to moderate reductions (up to 4 domains removed) but degrades sharply beyond that. Category exclusion reveals instruction-following data as the most important category for safety: removing it increases the harmful rate substantially across all holdout datasets, while removing other categories has minimal effect.
 
-\begin{figure}[H]
+\begin{figure}[!t]
 	\centering
 	\includegraphics[width=\linewidth]{figures/ablation_summary.pdf}
 	\caption{Ablation summary on LLaMA-3, Split A holdout, shown as deviation from the full system. Left bars: $\Delta$ task accuracy (\%); right bars: $\Delta$ harmful rate (\%). (a)~Loss-component ablation: removing $\mathcal{L}_{\mathrm{func}}^{\mathrm{safe}}$ causes the largest accuracy drop. (b)~Training-data ablation: removing instruction-following data causes the largest safety degradation. Full per-domain tables are in Appendix Tables~\ref{tab:ablation_loss} and~\ref{tab:ablation_data}.}
