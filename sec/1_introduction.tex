@@ -12,13 +12,13 @@ Existing defenses fall into three families (Section~\ref{sec:related_works}). \e
 \end{quote}
 \end{minipage}
 
-This question leads to three requirements: the method should not need control over fine-tuning, should not modify the deployed weights, and should be specific to the checkpoint rather than a fixed external classifier. We therefore attach a lightweight \emph{Safe Side Network} (\ssn{}) that runs alongside the frozen model and decides whether to answer or refuse a prompt, so the fine-tuned model keeps its downstream ability while the \ssn{} recovers safety. To avoid training a new \ssn{} for every released checkpoint, a hypernetwork generates the \ssn{} weights from the checkpoint's activation fingerprints.
+Such a method should not need control over fine-tuning, should not modify the deployed weights, and should be specific to the checkpoint. We therefore attach a lightweight \emph{Safe Side Network} (\ssn{}) that runs alongside the frozen model and decides whether to answer or refuse, and use a hypernetwork to generate its weights from the checkpoint's activation fingerprints, so no \ssn{} has to be trained per checkpoint.
 
 \input{tables/comparison_intro}
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/assets/safety_remedy_figure.pdf}
+\includegraphics[width=0.92\textwidth]{figures/assets/safety_remedy_figure.pdf}
 \caption{\method{} pipeline. \textbf{Stages 1--3 (training, one-time per backbone family):} fine-tune the base model on each training domain (1), train a domain-specific \ssn{} per fine-tuned checkpoint (2), and train the hypernetwork to map activation fingerprints to \ssn{} weights (3). \textbf{Stage 4 (deployment, per checkpoint):} for any new fine-tuned model, extract calibration activations and generate a model-specific \ssn{} in a single forward pass.}
 \label{fig:pipeline}
 \end{figure*}

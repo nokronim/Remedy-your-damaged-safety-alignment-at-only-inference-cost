@@ -18,7 +18,7 @@ Fine-tuning raises the average harmful rate from under 5\% (base) to 19--31\% (T
 \subsection{Is the Hypernetwork Necessary?}
 \label{sec:shared}
 
-Could a single \ssn{} trained on the same data replace the hypernetwork? For each architecture and split, we train one \emph{Shared \ssn{}} on the union of the 18 training-domain checkpoints, with the same architecture, initialization, loss, safety data, and budget as the ground-truth \ssn{}s, and apply it unchanged to the held-out checkpoints. It still reads each target checkpoint's activations through the ladder connections, and differs from \method{} only in that its weights are not generated from the fingerprint.
+Could a single \ssn{} replace the hypernetwork? For each architecture and split, we train one \emph{Shared \ssn{}} on all 18 training checkpoints with the same architecture, initialization, loss, data, and budget as the ground-truth \ssn{}s. It reads each target checkpoint's activations, but its weights are not generated from the fingerprint.
 
 \input{tables/shared_ssn}
 
@@ -72,7 +72,7 @@ DAN templates          & 500  & 88.4 & 99.8 & 100.0 \\
 \end{minipage}
 \end{table}
 
-\mysection{Guard models and judge dependence.} Llama Guard 4 (12B), used off the shelf as a deployment baseline and not trained on our data, misses 6.5\% of AdvBench and 6.7\% of HEx-PHI prompts, while \method{}'s harmful rates are at most 0.05\% (Table~\ref{tab:llamaguard}). The two judges flag different responses, but split-level averages differ by at most 0.08 points, and refusal rates by at most 1.7 (Appendix~\ref{app:judges}). The judge is not saturated: it assigns 19--31\% to undefended checkpoints and up to 6.6\% on average to OneShot.
+\mysection{Guard models and judge dependence.} Llama Guard 4 (12B), used off the shelf and not trained on our data, misses 6.5\% of AdvBench and 6.7\% of HEx-PHI prompts, versus $\leq$0.05\% harmful for \method{} (Table~\ref{tab:llamaguard}). The two judges' split-level averages differ by $\leq$0.08 points and refusal rates by $\leq$1.7 (Appendix~\ref{app:judges}), and the judge is not saturated: it gives 19--31\% to undefended checkpoints.
 
 \subsection{Robustness to Prompt Transformations}
 \label{sec:robust}
@@ -83,4 +83,4 @@ Although trained only on directly phrased harmful prompts, \method{} detects 99.
 \label{sec:ablations}
 \mysection{Loss components and training data} (LLaMA-3-8B, Split~A; Appendix~\ref{app:ablation_loss}). Removing $\mathcal{L}_\text{func}$ causes the classifier to over-block safe prompts, reducing accuracy across all domains; removing $\mathcal{L}_\text{cls}$ degrades both accuracy and safety; without domain-specific calibration prompts, the fingerprint is less discriminative and accuracy drops on harder domains. Excluding a whole task category from training (Appendix~\ref{app:ablation_data}) changes accuracy by at most 0.6 points, and removing QA or math/code data keeps the harmful rate $\leq$0.15\%; removing the six instruction-following datasets, however, raises it from 0.05\% to 4.88\%, suggesting that instruction-following checkpoints are the most important training data for safety.
 
-\mysection{Calibration size and fine-tuning method.} Accuracy saturates at $N_\text{cal}{=}50$ calibration prompts while the harmful rate stays $\leq$0.4\% from 10 to 200 prompts (Appendix~\ref{app:ncal}). An \ssn{} generated for a LoRA-merged checkpoint transfers unchanged to its fully fine-tuned counterpart, with harmful rates $\leq$0.1\% and accuracy within 0.3 points (Appendix~\ref{app:fullft}).
+\mysection{Calibration size and fine-tuning method.} Accuracy saturates at $N_\text{cal}{=}50$ with harmful rates $\leq$0.4\% throughout (Appendix~\ref{app:ncal}), and \ssn{}s generated for LoRA checkpoints transfer to fully fine-tuned ones (Appendix~\ref{app:fullft}).
