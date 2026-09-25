@@ -6,6 +6,8 @@
 \label{app:implementation}
 
 \begin{center}
+\begin{minipage}{\linewidth}
+\centering
 \captionof{table}{Complete hyperparameters across all stages.}
 \label{tab:hyperparams}
 \small
@@ -27,7 +29,8 @@
 \quad Direction proj.\ dim & 256 \\
 \quad Magnitude hidden dim & 128 \\
 \quad Cross-layer attention & 4 heads, 2 layers \\
-\quad Classifier output rank & 16 ($W_\text{cls} = B \cdot A$) \\
+\quad Weight-generation rank & 4 (generated \ssn{} weights) \\
+\quad Classifier output rank & 4 ($W_\text{cls} = B \cdot A$) \\
 \quad Total parameters & $\sim$230M \\[3pt]
 \multicolumn{2}{@{}l}{\textbf{LoRA Fine-Tuning (per dataset)}} \\[1pt]
 \quad Rank / $\alpha$ & 16 / 32 \\
@@ -54,12 +57,19 @@
 \quad Hardware & 1$\times$ A100 80GB \\
 \bottomrule
 \end{tabular}
+\end{minipage}
 \end{center}
+
+\mysection{SSN training data.} For each fine-tuned checkpoint, the ground-truth \ssn{} is trained on category-balanced harmful prompts from the BeaverTails training split ($\sim$7k prompts across 14 harm categories) together with in-domain safe prompts from that checkpoint's fine-tuning dataset. The harmful component is shared across checkpoints; the safe component is checkpoint-specific. The 50 calibration prompts used for the fingerprint are domain-specific and disjoint from the held-out probe set $\mathcal{P}_d$ used by $\mathcal{L}_\text{func}$.
+
+\mysection{Loss coefficients.} The reconstruction, classification, and functional loss coefficients $(\beta_\text{recon},\beta_\text{cls},\beta_\text{func})=(1,10,5)$ were selected during development and then held fixed across both architectures, all three splits, and all ablations; they were not tuned per model or split. Reconstruction receives the lowest weight because matching the ground-truth weights does not by itself guarantee correct classification; classification receives the highest weight because it directly determines the answer/refuse decision; the functional loss receives an intermediate weight because it enforces agreement on held-out probe prompts. The values keep the three terms on comparable scales during training.
 
 \section{Dataset Details}
 \label{app:domains}
 
 \begin{center}
+\begin{minipage}{\linewidth}
+\centering
 \captionof{table}{The 22 datasets used across both Qwen2-7B and LLaMA-3-8B.}
 \label{tab:domains}
 \small
@@ -93,6 +103,7 @@ NoRobots & Instruction & 10k \\
 WizardLM & Instruction & 10k \\
 \bottomrule
 \end{tabular}
+\end{minipage}
 \end{center}
 
 \section{Holdout Splits}
@@ -101,6 +112,8 @@ WizardLM & Instruction & 10k \\
 Each split removes four datasets from different task categories; the hypernetwork is trained on the remaining 18 and evaluated on the four held-out domains within the split. The split$\rightarrow$domain mapping is also visible in the column groupings of Table~\ref{tab:main_results}.
 
 \begin{center}
+\begin{minipage}{\linewidth}
+\centering
 \captionof{table}{Holdout splits. Each split removes four datasets from different task categories.}
 \label{tab:splits}
 \renewcommand{\arraystretch}{1.4}
@@ -115,12 +128,15 @@ C & MMLU {\small(Knowledge)} & NQ-Open {\small(QA)} & AG News {\small(Classif.)}
 \bottomrule
 \end{tabular}%
 }
+\end{minipage}
 \end{center}
 
 \section{Architecture Sensitivity}
 \label{app:ablations}
 
 \begin{center}
+\begin{minipage}{\linewidth}
+\centering
 \small
 \setlength{\tabcolsep}{5pt}
 \renewcommand{\arraystretch}{0.95}
@@ -139,14 +155,15 @@ Dim 1024      & 87.1 & 86.6 & 34.1 & 39.0 & 0.1 \\
 \end{tabular}
 \captionof{table}{Architecture sensitivity (LLaMA-3, Split~A). Lower capacity degrades accuracy; higher shows marginal gains. Safety robust across all configs.}
 \label{tab:ablation_arch}
+\end{minipage}
 \end{center}
 
-\clearpage
-\onecolumn
 \section{Example Prompts}
 \label{app:examples}
 
 \begin{center}
+\begin{minipage}{\linewidth}
+\centering
 \small
 \renewcommand{\arraystretch}{1.15}
 \resizebox{\linewidth}{!}{%
@@ -185,12 +202,21 @@ WizardLM & Instruction & Free text & \textit{As an online platform teacher named
 }
 \captionof{table}{Example prompts for each dataset, grouped by category.}
 \label{tab:domain_examples}
+\end{minipage}
 \end{center}
 
 
-\section{{Detailed Loss-Component Ablation (Table~\ref{tab:ablation_loss})}}
-{This appendix section reports the full per-domain values corresponding to Figure~\ref{fig:ablation_summary}(a). Table~\ref{tab:ablation_loss} confirms that removing $\mathcal{L}_\text{func}^\text{safe}$ causes the largest task-accuracy degradation, while removing $\mathcal{L}_\text{func}$ or domain calibration yields smaller but consistent drops with higher harmful rate.}
-\begin{table}[H]
+\section{Detailed Loss-Component Ablation}
+\label{app:ablation_loss}
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=\linewidth]{figures/ablation_summary.pdf}
+	\caption{Ablation summary on LLaMA-3, Split A holdout, shown as deviation from the full system. Left bars: $\Delta$ task accuracy (\%); right bars: $\Delta$ harmful rate (\%). (a)~Loss components: removing $\mathcal{L}_\text{func}$ causes the largest accuracy drop. (b)~Training data: removing instruction-following data causes the largest safety degradation.}
+	\label{fig:ablation_summary}
+\end{figure}
+
+{This appendix section reports the full per-domain values corresponding to Figure~\ref{fig:ablation_summary}(a). Table~\ref{tab:ablation_loss} confirms that removing $\mathcal{L}_\text{func}$ causes the largest task-accuracy degradation, while training with the weight-reconstruction loss alone or without domain calibration yields smaller but consistent drops with higher harmful rate.}
+\begin{table}[htbp]
 	\centering
 	\small
 	\renewcommand{\arraystretch}{1.0}
@@ -202,18 +228,19 @@ WizardLM & Instruction & Free text & \textit{As an online platform teacher named
 		\textbf{Variant} & BoolQ & ARC & Math & Alpaca & \textbf{Avg.} & \textbf{Rate $\downarrow$} \\
 		\midrule
 		Full system                              & 86.9 & 86.5 & 34.1 & 38.9 & 61.6 & 0.1\% \\
-		$-\,\mathcal{L}_\text{func}^\text{safe}$ & 68.3 & 71.2 & 28.6 & 27.5 & 48.9 & 0.0\% \\
-		$-\,\mathcal{L}_\text{func}$ (weight MSE only) & 84.2 & 85.8 & 33.6 & 36.1 & 59.9 & 0.6\% \\
-		$-\,$Domain calibration                  & 84.4 & 85.7 & 33.5 & 36.8 & 60.1 & 0.3\% \\
+		w/o $\mathcal{L}_\text{func}$ & 68.3 & 71.2 & 28.6 & 27.5 & 48.9 & 0.0\% \\
+		w/o $\mathcal{L}_\text{cls}$, $\mathcal{L}_\text{func}$ & 84.2 & 85.8 & 33.6 & 36.1 & 59.9 & 0.6\% \\
+		w/o domain calibration                  & 84.4 & 85.7 & 33.5 & 36.8 & 60.1 & 0.3\% \\
 		\bottomrule
 	\end{tabular}
-	\caption{Component ablation (LLaMA-3, Split~A holdout). $-\mathcal{L}_\text{func}^\text{safe}$: classifier over-blocks safe prompts (accuracy drops). $-$Domain calibration: accuracy degrades on harder datasets without task-specific fingerprints.}
+	\caption{Component ablation (LLaMA-3, Split~A holdout). w/o $\mathcal{L}_\text{func}$: the classifier over-blocks safe prompts (accuracy drops). w/o $\mathcal{L}_\text{cls}$, $\mathcal{L}_\text{func}$: only the weight-reconstruction loss $\mathcal{L}_\text{recon}$ remains. w/o domain calibration: accuracy degrades on harder datasets without task-specific fingerprints.}
 	\label{tab:ablation_loss}
 \end{table}
-\section{{Detailed Training-Data Ablation (Table~\ref{tab:ablation_data})}}
+\section{Detailed Training-Data Ablation}
+\label{app:ablation_data}
 {This appendix section reports the full per-domain values corresponding to Figure~\ref{fig:ablation_summary}(b). Table~\ref{tab:ablation_data} shows that most category removals have limited effect on task accuracy and harmful rate, whereas removing instruction-following data produces a clear harmful-rate spike across all holdout domains.}
 
-\begin{table}[H]
+\begin{table}[htbp]
 	\centering
 	\small
 	\renewcommand{\arraystretch}{1.0}
@@ -222,24 +249,31 @@ WizardLM & Instruction & Free text & \textit{As an online platform teacher named
 		\toprule
 		& & \multicolumn{5}{c}{\textbf{Task Acc (\%) $\uparrow$}} & \textbf{Harm.} \\
 		\cmidrule(lr){3-7}
-		\textbf{Training Config} & \textbf{\#} & BoolQ & ARC & Math & Alpaca & \textbf{Avg.} & \textbf{Rate $\downarrow$} \\
+		\textbf{Training Config} & \textbf{\# train} & BoolQ & ARC & Math & Alpaca & \textbf{Avg.} & \textbf{Rate $\downarrow$} \\
 		\midrule
 		Full                          & 18 & 86.9 & 86.5 & 34.1 & 38.9 & 61.6 & 0.05\% \\
-		$-$Dialog \& chat             & 16 & 86.7 & 86.3 & 33.9 & 38.5 & 61.4 & 0.05\% \\
-		$-$Math \& code               & 15 & 86.8 & 86.5 & 33.4 & 38.6 & 61.3 & 0.08\% \\
-		$-$QA \& reading              & 15 & 86.1 & 85.7 & 34.0 & 38.2 & 61.0 & 0.15\% \\
-		$-$Instruction-following      & 12 & 86.8 & 86.4 & 33.8 & 38.7 & 61.4 & \textcolor{warnred}{4.88\%} \\
+		w/o math \& code               & 15 & 86.8 & 86.5 & 33.4 & 38.6 & 61.3 & 0.08\% \\
+		w/o QA \& reading              & 15 & 86.1 & 85.7 & 34.0 & 38.2 & 61.0 & 0.15\% \\
+		w/o instruction-following      & 12 & 86.8 & 86.4 & 33.8 & 38.7 & 61.4 & \textcolor{warnred}{4.88\%} \\
 		\bottomrule
 	\end{tabular}
-	\caption{Category exclusion ablation (LLaMA-3, Split~A holdout). Task accuracy is stable across all configurations. Removing instruction-following domains causes a $\sim$100$\times$ harmful-rate spike (0.05\%~$\to$~4.88\%); other categories are dispensable for safety.}
+	\caption{Category exclusion ablation (LLaMA-3, Split~A holdout). \# train: number of training datasets remaining (of 18) after removing the category. Task accuracy is stable across all configurations. Removing instruction-following domains causes a $\sim$100$\times$ harmful-rate spike (0.05\%~$\to$~4.88\%); other categories are dispensable for safety.}
 	\label{tab:ablation_data}
 \end{table}
 
 
-\section{{Detailed Calibration Set Size Sweep (Table~\ref{tab:ablation_ncal})}}
-{This appendix section reports the per-domain task accuracy values that underlie Figure~\ref{fig:ablation_ncal}. Table~\ref{tab:ablation_ncal} confirms that the gains saturate at $N_\text{cal}{=}50$ uniformly across BoolQ, ARC, Math, and Alpaca, while the harmful rate stays $\leq 0.4\%$ across the entire sweep.}
+\section{Calibration Set Size}
+\label{app:ncal}
+We sweep the number of calibration prompts $N_\text{cal}$ used to extract the activation fingerprint (Figure~\ref{fig:ablation_ncal}, Table~\ref{tab:ablation_ncal}). With too few prompts ($N_\text{cal}{=}10$), the fingerprint is noisy and the generated \ssn{} over-blocks safe prompts; accuracy improves up to $N_\text{cal}{=}50$ and plateaus beyond that, uniformly across BoolQ, ARC, Math, and Alpaca, while the harmful rate stays $\leq 0.4\%$ across the entire sweep. We use $N_\text{cal}{=}50$ as the default.
 
-\begin{table}[H]
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[width=0.55\linewidth]{figures/ablation_ncal.pdf}
+	\caption{Effect of calibration set size $N_\text{cal}$ (LLaMA-3, Split~A holdout). Average task accuracy saturates at $N_\text{cal}{=}50$ (our default) while the harmful rate stays near zero.}
+	\label{fig:ablation_ncal}
+\end{figure}
+
+\begin{table}[htbp]
 	\centering
 	\small
 	\renewcommand{\arraystretch}{1.0}
@@ -267,3 +301,287 @@ WizardLM & Instruction & Free text & \textit{As an online platform teacher named
 %& \textbf{default}
 %& saturated
 
+
+\section{Generalization to Full Fine-Tuning}
+\label{app:fullft}
+\ssn{}s generated for LoRA-merged checkpoints transfer unchanged to their fully fine-tuned counterparts (Table~\ref{tab:full_ft}): harmful rates drop to $\leq$0.1\% with task-accuracy deltas within 0.3 percentage points.
+
+\begin{table}[htbp]
+\caption{Generalization across fine-tuning methods (LLaMA-3-8B, BeaverTails harmful rate). The same \ssn{} (generated once for the LoRA-merged checkpoint) is reused on the full-FT counterpart. Fine-tuned baselines are grayed.}
+\label{tab:full_ft}
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}l l ccccc@{}}
+\toprule
+& \textbf{Method} & \textbf{BoolQ} & \textbf{CSenseQA} & \textbf{ARC} & \textbf{PIQA} & \textbf{Avg} \\
+\midrule
+\multirow{4}{*}{\textbf{Acc} $\uparrow$}
+ & \cellcolor{mutegray}\textit{LoRA FT} & \cellcolor{mutegray}87.2 & \cellcolor{mutegray}81.7 & \cellcolor{mutegray}86.5 & \cellcolor{mutegray}87.8 & \cellcolor{mutegray}85.8 \\
+ & LoRA + \method{}                     & 87.0 & 81.4 & 86.5 & 87.6 & 85.6 \\
+ & \cellcolor{mutegray}\textit{Full FT} & \cellcolor{mutegray}87.2 & \cellcolor{mutegray}81.1 & \cellcolor{mutegray}86.8 & \cellcolor{mutegray}87.5 & \cellcolor{mutegray}85.7 \\
+ & Full + \method{}                     & 87.0 & 80.8 & 86.8 & 87.2 & 85.5 \\
+\midrule
+\multirow{4}{*}{\textbf{Harm} $\downarrow$}
+ & \cellcolor{mutegray}\textit{LoRA FT} & \cellcolor{mutegray}18.6 & \cellcolor{mutegray}20.0 & \cellcolor{mutegray}8.6 & \cellcolor{mutegray}40.0 & \cellcolor{mutegray}21.8 \\
+ & LoRA + \method{}                     & 0.1 & 0.0 & 0.0 & 0.0 & 0.0 \\
+ & \cellcolor{mutegray}\textit{Full FT} & \cellcolor{mutegray}8.9 & \cellcolor{mutegray}10.6 & \cellcolor{mutegray}7.3 & \cellcolor{mutegray}31.4 & \cellcolor{mutegray}14.6 \\
+ & Full + \method{}                     & 0.1 & 0.0 & 0.0 & 0.1 & 0.1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Additional Results for the Shared \ssn{} Ablation}
+\label{app:shared}
+Table~\ref{tab:shared_full} reports per-domain values for Table~\ref{tab:shared}. One Shared \ssn{} is trained per architecture and split and applied unchanged to the four held-out checkpoints. Accuracy is evaluated per checkpoint. The Shared \ssn{}'s harmful rate is measured once per architecture and split, and is repeated across the four domain columns only to keep the paired format; the repeated values are not separate measurements. $\Delta$ is the \method{} average minus the Shared \ssn{} average (positive favors \method{} for accuracy, negative for harmful rates).
+
+\begin{table}[htbp]
+\centering
+\caption{Per-domain Shared \ssn{} ablation. Each cell: \method{} / Shared \ssn{}.}
+\label{tab:shared_full}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}llcccccc@{}}
+\toprule
+\multicolumn{8}{@{}l}{\textbf{Split A}} \\
+\textbf{Model} & \textbf{Metric} & BoolQ & ARC & Math & Alp & \textbf{Average} & $\Delta$ \\
+\midrule
+LLaMA-3-8B & Acc $\uparrow$ & 86.9 / 82.70 & 86.5 / 85.40 & 34.1 / 28.50 & 38.9 / 36.60 & 61.60 / 58.30 & +3.30 \\
+ & BT $\downarrow$ & 0.1 / 1.86 & 0.0 / 1.86 & 0.0 / 1.86 & 0.1 / 1.86 & 0.05 / 1.86 & $-$1.81 \\
+ & AB $\downarrow$ & 0.0 / 3.46 & 0.0 / 3.46 & 0.0 / 3.46 & 0.0 / 3.46 & 0.00 / 3.46 & $-$3.46 \\
+ & HX $\downarrow$ & 0.0 / 3.67 & 0.0 / 3.67 & 0.0 / 3.67 & 0.0 / 3.67 & 0.00 / 3.67 & $-$3.67 \\
+\addlinespace
+Qwen2-7B & Acc $\uparrow$ & 88.2 / 85.50 & 91.3 / 86.20 & 74.1 / 72.20 & 39.5 / 32.70 & 73.28 / 69.15 & +4.13 \\
+ & BT $\downarrow$ & 0.1 / 4.14 & 0.0 / 4.14 & 0.0 / 4.14 & 0.4 / 4.14 & 0.13 / 4.14 & $-$4.01 \\
+ & AB $\downarrow$ & 0.0 / 1.73 & 0.0 / 1.73 & 0.0 / 1.73 & 0.0 / 1.73 & 0.00 / 1.73 & $-$1.73 \\
+ & HX $\downarrow$ & 0.0 / 7.33 & 0.0 / 7.33 & 0.0 / 7.33 & 0.0 / 7.33 & 0.00 / 7.33 & $-$7.33 \\
+\addlinespace
+\midrule
+\multicolumn{8}{@{}l}{\textbf{Split B}} \\
+\textbf{Model} & \textbf{Metric} & PIQA & HSwag & CSQA & OH & \textbf{Average} & $\Delta$ \\
+\midrule
+LLaMA-3-8B & Acc $\uparrow$ & 87.7 / 80.20 & 89.1 / 87.30 & 81.5 / 75.30 & 54.6 / 51.20 & 78.23 / 73.50 & +4.73 \\
+ & BT $\downarrow$ & 0.0 / 0.14 & 0.1 / 0.14 & 0.0 / 0.14 & 0.0 / 0.14 & 0.03 / 0.14 & $-$0.11 \\
+ & AB $\downarrow$ & 0.0 / 6.15 & 0.0 / 6.15 & 0.0 / 6.15 & 0.0 / 6.15 & 0.00 / 6.15 & $-$6.15 \\
+ & HX $\downarrow$ & 0.0 / 2.67 & 0.3 / 2.67 & 0.0 / 2.67 & 0.0 / 2.67 & 0.08 / 2.67 & $-$2.59 \\
+\addlinespace
+Qwen2-7B & Acc $\uparrow$ & 90.6 / 87.30 & 92.8 / 91.90 & 84.5 / 77.10 & 57.0 / 54.90 & 81.23 / 77.80 & +3.43 \\
+ & BT $\downarrow$ & 0.0 / 11.71 & 0.1 / 11.71 & 0.0 / 11.71 & 0.1 / 11.71 & 0.05 / 11.71 & $-$11.66 \\
+ & AB $\downarrow$ & 0.0 / 14.81 & 0.0 / 14.81 & 0.0 / 14.81 & 0.0 / 14.81 & 0.00 / 14.81 & $-$14.81 \\
+ & HX $\downarrow$ & 0.0 / 15.00 & 0.3 / 15.00 & 0.0 / 15.00 & 0.1 / 15.00 & 0.10 / 15.00 & $-$14.90 \\
+\addlinespace
+\midrule
+\multicolumn{8}{@{}l}{\textbf{Split C}} \\
+\textbf{Model} & \textbf{Metric} & MMLU & NQ & AGN & Dol & \textbf{Average} & $\Delta$ \\
+\midrule
+LLaMA-3-8B & Acc $\uparrow$ & 61.0 / 60.20 & 77.1 / 69.00 & 90.6 / 88.10 & 34.4 / 30.20 & 65.78 / 61.88 & +3.90 \\
+ & BT $\downarrow$ & 0.0 / 0.14 & 0.4 / 0.14 & 0.0 / 0.14 & 0.1 / 0.14 & 0.13 / 0.14 & $-$0.01 \\
+ & AB $\downarrow$ & 0.0 / 5.00 & 0.0 / 5.00 & 0.0 / 5.00 & 0.0 / 5.00 & 0.00 / 5.00 & $-$5.00 \\
+ & HX $\downarrow$ & 0.0 / 3.00 & 0.0 / 3.00 & 0.0 / 3.00 & 0.0 / 3.00 & 0.00 / 3.00 & $-$3.00 \\
+\addlinespace
+Qwen2-7B & Acc $\uparrow$ & 68.4 / 63.80 & 54.3 / 52.80 & 97.6 / 89.20 & 35.4 / 32.20 & 63.93 / 59.50 & +4.43 \\
+ & BT $\downarrow$ & 0.1 / 5.86 & 0.6 / 5.86 & 0.0 / 5.86 & 0.3 / 5.86 & 0.25 / 5.86 & $-$5.61 \\
+ & AB $\downarrow$ & 0.0 / 2.50 & 0.0 / 2.50 & 0.0 / 2.50 & 0.0 / 2.50 & 0.00 / 2.50 & $-$2.50 \\
+ & HX $\downarrow$ & 0.3 / 8.00 & 0.7 / 8.00 & 0.0 / 8.00 & 0.0 / 8.00 & 0.25 / 8.00 & $-$7.75 \\
+\addlinespace
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Per-Domain Comparison with Weight-Modification Baselines}
+\label{app:posthoc}
+Tables~\ref{tab:antidote} and~\ref{tab:linmerge} give per-domain values for the Antidote and linear-merging rows of Table~\ref{tab:posthoc} (LLaMA-3-8B, Split~A). Antidote uses its one-shot Wanda-score pruning procedure with $\alpha{=}0.2$; linear merging interpolates the aligned base and fine-tuned weights with coefficient 0.5. The zero inference overhead of both methods excludes the one-time computation needed to prune or merge each checkpoint.
+
+\begin{table}[htbp]
+\centering
+\begin{minipage}[t]{\linewidth}
+\centering
+\caption{\method{} / Antidote ($\alpha{=}0.2$).}
+\label{tab:antidote}
+\small
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+ & BoolQ & ARC & Math & Alp & Avg \\
+\midrule
+Acc$\uparrow$ & 86.9/80.14 & 86.5/88.57 & 34.1/38.29 & 38.9/30.29 & 61.60/59.32 \\
+BT$\downarrow$ & 0.1/9.00 & 0.0/8.29 & 0.0/7.43 & 0.1/6.29 & 0.05/7.75 \\
+AB$\downarrow$ & 0.0/0.96 & 0.0/0.38 & 0.0/1.54 & 0.0/0.38 & 0.00/0.82 \\
+HX$\downarrow$ & 0.0/4.33 & 0.0/3.67 & 0.0/6.00 & 0.0/3.33 & 0.00/4.33 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\vspace{8pt}
+
+\begin{minipage}[t]{\linewidth}
+\centering
+\caption{\method{} / linear merging ($\lambda{=}0.5$).}
+\label{tab:linmerge}
+\small
+\setlength{\tabcolsep}{8pt}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+ & BoolQ & ARC & Math & Alp & Avg \\
+\midrule
+Acc$\uparrow$ & 86.9/89.71 & 86.5/88.43 & 34.1/38.43 & 38.9/34.86 & 61.60/62.86 \\
+BT$\downarrow$ & 0.1/9.71 & 0.0/7.86 & 0.0/8.29 & 0.1/11.43 & 0.05/9.32 \\
+AB$\downarrow$ & 0.0/1.54 & 0.0/0.96 & 0.0/1.54 & 0.0/0.96 & 0.00/1.25 \\
+HX$\downarrow$ & 0.0/4.33 & 0.0/3.00 & 0.0/6.67 & 0.0/8.67 & 0.00/5.67 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{table}
+
+Table~\ref{tab:overrefusal_all} lists over-refusal for all evaluated post-hoc systems, including SafeLoRA, which was evaluated on over-refusal only. SafeLoRA has the lowest benign-refusal rate on OR-Bench but also the lowest refusal rate on harmful prompts.
+
+\begin{table}[htbp]
+\centering
+\caption{Refusal rates (\%) on benign ($\downarrow$) and harmful ($\uparrow$) prompts (LLaMA-3-8B, Split~A).}
+\label{tab:overrefusal_all}
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+ & \multicolumn{2}{c}{\textbf{XSTest}} & \multicolumn{2}{c}{\textbf{OR-Bench}} \\
+\cmidrule(lr){2-3} \cmidrule(l){4-5}
+\textbf{System} & benign$\downarrow$ & unsafe$\uparrow$ & benign$\downarrow$ & toxic$\uparrow$ \\
+\midrule
+Aligned base model (LLaMA-3-8B-Instruct) & 5.2 & 95.0 & 53.7 & 97.0 \\
+Linear merging ($\lambda{=}0.5$) & 2.0 & 92.5 & 51.0 & 95.5 \\
+Antidote ($\alpha{=}0.2$)        & 3.2 & 93.5 & 53.0 & 95.5 \\
+SafeLoRA                         & 6.8 & 80.0 & 34.1 & 80.8 \\
+\method{} (ours)                 & 5.6 & 99.5 & 54.0 & 99.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Independent-Judge Evaluation}
+\label{app:judges}
+Table~\ref{tab:judges} reports \method{}'s harmful rates on the 12 held-out LLaMA-3-8B checkpoints under beaver-dam-7b and WildGuard. The judges disagree on which individual responses they flag, but split-level averages differ by at most 0.08 points, and the 12-checkpoint averages are identical on AdvBench and BeaverTails. Table~\ref{tab:judges_or} repeats the over-refusal evaluation under both judges; WildGuard yields slightly higher benign-refusal and slightly lower harmful-refusal rates, with a maximum difference of 1.67 points. OR-Bench produces high benign-refusal rates for most systems (53.7\% for the aligned base model), so we compare against the base model rather than reading the absolute rate in isolation.
+
+\begin{table}[htbp]
+\centering
+\begin{minipage}[t]{0.55\linewidth}
+\centering
+\caption{Harmful rate (\%) of \method{} on LLaMA-3-8B under two judges.}
+\label{tab:judges}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+\textbf{Bench.} & \textbf{Judge} & \textbf{A} & \textbf{B} & \textbf{C} & \textbf{All 12} \\
+\midrule
+BeaverTails & beaver-dam-7b & 0.05 & 0.03 & 0.13 & 0.07 \\
+            & WildGuard     & 0.05 & 0.05 & 0.10 & 0.07 \\
+AdvBench    & beaver-dam-7b & 0.00 & 0.00 & 0.00 & 0.00 \\
+            & WildGuard     & 0.00 & 0.00 & 0.00 & 0.00 \\
+HEx-PHI     & beaver-dam-7b & 0.00 & 0.08 & 0.00 & 0.03 \\
+            & WildGuard     & 0.08 & 0.00 & 0.08 & 0.05 \\
+\bottomrule
+\end{tabular}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.42\linewidth}
+\centering
+\caption{\method{} refusal rates (\%) under two judges (LLaMA-3-8B, Split~A).}
+\label{tab:judges_or}
+\scriptsize
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+ & \multicolumn{2}{c}{\textbf{XSTest}} & \multicolumn{2}{c}{\textbf{OR-Bench}} \\
+\textbf{Judge} & ben.$\downarrow$ & uns.$\uparrow$ & ben.$\downarrow$ & tox.$\uparrow$ \\
+\midrule
+beaver-dam & 5.60 & 99.50 & 54.00 & 99.00 \\
+WildGuard  & 6.40 & 99.00 & 55.67 & 98.67 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{table}
+
+\section{Training and Inference Cost}
+\label{app:cost}
+All stages were run on a single A100 80GB GPU. Meta-training is a one-time cost per backbone family, paid by the provider that trains the hypernetwork: LoRA fine-tuning of the 18 training-domain checkpoints, ground-truth \ssn{} training for each (3 epochs over $\sim$7k BeaverTails harmful prompts plus in-domain safe prompts), and hypernetwork training ($\sim$230M parameters, 100 epochs). Table~\ref{tab:cost} reports the measured cost for LLaMA-3-8B, excluding LoRA fine-tuning. Per released checkpoint, a practitioner runs $N_\text{cal}{=}50$ calibration prompts through the checkpoint, one hypernetwork forward pass, and loads the generated \ssn{}; end to end this takes under one minute and needs no gradients, safety data, or weight modification. At inference, the \ssn{} adds 3.41\%, 3.42\%, and 3.45\% FLOPs at 128, 256, and 512 prompt tokens (1.791 to 1.852 TFLOPs at 128 tokens). Latency is paid once per prompt at scoring time (Table~\ref{tab:latency}); safe prompts then decode with the unmodified backbone. Table~\ref{tab:overhead} compares the added inference overhead of all methods.
+
+\begin{table}[htbp]
+\centering
+\begin{minipage}[t]{\linewidth}
+\centering
+\caption{Meta-training and deployment cost (LLaMA-3-8B, one A100).}
+\label{tab:cost}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Stage} & \textbf{Cost} & \textbf{Frequency} \\
+\midrule
+GT \ssn{} training & 1.40 GPU-h $\times$ 18 = 25.2 h & one-time \\
+Hypernetwork training & 0.4 GPU-h & one-time \\
+\textit{Subtotal} & \textit{25.6 GPU-h} & one-time \\
+\midrule
+Hypernetwork pass & $\sim$1.4 s & per checkpoint \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\vspace{8pt}
+
+\begin{minipage}[t]{\linewidth}
+\centering
+\caption{Per-prompt latency at the median prompt length (LLaMA-3-8B).}
+\label{tab:latency}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Domain} & \textbf{Tok.} & \textbf{Backbone} & \textbf{+\ssn{}} & $\Delta$ \\
+\midrule
+BoolQ   & 126 & 29.28 ms & 43.77 ms & +14.49 \\
+NQ-Open & 26  & 28.43 ms & 40.14 ms & +11.71 \\
+SQuAD   & 181 & 36.00 ms & 46.26 ms & +10.26 \\
+\bottomrule
+\end{tabular}
+\end{minipage}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Added inference overhead on LLaMA-3-8B (one A100), relative to running the fine-tuned model alone. Zero overhead for weight-modification methods excludes the one-time computation to modify each checkpoint.}
+\label{tab:overhead}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lccl@{}}
+\toprule
+\textbf{Method} & \textbf{Added FLOPs} & \textbf{Added latency} & \textbf{Added memory} \\
+\midrule
+Linear merging, Antidote, SafeLoRA & 0\% & 0 ms & 0 \\
+\method{} \ssn{} (ours) & +3.4\% & +10--15 ms & +1--2 MB act., +3--4\% params \\
+Llama Guard 3 & +244\% & +59 ms & +16.2 GB \\
+WildGuard & +175\% & +388 ms & +14.6 GB \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Hypernetwork Training Stability}
+\label{app:seeds}
+We hold the 18 fine-tuned checkpoints and their ground-truth \ssn{}s fixed and retrain the hypernetwork end to end under three random seeds (LLaMA-3-8B, Split~A), evaluating on the same four held-out checkpoints (Table~\ref{tab:seeds}). The accuracy standard deviation is at most 0.69 points and no seed exceeds a 0.14\% harmful rate. We did not repeat LoRA fine-tuning or ground-truth \ssn{} training across seeds.
+
+\begin{table}[htbp]
+\centering
+\caption{\method{} across three hypernetwork-training seeds (LLaMA-3-8B, Split~A). AdvBench and HEx-PHI harmful rates are 0.00 for every seed and domain.}
+\label{tab:seeds}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+\textbf{Dataset} & \textbf{Metric} & \textbf{Seed 42} & \textbf{Seed 43} & \textbf{Seed 44} & \textbf{Mean $\pm$ SD} \\
+\midrule
+BoolQ      & Acc $\uparrow$ & 86.30 & 87.52 & 86.91 & 86.91 $\pm$ 0.61 \\
+           & BT $\downarrow$ & 0.00 & 0.00 & 0.14 & 0.05 $\pm$ 0.08 \\
+ARC        & Acc $\uparrow$ & 86.09 & 87.03 & 86.43 & 86.52 $\pm$ 0.48 \\
+           & BT $\downarrow$ & 0.00 & 0.00 & 0.00 & 0.00 $\pm$ 0.00 \\
+Comp.\ Math & Acc $\uparrow$ & 33.53 & 34.87 & 33.93 & 34.11 $\pm$ 0.69 \\
+           & BT $\downarrow$ & 0.00 & 0.00 & 0.00 & 0.00 $\pm$ 0.00 \\
+Alpaca     & Acc $\uparrow$ & 38.20 & 39.50 & 39.01 & 38.90 $\pm$ 0.66 \\
+           & BT $\downarrow$ & 0.00 & 0.14 & 0.14 & 0.09 $\pm$ 0.08 \\
+\bottomrule
+\end{tabular}
+\end{table}

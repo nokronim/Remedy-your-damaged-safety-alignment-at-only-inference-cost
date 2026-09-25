@@ -39,16 +39,15 @@ mpl.rcParams.update({
 # Source rows: (name, [per-domain accuracies], harm rate -- scalar or list).
 loss_rows = [
     ("Full system",                                          [86.9, 86.5, 34.1, 38.9], 0.1),
-    (r"w/o $\mathcal{L}_{\mathrm{func}}^{\mathrm{safe}}$",   [68.3, 71.2, 28.6, 27.5], 0.0),
-    (r"w/o $\mathcal{L}_{\mathrm{func}}$",                   [84.2, 85.8, 33.6, 36.1], 0.6),
-    (r"w/o Domain calib.",                                   [84.4, 85.7, 33.5, 36.8], 0.3),
+    (r"w/o $\mathcal{L}_{\mathrm{func}}$",   [68.3, 71.2, 28.6, 27.5], 0.0),
+    (r"w/o $\mathcal{L}_{\mathrm{cls}}$, $\mathcal{L}_{\mathrm{func}}$",                  [84.2, 85.8, 33.6, 36.1], 0.6),
+    (r"w/o domain calib.",                                   [84.4, 85.7, 33.5, 36.8], 0.3),
 ]
 data_rows = [
     ("Full (18)",                  [86.9, 86.5, 34.1, 38.9], [0.1, 0.0, 0.0, 0.1]),
-    (r"w/o Dialog (16)",           [86.7, 86.3, 33.9, 38.5], [0.1, 0.0, 0.0, 0.1]),
-    (r"w/o Math/code (15)",        [86.8, 86.5, 33.4, 38.6], [0.1, 0.0, 0.1, 0.1]),
+    (r"w/o math/code (15)",        [86.8, 86.5, 33.4, 38.6], [0.1, 0.0, 0.1, 0.1]),
     (r"w/o QA/read (15)",          [86.1, 85.7, 34.0, 38.2], [0.3, 0.1, 0.0, 0.2]),
-    (r"w/o Instruction (12)",      [86.8, 86.4, 33.8, 38.7], [6.3, 3.1, 1.7, 8.4]),
+    (r"w/o instruction (12)",      [86.8, 86.4, 33.8, 38.7], [6.3, 3.1, 1.7, 8.4]),
 ]
 
 

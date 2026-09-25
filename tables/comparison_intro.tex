@@ -1,24 +1,22 @@
-% Comparison with existing defenses --- moved from Experiments to Introduction
-% to motivate \method{}'s positioning early in the paper.
 \begin{table}[t]
-\caption{Comparison with existing defenses against fine-tuning-induced safety degradation. \emph{Setup cost per checkpoint}: compute to deploy on each new fine-tuned model. \emph{Model-aware}: tailored to the target rather than a one-size-fits-all classifier. \emph{Preserves model weights}: deployed weights kept unchanged. \emph{Standalone at deploy}: requires only the fine-tuned model at inference, no aligned base $\mathcal{M}_0$. \method{} is the only approach that satisfies all four.}
+\caption{Comparison with existing defenses against fine-tuning-induced safety degradation. \emph{Per-checkpoint cost}: work required for each new fine-tuned model (one-time costs such as guard-model training or \method{}'s meta-training are excluded). \emph{Model-aware}: tailored to the target checkpoint. \emph{Weights kept}: deployed weights unchanged. \emph{No $\mathcal{M}_0$}: the aligned base model is not needed at deployment.}
 \label{tab:comparison}
 \centering
-% \renewcommand{\arraystretch}{1.25}
-\resizebox{0.8\columnwidth}{!}{%
-\begin{tabular}{@{}lcccc@{}}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{}llccc@{}}
 \toprule
-\textbf{Method} & \textbf{Setup cost} & \textbf{Model-} & \textbf{Preserves} & \textbf{Standalone} \\
-                & \textbf{per checkpoint} & \textbf{aware}  & \textbf{model weights} & \textbf{at deploy} \\
+\textbf{Method} & \textbf{Per-checkpoint cost} & \textbf{Model-aware} & \textbf{Weights kept} & \textbf{No $\mathcal{M}_0$} \\
 \midrule
-Vaccine~\citep{yi2024vaccine}             & full train     &  \checkmark &  $\times$  &  \checkmark \\
-SafeInstr~\cite{bianchi2024safetytuned}  & partial train  &  \checkmark &  $\times$  &  \checkmark \\
-Safe LoRA~\cite{hsu2024safe}             & projection     &  \checkmark &  $\times$  &  $\times$    \\
-OneShot~\cite{zhang2026safety}           & 1-example SFT  &  \checkmark &  $\times$  &  \checkmark  \\
-Llama Guard 4~\cite{meta2025llama4}      & none           &  $\times$   &  \checkmark &  \checkmark  \\
+Vaccine~\citep{huang2024vaccine}               & full training            & \checkmark & $\times$   & \checkmark \\
+SafeInstr~\citep{bianchi2024safetytuned}       & partial training         & \checkmark & $\times$   & \checkmark \\
+Safe LoRA~\citep{hsu2024safe}                  & projection               & \checkmark & $\times$   & $\times$ \\
+Linear merging~\citep{farn2025safeguard}       & interpolation            & \checkmark & $\times$   & $\times$ \\
+Antidote~\citep{huang2025antidote}             & pruning (safety data)    & \checkmark & $\times$   & \checkmark \\
+OneShot~\citep{zhang2026safety}                & 1-example SFT            & \checkmark & $\times$   & \checkmark \\
+Llama Guard 4~\citep{meta2025llama4}           & none                     & $\times$   & \checkmark & \checkmark \\
 \midrule
-\textbf{\method{} (ours)}                & 1 fwd pass     &  \checkmark &  \checkmark &  \checkmark  \\
+\textbf{\method{} (ours)}                      & 1 hypernet.\ forward pass & \checkmark & \checkmark & \checkmark \\
 \bottomrule
-\end{tabular}%
-}
+\end{tabular}
 \end{table}

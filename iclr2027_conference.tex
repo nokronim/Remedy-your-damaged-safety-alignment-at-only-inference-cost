@@ -1,0 +1,39 @@
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2027_conference,times}
+
+\input{preamble}
+\newcommand{\method}{HyperSafe}
+\newcommand{\ssn}{SSN}
+\newcommand{\lam}{\lambda}
+\newcommand{\remark}[1]{{\color{red}\textbf{[#1]}}}
+
+\title{HyperSafe: Inference-Time Safety Recovery for Fine-Tuned Language Models}
+
+% Authors must not appear in the submitted version. They are hidden as long as
+% \iclrfinalcopy remains commented out below.
+\author{Anonymous authors}
+
+%\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+\begin{document}
+
+\raggedbottom
+\setlength{\floatsep}{6pt plus 1pt minus 1pt}
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+
+\maketitle
+
+\input{sec/0_abstract}
+\input{sec/1_introduction}
+\input{sec/2_related_works}
+\input{sec/3_method}
+\input{sec/4_experiments}
+\input{sec/5_conclusions}
+\input{sec/statements}
+
+\bibliography{custom}
+\bibliographystyle{iclr2027_conference}
+
+\clearpage
+\input{sec/6_appendix}
+
+\end{document}
