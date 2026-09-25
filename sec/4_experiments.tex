@@ -72,7 +72,7 @@ DAN templates          & 500  & 88.4 & 99.8 & 100.0 \\
 \end{minipage}
 \end{table}
 
-\mysection{Guard models and judge dependence.} Llama Guard 4 (12B) misses 6.5\% of AdvBench and 6.7\% of HEx-PHI prompts, while \method{}'s harmful rates are at most 0.05\% (Table~\ref{tab:llamaguard}). The two judges flag different responses, but split-level averages differ by at most 0.08 points, and refusal rates by at most 1.7 (Appendix~\ref{app:judges}). The judge is not saturated: it assigns 19--31\% to undefended checkpoints and up to 6.6\% on average to OneShot.
+\mysection{Guard models and judge dependence.} Llama Guard 4 (12B), used off the shelf as a deployment baseline and not trained on our data, misses 6.5\% of AdvBench and 6.7\% of HEx-PHI prompts, while \method{}'s harmful rates are at most 0.05\% (Table~\ref{tab:llamaguard}). The two judges flag different responses, but split-level averages differ by at most 0.08 points, and refusal rates by at most 1.7 (Appendix~\ref{app:judges}). The judge is not saturated: it assigns 19--31\% to undefended checkpoints and up to 6.6\% on average to OneShot.
 
 \subsection{Robustness to Prompt Transformations}
 \label{sec:robust}
