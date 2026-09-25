@@ -40,7 +40,7 @@ mpl.rcParams.update({
 loss_rows = [
     ("Full system",                                          [86.9, 86.5, 34.1, 38.9], 0.1),
     (r"w/o $\mathcal{L}_{\mathrm{func}}$",   [68.3, 71.2, 28.6, 27.5], 0.0),
-    (r"w/o $\mathcal{L}_{\mathrm{cls}}$, $\mathcal{L}_{\mathrm{func}}$",                  [84.2, 85.8, 33.6, 36.1], 0.6),
+    (r"w/o $\mathcal{L}_{\mathrm{cls}}$",                  [84.2, 85.8, 33.6, 36.1], 0.6),
     (r"w/o domain calib.",                                   [84.4, 85.7, 33.5, 36.8], 0.3),
 ]
 data_rows = [
