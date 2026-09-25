@@ -318,7 +318,7 @@ We sweep the number of calibration prompts $N_\text{cal}$ used to extract the ac
 
 \section{Generalization to Full Fine-Tuning}
 \label{app:fullft}
-\ssn{}s generated for LoRA-merged checkpoints transfer unchanged to their fully fine-tuned counterparts (Table~\ref{tab:full_ft}): harmful rates drop to $\leq$0.1\% with task-accuracy deltas within 0.3 percentage points.
+\ssn{}s generated for LoRA-merged checkpoints transfer unchanged to their fully fine-tuned counterparts (Table~\ref{tab:full_ft}): harmful rates drop to $\leq$0.1\% with task-accuracy deltas within 0.4 percentage points.
 
 \begin{table}[htbp]
 \caption{Generalization across fine-tuning methods (LLaMA-3-8B, BeaverTails harmful rate). The same \ssn{} (generated once for the LoRA-merged checkpoint) is reused on the full-FT counterpart. Fine-tuned baselines are grayed.}
@@ -339,7 +339,7 @@ We sweep the number of calibration prompts $N_\text{cal}$ used to extract the ac
 \multirow{4}{*}{\textbf{Harm} \(\downarrow\)}
  & \cellcolor{mutegray}\textit{LoRA FT} & \cellcolor{mutegray}9.7 & \cellcolor{mutegray}17.7 & \cellcolor{mutegray}41.7 & \cellcolor{mutegray}37.7 & \cellcolor{mutegray}26.7 \\
  & LoRA + \method{}                     & 0.1 & 0.0 & 0.0 & 0.0 & 0.0 \\
- & \cellcolor{mutegray}\textit{Full FT} & \cellcolor{mutegray}8.9 & \cellcolor{mutegray}10.6 & \cellcolor{mutegray}32.1 & \cellcolor{mutegray}31.4 & \cellcolor{mutegray}14.6 \\
+ & \cellcolor{mutegray}\textit{Full FT} & \cellcolor{mutegray}8.9 & \cellcolor{mutegray}10.6 & \cellcolor{mutegray}32.1 & \cellcolor{mutegray}31.4 & \cellcolor{mutegray}20.8 \\
  & Full + \method{}                     & 0.1 & 0.0 & 0.0 & 0.1 & 0.1 \\
 \bottomrule
 \end{tabular}
