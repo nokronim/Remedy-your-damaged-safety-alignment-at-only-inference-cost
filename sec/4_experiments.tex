@@ -18,7 +18,7 @@ Fine-tuning raises the average harmful rate from under 5\% (base) to 19--31\% (T
 \subsection{Is the Hypernetwork Necessary?}
 \label{sec:shared}
 
-We first ask whether a single \ssn{} could replace the hypernetwork. For each architecture and split, we train one \emph{Shared \ssn{}} on all 18 training checkpoints with the same architecture, initialization, loss, data, and budget as the ground-truth \ssn{}s. It reads each target checkpoint's activations, but its weights are not generated from the fingerprint.
+Could a single \ssn{} replace the hypernetwork? For each architecture and split, we train one \emph{Shared \ssn{}} on all 18 training checkpoints with the same architecture, initialization, loss, data, and budget as the ground-truth \ssn{}s. It reads each target checkpoint's activations, but its weights are not generated from the fingerprint.
 
 \input{tables/shared_ssn}
 
