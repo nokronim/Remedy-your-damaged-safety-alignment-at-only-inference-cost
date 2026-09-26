@@ -39,7 +39,7 @@ Table~\ref{tab:shared} shows that \method{} is better in all 24 architecture--sp
 \centering
 \begin{minipage}[t]{0.52\linewidth}
 \centering
-\caption{Harmful rate (\%, $\downarrow$) on LLaMA-3-8B. Llama Guard 4: its own miss rate. \method{}: mean over the 12 held-out checkpoints under two judges (std $\leq$ 0.10).}
+\caption{Harmful rate (\%) on LLaMA-3-8B: Llama Guard 4 miss rate vs.\ \method{} (mean of 12 checkpoints, std $\leq$0.10).}
 \label{tab:llamaguard}
 \footnotesize
 \setlength{\tabcolsep}{3pt}
@@ -56,7 +56,7 @@ Llama Guard 4 & -- & 6.5 & 6.7 & 53.6 \\
 \end{minipage}\hfill
 \begin{minipage}[t]{0.45\linewidth}
 \centering
-\caption{Detection rate (\%, $\uparrow$) of harmful prompts after transformation (LLaMA-3-8B, BoolQ checkpoint).}
+\caption{Detection rate (\%) of transformed harmful prompts (LLaMA-3-8B, BoolQ).}
 \label{tab:robust}
 \footnotesize
 \setlength{\tabcolsep}{2pt}
@@ -74,13 +74,11 @@ DAN templates          & 500  & 88.4 & 99.8 & 100.0 \\
 
 \mysection{Guard models and judge dependence.} Llama Guard 4 (12B), used off the shelf and not trained on our data, misses 6.5\% of AdvBench and 6.7\% of HEx-PHI prompts, versus $\leq$0.05\% harmful for \method{} (Table~\ref{tab:llamaguard}). The two judges' split-level averages differ by $\leq$0.08 points and refusal rates by $\leq$1.7 (Appendix~\ref{app:judges}), and the judge is not saturated: it gives 19--31\% to undefended checkpoints.
 
-\subsection{Robustness to Prompt Transformations}
-\label{sec:robust}
-
-Although trained only on directly phrased harmful prompts, \method{} detects 99.0\% of plain JailbreakBench requests and 92.2\% of WildJailbreak adversarial paraphrases, 40.6 points above Llama Guard 3 and 4.7 below the adversarially trained WildGuard (Table~\ref{tab:robust}). DAN-style role-play templates, which we pair with JailbreakBench behaviors, remain the most challenging setting (88.4\%), where both dedicated guards perform better.
-
-\subsection{Ablation Studies}
+\subsection{Robustness and Ablation Studies}
 \label{sec:ablations}
-\mysection{Loss components and training data} (LLaMA-3-8B, Split~A; Appendix~\ref{app:ablation_loss}). Removing $\mathcal{L}_\text{func}$ causes the classifier to over-block safe prompts, reducing accuracy across all domains; removing $\mathcal{L}_\text{cls}$ degrades both accuracy and safety; without domain-specific calibration prompts, the fingerprint is less discriminative and accuracy drops on harder domains. Excluding a whole task category from training (Appendix~\ref{app:ablation_data}) changes accuracy by at most 0.6 points, and removing QA or math/code data keeps the harmful rate $\leq$0.15\%; removing the six instruction-following datasets, however, raises it from 0.05\% to 4.88\%, suggesting that instruction-following checkpoints are the most important training data for safety.
+\label{sec:robust}
+\mysection{Robustness to prompt transformations.} Although trained only on directly phrased harmful prompts, \method{} detects 99.0\% of plain JailbreakBench requests and 92.2\% of WildJailbreak adversarial paraphrases, 40.6 points above Llama Guard 3 and 4.7 below the adversarially trained WildGuard (Table~\ref{tab:robust}). DAN-style role-play templates, which we pair with JailbreakBench behaviors, remain the most challenging setting (88.4\%), where both dedicated guards perform better.
 
-\mysection{Calibration size and fine-tuning method.} Accuracy saturates at $N_\text{cal}{=}50$ with harmful rates $\leq$0.4\% throughout (Appendix~\ref{app:ncal}), and \ssn{}s generated for LoRA checkpoints transfer to fully fine-tuned ones (Appendix~\ref{app:fullft}).
+\mysection{Loss components and training data} (LLaMA-3-8B, Split~A; Appendix~\ref{app:ablation_loss}). Removing $\mathcal{L}_\text{func}$ causes the classifier to over-block safe prompts, reducing accuracy across all domains; removing $\mathcal{L}_\text{cls}$ degrades both accuracy and safety; without domain-specific calibration prompts, the fingerprint is less discriminative and accuracy drops on harder domains. Excluding a task category from training (Appendix~\ref{app:ablation_data}) changes accuracy by $\leq$0.6 points, and harmful rates stay $\leq$0.15\% unless the six instruction-following datasets are removed (0.05\% $\to$ 4.88\%), suggesting these checkpoints matter most for safety.
+
+\mysection{Calibration size and fine-tuning method.} The fingerprint must be estimated from enough prompts to be stable: with only $N_\text{cal}{=}10$, the generated \ssn{} over-blocks safe prompts and average accuracy drops to 58.7 (vs.\ 61.6), whereas accuracy saturates at $N_\text{cal}{=}50$ and the harmful rate stays $\leq$0.4\% from 10 to 200 prompts (Appendix~\ref{app:ncal}). We therefore use 50 prompts. Finally, \ssn{}s generated from the fingerprints of LoRA-merged checkpoints can be applied unchanged to their fully fine-tuned counterparts, lowering harmful rates to $\leq$0.1\% with accuracy changes within 0.4 points (Appendix~\ref{app:fullft}), which suggests that the fingerprint reflects safety-relevant shifts rather than LoRA-specific artifacts.
