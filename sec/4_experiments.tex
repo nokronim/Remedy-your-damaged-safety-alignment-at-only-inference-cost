@@ -22,14 +22,14 @@ Could a single \ssn{} replace the hypernetwork? For each architecture and split,
 
 \input{tables/shared_ssn}
 
-Table~\ref{tab:shared} shows that \method{} is better in all 24 architecture--split--metric comparisons (the closest is LLaMA-3-8B, Split~C, BeaverTails: 0.13 vs.\ 0.14). The Shared \ssn{} costs 3.3--4.7 accuracy points, consistent with a fixed decision boundary over-blocking some checkpoints, and still leaves up to 15.0\% harmful responses (Qwen2-7B, Split~B, HEx-PHI). Fingerprint-conditioned generation thus accounts for a substantial part of \method{}'s gains and held-out generalization. We attribute its transfer to unseen domains to the fact that fine-tuning on very different tasks degrades the same safety benchmarks (Table~\ref{tab:main_results}), consistent with safety relying on shared components~\citep{qi2024finetuning,wei2024assessing}: the fingerprint captures safety-relevant shifts rather than task identity. We claim generalization only to the held-out domains tested. Training an \ssn{} directly per checkpoint, which is how we obtain the supervision targets, costs 1.4 GPU-hours with safety data per checkpoint versus a 1.4\,s hypernetwork pass.
+Table~\ref{tab:shared} shows that \method{} is better in all 24 architecture--split--metric comparisons (the closest is LLaMA-3-8B, Split~C, BeaverTails: 0.13 vs.\ 0.14). The Shared \ssn{} costs 3.3--4.7 accuracy points, consistent with a fixed decision boundary over-blocking some checkpoints, and still leaves up to 15.0\% harmful responses (Qwen2-7B, Split~B, HEx-PHI). Fingerprint-conditioned generation thus accounts for a substantial part of \method{}'s gains and held-out generalization. We attribute its transfer to unseen domains to the fact that fine-tuning on very different tasks degrades the same safety benchmarks (Table~\ref{tab:main_results}), consistent with safety relying on shared components~\citep{qi2024finetuning,wei2024assessing}: the fingerprint captures safety-relevant shifts rather than task identity. Our evidence covers the held-out domains tested here. Training an \ssn{} directly per checkpoint, which is how we obtain the supervision targets, costs 1.4 GPU-hours with safety data per checkpoint versus a 1.4\,s hypernetwork pass.
 
 \subsection{Comparison with Post-hoc Defenses and Guard Models}
 \label{sec:posthoc}
 
 \input{tables/posthoc}
 
-\mysection{Weight-modification baselines.} Antidote and linear merging keep accuracy close to the fine-tuned model (59.3 and 62.9 vs.\ 61.7 undefended; Table~\ref{tab:posthoc}) at no inference cost, but leave 7.8--9.3\% harmful responses on BeaverTails and 4.3--5.7\% on HEx-PHI, compared with at most 0.1\% for \method{}. Linear merging attains the highest accuracy, so the utility cost of weight modification depends on the method and operating point. With one setting per baseline, these results show a favorable operating point for \method{}, not dominance over each baseline's full trade-off curve.
+\mysection{Weight-modification baselines.} Antidote and linear merging keep accuracy close to the fine-tuned model (59.3 and 62.9 vs.\ 61.7 undefended; Table~\ref{tab:posthoc}) at no inference cost, but leave 7.8--9.3\% harmful responses on BeaverTails and 4.3--5.7\% on HEx-PHI, compared with at most 0.1\% for \method{}. Linear merging attains the highest accuracy, so the utility cost of weight modification depends on the method and operating point. Since each baseline is evaluated at one setting, these results characterize a favorable operating point for \method{} rather than a comparison of full trade-off curves.
 
 \mysection{Over-refusal.} On XSTest and OR-Bench, \method{}'s benign-refusal rates are within 0.4 and 0.3 points of the aligned base model, while it refuses more genuinely harmful prompts (99.5\% and 99.0\% vs.\ 95.0\% and 97.0\%). Linear merging and Antidote refuse fewer benign but also fewer harmful prompts; SafeLoRA refuses only 80.8\% of OR-Bench toxic prompts (Appendix~\ref{app:posthoc}).
 
@@ -77,7 +77,7 @@ DAN templates          & 500  & 88.4 & 99.8 & 100.0 \\
 \subsection{Robustness to Prompt Transformations}
 \label{sec:robust}
 
-Although trained only on directly phrased harmful prompts, \method{} detects 99.0\% of plain JailbreakBench requests and 92.2\% of WildJailbreak adversarial paraphrases, 40.6 points above Llama Guard 3 and 4.7 below the adversarially trained WildGuard (Table~\ref{tab:robust}). DAN-style role-play templates, which we pair with JailbreakBench behaviors, are its weakest setting (88.4\%), where both guards are stronger.
+Although trained only on directly phrased harmful prompts, \method{} detects 99.0\% of plain JailbreakBench requests and 92.2\% of WildJailbreak adversarial paraphrases, 40.6 points above Llama Guard 3 and 4.7 below the adversarially trained WildGuard (Table~\ref{tab:robust}). DAN-style role-play templates, which we pair with JailbreakBench behaviors, remain the most challenging setting (88.4\%), where both dedicated guards perform better.
 
 \subsection{Ablation Studies}
 \label{sec:ablations}
