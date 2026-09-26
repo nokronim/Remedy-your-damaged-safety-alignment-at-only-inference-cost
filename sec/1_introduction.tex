@@ -6,22 +6,23 @@ Fine-tuning safety-aligned LLMs is a common way to adapt them to downstream task
 Existing defenses fall into three families (Section~\ref{sec:related_works}; Table~\ref{tab:comparison}). \emph{Fine-tuning-stage} methods constrain task adaptation, but require control over the fine-tuning process and cannot be applied to checkpoints that have already been released. \emph{Post-fine-tuning weight-modification} methods repair a released checkpoint by projecting, pruning, or merging its weights. Some need the aligned base model at deployment, and their safety--utility balance depends on the method and its operating point. In our experiments, OneShot SFT~\citep{zhang2026safety} lowers average task accuracy by 15.3 points on LLaMA-3-8B, while Antidote~\citep{huang2025antidote} and linear merging~\citep{farn2025safeguard} maintain accuracy within approximately two points of the fine-tuned model but retain 4--9\% harmful responses on BeaverTails and HEx-PHI (Section~\ref{sec:posthoc}). \emph{Model-agnostic guard classifiers}~\citep{inan2023llama,han2024wildguard} leave the model untouched, but are not tailored to how a given checkpoint was adapted and run a separate multi-billion-parameter model on every prompt.
 
 \noindent\begin{minipage}{\linewidth}
-\setlength{\parindent}{1em}\indent Based on these limitations, we ask the following question:
+\setlength{\parindent}{0em}\indent Based on these limitations, we ask the following question:
 \begin{quote}
 \textit{Can we recover the safety behavior of the original aligned model for a given fine-tuned checkpoint using a model-specific lightweight post-hoc method, without retraining, modifying the deployed weights, or degrading downstream task performance?}
 \end{quote}
 \end{minipage}
 
-Such a method should not need control over fine-tuning, should not modify the deployed weights, and should be specific to the checkpoint. We therefore attach a lightweight \emph{Safe Side Network} (\ssn{}) that runs alongside the frozen model and decides whether to answer or refuse, and use a hypernetwork to generate its weights from the checkpoint's activation fingerprints, so no \ssn{} has to be trained per checkpoint.
-
-\input{tables/comparison_intro}
+Such a method should work without control over fine-tuning, leave the deployed weights unchanged, and be specific to the checkpoint. We attach a small \emph{Safe Side Network} (\ssn{}) that runs alongside the frozen model and decides whether to answer or refuse, and use a hypernetwork to generate its weights from the checkpoint's activation fingerprints, avoiding per-checkpoint \ssn{} training.
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.92\textwidth]{figures/assets/safety_remedy_figure.pdf}
-\caption{\method{} pipeline. \textbf{Stages 1--3 (training, one-time per backbone family):} fine-tune the base model on each training domain (1), train a domain-specific \ssn{} per fine-tuned checkpoint (2), and train the hypernetwork to map activation fingerprints to \ssn{} weights (3). \textbf{Stage 4 (deployment, per checkpoint):} for any new fine-tuned model, extract calibration activations and generate a model-specific \ssn{} in a single forward pass.}
+\includegraphics[width=0.92\linewidth]{figures/assets/safety_remedy_figure.pdf}
+% \caption{\method{} pipeline. Stages 1--3 (training, one-time per backbone family): fine-tune the base model on each training domain (1), train a domain-specific \ssn{} per fine-tuned checkpoint (2), and train the hypernetwork to map activation fingerprints to \ssn{} weights (3). Stage 4 (deployment, per checkpoint): for any new fine-tuned model, extract calibration activations and generate a model-specific \ssn{} in a single forward pass.}
+\caption{\method{} pipeline. Training (one-time per backbone family): (1)~fine-tune the base model on each training domain, (2)~train a domain-specific \ssn{} per fine-tuned checkpoint, and (3)~train the hypernetwork to map activation fingerprints to \ssn{} weights. Deployment (per checkpoint): (4)~extract calibration activations and generate a model-specific \ssn{} in a single forward pass.}
 \label{fig:pipeline}
 \end{figure*}
+
+\input{tables/comparison_intro}
 
 We propose \method{} (Figure~\ref{fig:pipeline}). Given a fine-tuned checkpoint, it extracts layer-wise activation fingerprints from a small set of calibration prompts, generates the \ssn{} weights with one hypernetwork forward pass, and attaches the \ssn{} to the frozen model; prompts scored as harmful are routed to a refusal, and all others are answered by the original model. \method{} is thus checkpoint-specific, post-hoc, and non-invasive. Training the hypernetwork is a one-time cost per backbone family that requires safety data; deploying on each new checkpoint requires neither.
 
