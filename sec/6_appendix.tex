@@ -167,7 +167,7 @@ Dim 512 (def.)& 86.9 & 86.5 & 34.1 & 38.9 & 0.1 \\
 Dim 1024      & 87.1 & 86.6 & 34.1 & 39.0 & 0.1 \\
 \bottomrule
 \end{tabular}
-\captionof{table}{Architecture sensitivity (LLaMA-3, Split~A). Lower capacity degrades accuracy; higher shows marginal gains. Safety robust across all configs.}
+\captionof{table}{Architecture sensitivity (LLaMA-3, Split~A). Lower capacity degrades accuracy; higher shows marginal gains. Safety is robust across all configurations.}
 \label{tab:ablation_arch}
 \end{minipage}
 \end{center}
@@ -252,7 +252,7 @@ WizardLM & Instruction & Free text & \textit{As an online platform teacher named
 \end{table}
 \section{Detailed Training-Data Ablation}
 \label{app:ablation_data}
-{This appendix section reports the full per-domain values corresponding to Figure~\ref{fig:ablation_summary}(b). Table~\ref{tab:ablation_data} shows that most category removals have limited effect on task accuracy and harmful rate, whereas removing instruction-following data produces a clear harmful-rate spike across all holdout domains.}
+{This appendix section reports the full per-domain values corresponding to Figure~\ref{fig:ablation_summary}(b). Table~\ref{tab:ablation_data} shows that most category removals have limited effect on task accuracy and harmful rate, whereas removing instruction-following data produces a clear harmful-rate spike.}
 
 \begin{table}[htbp]
 	\centering
