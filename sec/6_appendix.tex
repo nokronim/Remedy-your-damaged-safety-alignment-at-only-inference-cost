@@ -404,7 +404,7 @@ Qwen2-7B & Acc $\uparrow$ & 68.4 / 63.80 & 54.3 / 52.80 & 97.6 / 89.20 & 35.4 / 
 
 \section{Per-Domain Comparison with Weight-Modification Baselines}
 \label{app:posthoc}
-Tables~\ref{tab:antidote} and~\ref{tab:linmerge} give per-domain values for the Antidote and linear-merging rows of Table~\ref{tab:posthoc} (LLaMA-3-8B, Split~A). Antidote uses its one-shot Wanda-score pruning procedure with $\alpha{=}0.2$; linear merging interpolates the aligned base and fine-tuned weights with coefficient 0.5. The zero inference overhead of both methods excludes the one-time computation needed to prune or merge each checkpoint.
+Tables~\ref{tab:antidote} and~\ref{tab:linmerge} report per-domain values for the Antidote and linear-merging rows of Table~\ref{tab:posthoc} (LLaMA-3-8B, Split~A). Antidote uses its one-shot Wanda-score pruning procedure with $\alpha{=}0.2$; linear merging interpolates the aligned base and fine-tuned weights with coefficient 0.5. The zero inference overhead of both methods excludes the one-time computation needed to prune or merge each checkpoint.
 
 \begin{table}[htbp]
 \centering
